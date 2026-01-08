@@ -9,7 +9,9 @@
       "Bash(npm run format:*)",
       "Bash(npx shadcn@latest init)",
       "Bash(npx shadcn@latest add button card badge table input form label select sheet dialog)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }
