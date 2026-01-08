@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String       @id @default(cuid())
+  clerkId        String       @unique
+  email          String       @unique
+  firstName      String?
+  lastName       String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model Organization {
+  id         String     @id @default(cuid())
+  name       String
+  type       String     @default("clinic") // clinic, medspa, etc.
+  users      User[]
+  categories Category[]
+  items      Item[]
+  settings   Settings?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("organizations")
+}
+
+model Settings {
+  id                    String       @id @default(cuid())
+  organizationId        String       @unique
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  expirationWarningDays Int          @default(30)
+  lowStockThreshold     Int          @default(5)
+  currency              String       @default("USD")
+  timezone              String       @default("UTC")
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@map("settings")
+}
+
+model Category {
+  id             String       @id @default(cuid())
+  name           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items          Item[]
+  createdAt      DateTime     @default(now())
+
+  @@unique([organizationId, name])
+  @@map("categories")
+}
+
+model Item {
+  id               String       @id @default(cuid())
+  name             String
+  sku              String?
+  categoryId       String
+  category         Category     @relation(fields: [categoryId], references: [id])
+  quantity         Int
+  unitCost         Decimal      @db.Decimal(10, 2)
+  expirationDate   DateTime
+  reorderThreshold Int
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("items")
+}
