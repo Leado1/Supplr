@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -74,7 +74,7 @@ model Item {
   categoryId       String
   category         Category     @relation(fields: [categoryId], references: [id])
   quantity         Int
-  unitCost         Decimal      @db.Decimal(10, 2)
+  unitCost         Decimal
   expirationDate   DateTime
   reorderThreshold Int
   organizationId   String
