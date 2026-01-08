@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir /s \"d:\\\\Supplr\")",
+      "Bash(npx create-next-app:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run format:*)",
+      "Bash(npx shadcn@latest init)",
+      "Bash(npx shadcn@latest add button card badge table input form label select sheet dialog)",
+      "Bash(git add:*)"
+    ]
+  }
+}
