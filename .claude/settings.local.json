@@ -14,7 +14,13 @@
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
       "Bash(taskkill:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npm run db:generate:*)",
+      "Bash(set DATABASE_URL=postgresql://supplr_db_user:plZ50O2CKtAu6B8QaduATq30r44v1iu8@dpg-d5fjsi3uibrs73dtgi8g-a.virginia-postgres.render.com/supplr_db)",
+      "Bash($env:DATABASE_URL=\"postgresql://supplr_db_user:plZ50O2CKtAu6B8QaduATq30r44v1iu8@dpg-d5fjsi3uibrs73dtgi8g-a.virginia-postgres.render.com/supplr_db\")",
+      "Bash(export DATABASE_URL:*)",
+      "Bash(npm run db:seed:*)"
     ]
   }
 }
