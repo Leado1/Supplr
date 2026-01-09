@@ -104,6 +104,36 @@ async function main() {
 
   console.log(`✅ Created ${categories.length} categories`);
 
+  // Create subscription for organization
+  const subscription = await prisma.subscription.upsert({
+    where: { organizationId: organization.id },
+    update: {},
+    create: {
+      organizationId: organization.id,
+      plan: "trial",
+      itemLimit: 5,
+      isActive: true,
+      status: "active",
+    },
+  });
+
+  console.log(`✅ Created subscription for organization`);
+
+  // Create a sample user (you can replace this Clerk ID with your actual one)
+  const user = await prisma.user.upsert({
+    where: { clerkId: "sample-clerk-id" },
+    update: {},
+    create: {
+      clerkId: "sample-clerk-id",
+      email: "demo@supplr.com",
+      firstName: "Demo",
+      lastName: "User",
+      organizationId: organization.id,
+    },
+  });
+
+  console.log(`✅ Created sample user: ${user.email}`);
+
   // Create sample inventory items
   const today = new Date();
   const nextMonth = new Date();

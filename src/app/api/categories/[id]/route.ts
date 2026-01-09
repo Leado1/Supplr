@@ -1,34 +1,22 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { getUserOrganization, verifyCategoryOwnership } from "@/lib/auth-helpers";
 
 // DELETE /api/categories/[id] - Delete a category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const { id: categoryId } = await params;
 
-    const categoryId = params.id;
-
-    // Check if category exists
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
-      include: {
-        _count: {
-          select: { items: true }
-        }
-      }
-    });
-
-    if (!existingCategory) {
-      return NextResponse.json({ message: "Category not found" }, { status: 404 });
-    }
+    // Verify category ownership - CRITICAL SECURITY CHECK
+    const { error: categoryError, category: existingCategory } = await verifyCategoryOwnership(categoryId, organization!.id);
+    if (categoryError) return categoryError;
 
     // Check if category has items
     if (existingCategory._count.items > 0) {

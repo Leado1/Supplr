@@ -121,6 +121,34 @@ export default function InventoryPage() {
     await fetchInventoryData(); // Refresh the data
   };
 
+  const handleQuantityChange = async (item: ItemWithStatus, newQuantity: number) => {
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quantity: newQuantity,
+        }),
+      });
+
+      if (response.ok) {
+        // Update the local state immediately for better UX
+        setItems(prevItems =>
+          prevItems.map(i =>
+            i.id === item.id ? { ...i, quantity: newQuantity } : i
+          )
+        );
+      } else {
+        alert("Failed to update quantity");
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      alert("Error updating quantity");
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto space-y-8 p-6">
@@ -157,7 +185,6 @@ export default function InventoryPage() {
         onSearchChange={(search) => setFilters({ ...filters, search })}
         onStatusFilter={(status) => setFilters({ ...filters, status })}
         onCategoryFilter={(categoryId) => setFilters({ ...filters, categoryId })}
-        onAddItem={handleAddItem}
         searchValue={filters.search}
         statusFilter={filters.status}
         categoryFilter={filters.categoryId}
@@ -204,6 +231,7 @@ export default function InventoryPage() {
           items={filteredItems}
           onEditItem={handleEditItem}
           onDeleteItem={handleDeleteItem}
+          onQuantityChange={handleQuantityChange}
         />
       </div>
 

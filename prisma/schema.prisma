@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -28,15 +28,16 @@ model User {
 }
 
 model Organization {
-  id         String     @id @default(cuid())
-  name       String
-  type       String     @default("clinic") // clinic, medspa, etc.
-  users      User[]
-  categories Category[]
-  items      Item[]
-  settings   Settings?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  type         String        @default("clinic") // clinic, medspa, etc.
+  users        User[]
+  categories   Category[]
+  items        Item[]
+  settings     Settings?
+  subscription Subscription?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("organizations")
 }
@@ -83,4 +84,29 @@ model Item {
   updatedAt        DateTime     @updatedAt
 
   @@map("items")
+}
+
+model Subscription {
+  id                 String       @id @default(cuid())
+  organizationId     String       @unique
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Stripe fields
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // Subscription details
+  plan               String       @default("trial") // trial, starter, professional, enterprise
+  status             String       @default("trialing") // trialing, active, canceled, incomplete, past_due
+  itemLimit          Int          @default(5) // Number of items allowed
+  isActive           Boolean      @default(true)
+  trialEndsAt        DateTime?
+  canceledAt         DateTime?
+
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@map("subscriptions")
 }

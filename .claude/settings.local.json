@@ -21,7 +21,14 @@
       "Bash($env:DATABASE_URL=\"postgresql://supplr_db_user:plZ50O2CKtAu6B8QaduATq30r44v1iu8@dpg-d5fjsi3uibrs73dtgi8g-a.virginia-postgres.render.com/supplr_db\")",
       "Bash(export DATABASE_URL:*)",
       "Bash(npm run db:seed:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(npx next dev:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(netstat:*)"
     ]
   }
 }

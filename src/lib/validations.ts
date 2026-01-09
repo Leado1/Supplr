@@ -47,7 +47,7 @@ export const inventoryFiltersSchema = z.object({
 // User and organization schemas
 export const createOrganizationSchema = z.object({
   name: z.string().min(1, "Organization name is required").max(100, "Organization name too long"),
-  type: z.enum(["clinic", "medspa", "practice", "hospital", "other"]).default("clinic"),
+  type: z.enum(["clinic", "medspa", "dentist", "practice", "hospital", "other"]).default("clinic"),
 });
 
 export const createUserSchema = z.object({

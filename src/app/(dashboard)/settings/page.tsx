@@ -217,6 +217,7 @@ export default function SettingsPage() {
                 <SelectContent>
                   <SelectItem value="clinic">Medical Clinic</SelectItem>
                   <SelectItem value="medspa">Medical Spa</SelectItem>
+                  <SelectItem value="dentist">Dental Practice</SelectItem>
                   <SelectItem value="practice">Private Practice</SelectItem>
                   <SelectItem value="hospital">Hospital</SelectItem>
                   <SelectItem value="other">Other</SelectItem>

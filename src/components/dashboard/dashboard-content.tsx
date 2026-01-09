@@ -7,16 +7,12 @@ import { Filters } from "@/components/dashboard/filters";
 import { Button } from "@/components/ui/button";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
 import type { InventoryStatus } from "@/types/inventory";
-
-interface SimplifiedCategory {
-    id: string;
-    name: string;
-}
+import type { Category } from "@prisma/client";
 
 interface DashboardContentProps {
     organizationName: string;
     items: ItemWithStatus[];
-    categories: SimplifiedCategory[];
+    categories: Category[];
     summary: InventorySummary;
 }
 

@@ -17,12 +17,14 @@ interface InventoryTableProps {
   items: ItemWithStatus[];
   onEditItem?: (item: ItemWithStatus) => void;
   onDeleteItem?: (item: ItemWithStatus) => void;
+  onQuantityChange?: (item: ItemWithStatus, newQuantity: number) => void;
 }
 
 export function InventoryTable({
   items,
   onEditItem,
   onDeleteItem,
+  onQuantityChange,
 }: InventoryTableProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -106,9 +108,36 @@ export function InventoryTable({
                   <Badge variant="outline">{item.category.name}</Badge>
                 </TableCell>
                 <TableCell>
-                  <span className={`font-medium ${item.quantity <= item.reorderThreshold ? 'text-orange-600' : ''}`}>
-                    {item.quantity}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    {onQuantityChange && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onQuantityChange(item, Math.max(0, item.quantity - 1))}
+                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-700"
+                        disabled={item.quantity <= 0}
+                      >
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
+                      </Button>
+                    )}
+                    <span className={`font-medium min-w-[2rem] text-center ${item.quantity <= item.reorderThreshold ? 'text-orange-600' : ''}`}>
+                      {item.quantity}
+                    </span>
+                    {onQuantityChange && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onQuantityChange(item, item.quantity + 1)}
+                        className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-700"
+                      >
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>{formatCurrency(Number(item.unitCost))}</TableCell>
                 <TableCell className="font-medium">

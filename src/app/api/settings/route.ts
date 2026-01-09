@@ -1,31 +1,22 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { updateOrganizationSettingsSchema } from "@/lib/validations";
+import { getUserOrganization } from "@/lib/auth-helpers";
 
 // GET /api/settings - Get organization and settings
 export async function GET() {
   try {
-    const { userId } = await auth();
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get the first organization (for MVP)
-    const organization = await prisma.organization.findFirst({
-      include: {
-        settings: true,
-      },
-    });
-
-    if (!organization || !organization.settings) {
-      return NextResponse.json({ message: "Organization or settings not found" }, { status: 404 });
+    if (!organization!.settings) {
+      return NextResponse.json({ message: "Settings not found" }, { status: 404 });
     }
 
     return NextResponse.json({
       organization,
-      settings: organization.settings,
+      settings: organization!.settings,
     });
   } catch (error) {
     console.error("Error fetching settings:", error);
@@ -39,24 +30,11 @@ export async function GET() {
 // PUT /api/settings - Update organization and settings
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
     const body = await request.json();
-
-    // Get the first organization (for MVP)
-    const organization = await prisma.organization.findFirst({
-      include: {
-        settings: true,
-      },
-    });
-
-    if (!organization) {
-      return NextResponse.json({ message: "Organization not found" }, { status: 404 });
-    }
 
     // Validate settings input
     const settingsData = {
@@ -70,14 +48,14 @@ export async function PUT(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { message: "Invalid data", errors: validationResult.error.errors },
+        { message: "Invalid data", errors: validationResult.error.issues },
         { status: 400 }
       );
     }
 
     // Update organization
     const updatedOrganization = await prisma.organization.update({
-      where: { id: organization.id },
+      where: { id: organization!.id },
       data: {
         name: body.organizationName,
         type: body.organizationType,
@@ -86,7 +64,7 @@ export async function PUT(request: NextRequest) {
 
     // Update settings
     const updatedSettings = await prisma.settings.update({
-      where: { organizationId: organization.id },
+      where: { organizationId: organization!.id },
       data: validationResult.data,
     });
 

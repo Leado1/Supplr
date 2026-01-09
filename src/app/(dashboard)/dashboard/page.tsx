@@ -1,50 +1,38 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { addStatusToItems, calculateInventorySummary } from "@/lib/inventory-status";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { Button } from "@/components/ui/button";
+import { getUserOrganization } from "@/lib/auth-helpers";
 
 export default async function DashboardPage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
   try {
-    // For now, let's just use the existing seeded data instead of creating users dynamically
-    // In a production app, you'd get the actual user data from Clerk and sync with database
-    const existingOrg = await prisma.organization.findFirst({
-      include: {
-        settings: true,
-        users: true,
-        categories: true,
-      },
-    });
+    // Get user's organization with security checks
+    const { error: orgError, organization: existingOrg } = await getUserOrganization();
+    if (orgError) {
+      redirect("/sign-in");
+    }
 
     if (!existingOrg) {
       throw new Error("No organization found. Please run database seed first.");
     }
 
-    // Fetch all inventory data for the organization
-    const [items, categories, settings] = await Promise.all([
-      prisma.item.findMany({
-        where: { organizationId: existingOrg.id },
-        include: {
-          category: true,
-          organization: true,
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.category.findMany({
-        where: { organizationId: existingOrg.id },
-        orderBy: { name: "asc" },
-      }),
-      prisma.settings.findUnique({
-        where: { organizationId: existingOrg.id },
-      }),
-    ]);
+    // Use the organization data we already have (includes settings and categories)
+    const items = await prisma.item.findMany({
+      where: { organizationId: existingOrg.id },
+      include: {
+        category: true,
+        organization: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const categories = await prisma.category.findMany({
+      where: { organizationId: existingOrg.id },
+      orderBy: { name: "asc" },
+    });
+
+    const settings = existingOrg.settings;
 
     // Add status to items and calculate summary
     const itemsWithStatus = addStatusToItems(items, settings!);
@@ -66,6 +54,8 @@ export default async function DashboardPage() {
     const serializedCategories = categories.map((cat) => ({
       id: cat.id,
       name: cat.name,
+      createdAt: cat.createdAt,
+      organizationId: cat.organizationId,
     }));
 
     return (

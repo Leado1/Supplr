@@ -1,28 +1,19 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createCategorySchema } from "@/lib/validations";
+import { getUserOrganization } from "@/lib/auth-helpers";
 
 // GET /api/categories - Get all categories for the organization
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    // Get the first organization (for MVP, we'll use the seeded one)
-    const organization = await prisma.organization.findFirst();
-
-    if (!organization) {
-      return NextResponse.json({ message: "No organization found" }, { status: 404 });
-    }
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
     // Fetch all categories for the organization
     const categories = await prisma.category.findMany({
       where: {
-        organizationId: organization.id,
+        organizationId: organization!.id,
       },
       orderBy: {
         name: "asc",
@@ -42,11 +33,9 @@ export async function GET() {
 // POST /api/categories - Create a new category
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
     const body = await request.json();
 
@@ -55,23 +44,16 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { message: "Invalid data", errors: validationResult.error.errors },
+        { message: "Invalid data", errors: validationResult.error.issues },
         { status: 400 }
       );
-    }
-
-    // Get the first organization (for MVP)
-    const organization = await prisma.organization.findFirst();
-
-    if (!organization) {
-      return NextResponse.json({ message: "No organization found" }, { status: 404 });
     }
 
     // Check if category already exists
     const existingCategory = await prisma.category.findUnique({
       where: {
         organizationId_name: {
-          organizationId: organization.id,
+          organizationId: organization!.id,
           name: validationResult.data.name,
         },
       },
@@ -88,7 +70,7 @@ export async function POST(request: NextRequest) {
     const category = await prisma.category.create({
       data: {
         name: validationResult.data.name,
-        organizationId: organization.id,
+        organizationId: organization!.id,
       },
     });
 

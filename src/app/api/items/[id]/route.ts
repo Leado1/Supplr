@@ -1,32 +1,30 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { updateItemSchema } from "@/lib/validations";
+import { z } from "zod";
+import { getUserOrganization, verifyItemOwnership } from "@/lib/auth-helpers";
+
+// Schema for partial updates (like quantity)
+const partialUpdateSchema = z.object({
+  quantity: z.number().int().min(0).optional(),
+});
 
 // PUT /api/items/[id] - Update an item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
     const body = await request.json();
-    const itemId = params.id;
+    const { id: itemId } = await params;
 
-    // Check if item exists and get organization
-    const existingItem = await prisma.item.findUnique({
-      where: { id: itemId },
-      include: { organization: true },
-    });
-
-    if (!existingItem) {
-      return NextResponse.json({ message: "Item not found" }, { status: 404 });
-    }
+    // Verify item ownership - CRITICAL SECURITY CHECK
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    if (itemError) return itemError;
 
     // Prepare update data
     const updateData: any = {
@@ -43,7 +41,7 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { message: "Invalid data", errors: validationResult.error.errors },
+        { message: "Invalid data", errors: validationResult.error.issues },
         { status: 400 }
       );
     }
@@ -71,28 +69,68 @@ export async function PUT(
   }
 }
 
+// PATCH /api/items/[id] - Partial update (for quick quantity changes)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
+
+    const body = await request.json();
+    const { id: itemId } = await params;
+
+    // Validate the partial update data
+    const validationResult = partialUpdateSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { message: "Invalid data", errors: validationResult.error.issues },
+        { status: 400 }
+      );
+    }
+
+    // Verify item ownership - CRITICAL SECURITY CHECK
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    if (itemError) return itemError;
+
+    // Update only the provided fields
+    const updatedItem = await prisma.item.update({
+      where: { id: itemId },
+      data: validationResult.data,
+      include: {
+        category: true,
+        organization: true,
+      },
+    });
+
+    return NextResponse.json(updatedItem);
+  } catch (error) {
+    console.error("Error updating item quantity:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/items/[id] - Delete an item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
+    // Get user's organization with security checks
+    const { error: orgError, organization } = await getUserOrganization();
+    if (orgError) return orgError;
 
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const { id: itemId } = await params;
 
-    const itemId = params.id;
-
-    // Check if item exists
-    const existingItem = await prisma.item.findUnique({
-      where: { id: itemId },
-    });
-
-    if (!existingItem) {
-      return NextResponse.json({ message: "Item not found" }, { status: 404 });
-    }
+    // Verify item ownership - CRITICAL SECURITY CHECK
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    if (itemError) return itemError;
 
     // Delete the item
     await prisma.item.delete({
