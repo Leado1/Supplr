@@ -171,12 +171,25 @@ export default function SettingsPage() {
 
       const response = await fetch("/api/notifications/test", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          notificationEmail: notificationSettings.notificationEmail,
+          smsEnabled: notificationSettings.smsNotifications,
+          phone: notificationSettings.notificationPhone,
+          carrier: notificationSettings.smsCarrier,
+        }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        alert(`Test notifications sent successfully!\n\nEmails sent: ${result.details.emailsSent}\nSMS sent: ${result.details.smsSent}\n\nCheck your email for notifications about any inventory alerts.`);
+        const emailTarget = notificationSettings.notificationEmail?.trim()
+          ? notificationSettings.notificationEmail
+          : "your account email";
+
+        alert(`Test notifications sent successfully!\n\nEmails sent: ${result.details.emailsSent}\nSMS sent: ${result.details.smsSent}\n\nCheck ${emailTarget} for notifications about any inventory alerts.`);
       } else {
         alert(`Failed to send test notifications: ${result.error}`);
       }

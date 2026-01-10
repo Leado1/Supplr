@@ -11,14 +11,62 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get notification settings from request body
+    const body = await request.json();
+    const { notificationEmail, smsEnabled, phone, carrier } = body || {};
+
     // Get user's organization
     const { error: authError, organization } = await getUserOrganization();
     if (authError || !organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
-    // Send notifications for this organization
-    const result = await sendInventoryNotifications(organization.id);
+    // Import notification functions
+    const { getInventoryAlerts, sendEmailAlert, sendSMSAlert } = await import("@/lib/notifications");
+
+    // Get alerts for this organization
+    const alerts = await getInventoryAlerts(organization.id);
+
+    if (alerts.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: "No inventory alerts to send - your inventory is all good!",
+        details: { emailsSent: 0, smsSent: 0, errors: [] },
+      });
+    }
+
+    let emailsSent = 0;
+    let smsSent = 0;
+    const errors: string[] = [];
+
+    // Send email notification
+    try {
+      // Use custom email if provided, otherwise fall back to user's Clerk email
+      const targetEmail = notificationEmail && notificationEmail.trim()
+        ? notificationEmail.trim()
+        : organization.users[0]?.email;
+
+      if (targetEmail) {
+        const emailSuccess = await sendEmailAlert(targetEmail, alerts, organization.name);
+        if (emailSuccess) emailsSent++;
+      } else {
+        errors.push("No email address available");
+      }
+    } catch (error) {
+      errors.push(`Email failed: ${error}`);
+    }
+
+    // Send SMS notification if enabled
+    if (smsEnabled && phone && carrier) {
+      try {
+        const smsSuccess = await sendSMSAlert(phone, alerts, organization.name, carrier);
+        if (smsSuccess) smsSent++;
+      } catch (error) {
+        errors.push(`SMS failed: ${error}`);
+      }
+    }
+
+    const result = { success: true, emailsSent, smsSent, errors };
 
     return NextResponse.json({
       success: result.success,
