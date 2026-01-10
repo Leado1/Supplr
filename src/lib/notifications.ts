@@ -4,7 +4,7 @@ import { addDays, format, isAfter, isBefore } from "date-fns";
 
 // Email transporter using existing configuration
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || "127.0.0.1",
     port: parseInt(process.env.SMTP_PORT || "1025"),
     secure: process.env.SMTP_SECURE === "true",
@@ -301,7 +301,7 @@ export async function sendEmailAlert(
     const html = generateEmailHTML(alerts, organizationName);
 
     await transporter.sendMail({
-      from: `"Supplr Alerts" <${process.env.SMTP_USER}>`,
+      from: `"Supplr Alerts" <noreply@supplr.net>`,
       to: email,
       subject,
       html,
@@ -340,7 +340,7 @@ export async function sendSMSAlert(
     const message = generateSMSText(alerts, organizationName);
 
     await transporter.sendMail({
-      from: process.env.SMTP_USER,
+      from: "noreply@supplr.net",
       to: smsEmail,
       subject: "", // SMS doesn't need subject
       text: message,
