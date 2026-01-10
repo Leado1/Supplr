@@ -58,7 +58,14 @@ export default function InventoryPage() {
 
     // Apply status filter
     if (filters.status && filters.status !== "all") {
-      filtered = filtered.filter(item => item.status === filters.status);
+      if (filters.status === "ok") {
+        // "In Stock" should show items with any quantity > 0
+        filtered = filtered.filter(item =>
+          item.quantity > 0 && (item.status === "ok" || item.status === "low_stock")
+        );
+      } else {
+        filtered = filtered.filter(item => item.status === filters.status);
+      }
     }
 
     // Apply category filter

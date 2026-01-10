@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Building2, Stethoscope, Sparkles, Users } from "lucide-react";
+import Image from "next/image";
 
 export default function UseCasesPage() {
 
@@ -14,15 +14,13 @@ export default function UseCasesPage() {
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold" style={{ fontFamily: 'Neue Haas Grotesk, sans-serif' }}>
-                Supplr
-              </span>
+              <img src="/images/supplr123.png" alt="Supplr" className="h-8 w-auto" />
             </Link>
 
             {/* Navigation Tabs */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Product
+                Home
               </Link>
               <Link href="/use-cases" className="text-sm font-medium text-foreground">
                 Use Cases
@@ -82,8 +80,15 @@ export default function UseCasesPage() {
               <Card className="relative overflow-hidden border-2 border-primary/20">
                 <CardHeader className="pb-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Sparkles className="h-6 w-6 text-primary" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl overflow-hidden">
+                      <Image
+                        src="/images/spa-stones.gif"
+                        alt="Medical Spa Icon"
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     </div>
                     <div>
                       <CardTitle className="text-2xl">Medical Spas & Aesthetics</CardTitle>
@@ -121,8 +126,15 @@ export default function UseCasesPage() {
               <Card className="relative overflow-hidden border-2 border-blue-100 dark:border-blue-900/30">
                 <CardHeader className="pb-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                      <Stethoscope className="h-6 w-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl overflow-hidden">
+                      <Image
+                        src="/images/stethoscope.gif"
+                        alt="Dental Practice Icon"
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     </div>
                     <div>
                       <CardTitle className="text-2xl">Dental Practices</CardTitle>
@@ -160,8 +172,15 @@ export default function UseCasesPage() {
               <Card className="relative overflow-hidden border-2 border-purple-100 dark:border-purple-900/30">
                 <CardHeader className="pb-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                      <Building2 className="h-6 w-6 text-purple-600" />
+                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl overflow-hidden">
+                      <Image
+                        src="/images/first-aid-kit.gif"
+                        alt="Plastic Surgery Clinic Icon"
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     </div>
                     <div>
                       <CardTitle className="text-2xl">Plastic Surgery Clinics</CardTitle>
@@ -199,8 +218,15 @@ export default function UseCasesPage() {
               <Card className="relative overflow-hidden border-2 border-amber-100 dark:border-amber-900/30">
                 <CardHeader className="pb-6">
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                      <Users className="h-6 w-6 text-amber-600" />
+                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl overflow-hidden">
+                      <Image
+                        src="/images/overpopulation.gif"
+                        alt="Multi-Location Chain Icon"
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
                     </div>
                     <div>
                       <CardTitle className="text-2xl">Multi-Location Chains</CardTitle>

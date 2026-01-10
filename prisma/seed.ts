@@ -24,7 +24,7 @@ async function main() {
     update: {},
     create: {
       organizationId: organization.id,
-      expirationWarningDays: 30,
+      expirationWarningDays: 7, // Only items expiring within 7 days are "expiring_soon"
       lowStockThreshold: 5,
       currency: "USD",
       timezone: "UTC",
@@ -138,8 +138,12 @@ async function main() {
   const today = new Date();
   const nextMonth = new Date();
   nextMonth.setMonth(today.getMonth() + 1);
+  const nextSixMonths = new Date();
+  nextSixMonths.setMonth(today.getMonth() + 6);
   const nextWeek = new Date();
   nextWeek.setDate(today.getDate() + 7);
+  const nextThreeDays = new Date();
+  nextThreeDays.setDate(today.getDate() + 3);
   const lastMonth = new Date();
   lastMonth.setMonth(today.getMonth() - 1);
 
@@ -153,7 +157,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 12,
         unitCost: 450.00,
-        expirationDate: nextMonth,
+        expirationDate: nextSixMonths, // Good status - plenty of stock and time
         reorderThreshold: 5,
       },
     }),
@@ -165,7 +169,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 3,
         unitCost: 320.00,
-        expirationDate: nextWeek, // Expiring soon
+        expirationDate: nextThreeDays, // Expiring soon (within 7 days)
         reorderThreshold: 5,
       },
     }),
@@ -189,7 +193,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 8,
         unitCost: 75.00,
-        expirationDate: nextMonth,
+        expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 10,
       },
     }),
@@ -201,7 +205,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 15,
         unitCost: 65.00,
-        expirationDate: nextMonth,
+        expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 20,
       },
     }),
@@ -214,7 +218,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 4, // Low stock
         unitCost: 1.50,
-        expirationDate: nextMonth,
+        expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 50,
       },
     }),
@@ -225,7 +229,7 @@ async function main() {
         organizationId: organization.id,
         quantity: 25,
         unitCost: 12.00,
-        expirationDate: nextMonth,
+        expirationDate: nextSixMonths, // Good stock
         reorderThreshold: 10,
       },
     }),

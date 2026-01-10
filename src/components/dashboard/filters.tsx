@@ -35,7 +35,7 @@ export function Filters({
 }: FiltersProps) {
   const statusOptions = [
     { value: "all", label: "All Items" },
-    { value: "ok", label: "In Stock" },
+    { value: "ok", label: "In Stock (Qty > 0)" },
     { value: "low_stock", label: "Low Stock" },
     { value: "expiring_soon", label: "Expiring Soon" },
     { value: "expired", label: "Expired" },

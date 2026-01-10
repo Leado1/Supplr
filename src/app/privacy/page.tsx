@@ -13,15 +13,13 @@ export default function PrivacyPolicyPage() {
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold" style={{ fontFamily: 'Neue Haas Grotesk, sans-serif' }}>
-                Supplr
-              </span>
+              <img src="/images/supplr123.png" alt="Supplr" className="h-8 w-auto" />
             </Link>
 
             {/* Navigation Tabs */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Product
+                Home
               </Link>
               <Link href="/use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Use Cases

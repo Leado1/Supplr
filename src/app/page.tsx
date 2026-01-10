@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import Image from "next/image";
 import { Check, Star, Shield, TrendingUp, AlertTriangle, Calculator } from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { ROICalculator } from "@/components/roi-calculator";
@@ -35,7 +36,7 @@ export default async function HomePage() {
             {/* Navigation Tabs */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link href="/" className="text-sm font-medium text-foreground">
-                Product
+                Home
               </Link>
               <Link href="/use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Use Cases
@@ -96,8 +97,7 @@ export default async function HomePage() {
             </h1>
 
             <p className="mx-auto mb-12 max-w-2xl text-xl md:text-2xl text-muted-foreground leading-relaxed">
-              Supplr gives medical practices a simple, visual dashboard to track inventory,
-              prevent waste, and save thousands on expired Botox, fillers, and supplies.
+              Stop losing thousands to expired inventory. Track, optimize, and protect your medical supplies with intelligent alerts and insights that keep your practice profitable.
             </p>
 
             <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-16">
@@ -169,8 +169,15 @@ export default async function HomePage() {
             <div className="grid md:grid-cols-3 gap-8">
               {/* Benefit 1 */}
               <div className="text-center">
-                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-                  <Calculator className="h-10 w-10 text-primary" />
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/abacus.gif"
+                    alt="Save Money Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Save $47k Annually</h3>
                 <p className="text-muted-foreground">
@@ -180,8 +187,15 @@ export default async function HomePage() {
 
               {/* Benefit 2 */}
               <div className="text-center">
-                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-                  <AlertTriangle className="h-10 w-10 text-primary" />
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/notification.gif"
+                    alt="Notification Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Never Run Out</h3>
                 <p className="text-muted-foreground">
@@ -191,8 +205,15 @@ export default async function HomePage() {
 
               {/* Benefit 3 */}
               <div className="text-center">
-                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-                  <Shield className="h-10 w-10 text-primary" />
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/shield.gif"
+                    alt="Security Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Stay Compliant</h3>
                 <p className="text-muted-foreground">
@@ -235,7 +256,6 @@ export default async function HomePage() {
                     </div>
                     <div>
                       <div className="font-medium">Dr. Sarah Chen</div>
-                      <div className="text-sm text-muted-foreground">Glow Medical Spa</div>
                     </div>
                   </div>
                 </CardContent>
@@ -259,7 +279,6 @@ export default async function HomePage() {
                     </div>
                     <div>
                       <div className="font-medium">Maria Rodriguez</div>
-                      <div className="text-sm text-muted-foreground">Elite Aesthetics</div>
                     </div>
                   </div>
                 </CardContent>

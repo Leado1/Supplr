@@ -30,7 +30,9 @@
       "Bash(find:*)",
       "Bash(netstat:*)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(curl:*)",
+      "Bash(cmd /c \"taskkill /F /PID 61836\")"
     ]
   }
 }

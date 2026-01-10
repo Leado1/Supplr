@@ -22,6 +22,7 @@ export async function getUserOrganization() {
     include: {
       organization: {
         include: {
+          users: true,
           settings: true,
           subscription: true,
         },
@@ -34,6 +35,7 @@ export async function getUserOrganization() {
   if (!user) {
     const sampleOrg = await prisma.organization.findFirst({
       include: {
+        users: true,
         settings: true,
         subscription: true,
       },
