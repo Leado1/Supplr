@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Check, Star, Shield, TrendingUp, AlertTriangle, Calculator } from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { ROICalculator } from "@/components/roi-calculator";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default async function HomePage() {
   const { userId } = await auth();
@@ -23,15 +24,12 @@ export default async function HomePage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center space-x-8">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center">
               <img
                 src="/images/supplr123.png"
                 alt="Supplr"
                 className="h-8 w-auto"
               />
-              <span className="text-2xl font-bold" style={{ fontFamily: 'Neue Haas Grotesk, sans-serif' }}>
-                Supplr
-              </span>
             </Link>
 
             {/* Navigation Tabs */}
@@ -64,6 +62,7 @@ export default async function HomePage() {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             <Link href="/sign-in">
               <Button variant="ghost" className="text-sm">Sign In</Button>
             </Link>

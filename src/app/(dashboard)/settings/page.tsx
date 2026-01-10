@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import type { Organization, Settings, Category } from "@prisma/client";
 
 interface SettingsData {
@@ -31,10 +32,21 @@ export default function SettingsPage() {
     currency: "",
     timezone: "",
   });
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    smsNotifications: false,
+    notificationEmail: "",
+    notificationPhone: "",
+    smsCarrier: "att",
+    expirationAlerts: true,
+    lowStockAlerts: true,
+    notificationFrequency: "daily" as "daily" | "weekly" | "immediate",
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [addingCategory, setAddingCategory] = useState(false);
+  const [testingNotifications, setTestingNotifications] = useState(false);
 
   useEffect(() => {
     fetchSettingsData();
@@ -150,6 +162,29 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Error deleting category");
+    }
+  };
+
+  const handleTestNotifications = async () => {
+    try {
+      setTestingNotifications(true);
+
+      const response = await fetch("/api/notifications/test", {
+        method: "POST",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`Test notifications sent successfully!\n\nEmails sent: ${result.details.emailsSent}\nSMS sent: ${result.details.smsSent}\n\nCheck your email for notifications about any inventory alerts.`);
+      } else {
+        alert(`Failed to send test notifications: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error sending test notifications:", error);
+      alert("Error sending test notifications");
+    } finally {
+      setTestingNotifications(false);
     }
   };
 
@@ -315,6 +350,200 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Notification Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Notification Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Email Notifications */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="email-notifications" className="text-base font-medium">
+                  Email Notifications
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Receive inventory alerts via email
+                </p>
+              </div>
+              <Switch
+                id="email-notifications"
+                checked={notificationSettings.emailNotifications}
+                onCheckedChange={(checked) =>
+                  setNotificationSettings({ ...notificationSettings, emailNotifications: checked })
+                }
+              />
+            </div>
+
+            {notificationSettings.emailNotifications && (
+              <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                <Label htmlFor="notification-email">Notification Email</Label>
+                <Input
+                  id="notification-email"
+                  type="email"
+                  value={notificationSettings.notificationEmail}
+                  onChange={(e) =>
+                    setNotificationSettings({ ...notificationSettings, notificationEmail: e.target.value })
+                  }
+                  placeholder="Enter email for notifications"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave empty to use your account email
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* SMS Notifications */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="sms-notifications" className="text-base font-medium">
+                  SMS Notifications
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Receive urgent alerts via SMS
+                </p>
+              </div>
+              <Switch
+                id="sms-notifications"
+                checked={notificationSettings.smsNotifications}
+                onCheckedChange={(checked) =>
+                  setNotificationSettings({ ...notificationSettings, smsNotifications: checked })
+                }
+              />
+            </div>
+
+            {notificationSettings.smsNotifications && (
+              <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="notification-phone">Phone Number</Label>
+                    <Input
+                      id="notification-phone"
+                      type="tel"
+                      value={notificationSettings.notificationPhone}
+                      onChange={(e) =>
+                        setNotificationSettings({ ...notificationSettings, notificationPhone: e.target.value })
+                      }
+                      placeholder="1234567890"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sms-carrier">Carrier</Label>
+                    <Select
+                      value={notificationSettings.smsCarrier}
+                      onValueChange={(value) =>
+                        setNotificationSettings({ ...notificationSettings, smsCarrier: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select carrier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="att">AT&T</SelectItem>
+                        <SelectItem value="verizon">Verizon</SelectItem>
+                        <SelectItem value="tmobile">T-Mobile</SelectItem>
+                        <SelectItem value="sprint">Sprint</SelectItem>
+                        <SelectItem value="uscellular">US Cellular</SelectItem>
+                        <SelectItem value="boost">Boost Mobile</SelectItem>
+                        <SelectItem value="cricket">Cricket</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  SMS uses email-to-SMS gateways. Standard messaging rates may apply.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Alert Types */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Alert Types</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="expiration-alerts" className="text-sm font-medium">
+                    Expiration Alerts
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Notify when items are expiring soon or expired
+                  </p>
+                </div>
+                <Switch
+                  id="expiration-alerts"
+                  checked={notificationSettings.expirationAlerts}
+                  onCheckedChange={(checked) =>
+                    setNotificationSettings({ ...notificationSettings, expirationAlerts: checked })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="low-stock-alerts" className="text-sm font-medium">
+                    Low Stock Alerts
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Notify when inventory levels are low
+                  </p>
+                </div>
+                <Switch
+                  id="low-stock-alerts"
+                  checked={notificationSettings.lowStockAlerts}
+                  onCheckedChange={(checked) =>
+                    setNotificationSettings({ ...notificationSettings, lowStockAlerts: checked })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Frequency */}
+          <div className="space-y-2">
+            <Label htmlFor="notification-frequency">Notification Frequency</Label>
+            <Select
+              value={notificationSettings.notificationFrequency}
+              onValueChange={(value: "daily" | "weekly" | "immediate") =>
+                setNotificationSettings({ ...notificationSettings, notificationFrequency: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="immediate">Immediate (Real-time)</SelectItem>
+                <SelectItem value="daily">Daily Summary</SelectItem>
+                <SelectItem value="weekly">Weekly Summary</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Test Notifications */}
+          <div className="pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium">Test Notifications</h4>
+                <p className="text-xs text-muted-foreground">
+                  Send a test notification to verify your settings
+                </p>
+              </div>
+              <Button
+                onClick={handleTestNotifications}
+                disabled={testingNotifications}
+                variant="outline"
+                size="sm"
+              >
+                {testingNotifications ? "Sending..." : "Send Test"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Categories Management */}
       <Card>
