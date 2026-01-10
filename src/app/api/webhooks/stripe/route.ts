@@ -136,15 +136,19 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 }
 
 function getPlanDetails(priceId?: string) {
-  // Map Stripe price IDs to plan details
+  // Map Stripe price IDs to plan details using environment variables
   const plans: Record<string, { plan: string; itemLimit: number }> = {
-    // Replace with your actual Stripe price IDs
-    "price_starter_monthly": { plan: "starter", itemLimit: 100 },
-    "price_starter_annual": { plan: "starter", itemLimit: 100 },
-    "price_professional_monthly": { plan: "professional", itemLimit: 500 },
-    "price_professional_annual": { plan: "professional", itemLimit: 500 },
-    "price_enterprise_monthly": { plan: "enterprise", itemLimit: -1 }, // unlimited
-    "price_enterprise_annual": { plan: "enterprise", itemLimit: -1 }, // unlimited
+    // Starter Plan
+    [process.env.STRIPE_PRICE_STARTER_MONTHLY || ""]: { plan: "starter", itemLimit: 100 },
+    [process.env.STRIPE_PRICE_STARTER_ANNUAL || ""]: { plan: "starter", itemLimit: 100 },
+
+    // Professional Plan
+    [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: { plan: "professional", itemLimit: 500 },
+    [process.env.STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: { plan: "professional", itemLimit: 500 },
+
+    // Enterprise Plan
+    [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || ""]: { plan: "enterprise", itemLimit: -1 }, // unlimited
+    [process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || ""]: { plan: "enterprise", itemLimit: -1 }, // unlimited
   };
 
   return plans[priceId || ""] || { plan: "trial", itemLimit: 5 };

@@ -28,7 +28,9 @@
       "Bash(npx shadcn@latest add:*)",
       "Bash(dir:*)",
       "Bash(find:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ]
   }
 }
