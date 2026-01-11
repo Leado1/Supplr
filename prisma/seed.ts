@@ -5,7 +5,13 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Starting database seed...");
 
-  // Create a sample organization
+  // Check if we're in development mode
+  if (process.env.NODE_ENV !== "development") {
+    console.log("⚠️ Skipping seed data in production environment");
+    return;
+  }
+
+  // Create a sample organization (development only)
   const organization = await prisma.organization.upsert({
     where: { id: "sample-org-id" },
     update: {},

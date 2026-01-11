@@ -154,7 +154,16 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem }: Ite
         onSave();
       } else {
         const errorData = await response.json();
-        alert(errorData.message || "Failed to save item");
+
+        // Handle subscription-related errors with better UX
+        if (errorData.error === "TRIAL_EXPIRED" || errorData.error === "SUBSCRIPTION_LIMIT_EXCEEDED" || errorData.error === "SUBSCRIPTION_INACTIVE") {
+          const userConfirmed = confirm(`${errorData.message}\n\nWould you like to view our pricing plans to upgrade?`);
+          if (userConfirmed) {
+            window.open("/pricing", "_blank");
+          }
+        } else {
+          alert(errorData.message || "Failed to save item");
+        }
       }
     } catch (error) {
       console.error("Error saving item:", error);

@@ -50,12 +50,25 @@ export async function createOrganizationWithDefaults(
       )
     );
 
-    console.log(`✅ Created organization: ${organization.name} with ${categories.length} categories`);
+    // Create trial subscription
+    const subscription = await prisma.subscription.create({
+      data: {
+        organizationId: organization.id,
+        plan: "trial",
+        status: "trialing",
+        itemLimit: 5,
+        isActive: true,
+        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+      },
+    });
+
+    console.log(`✅ Created organization: ${organization.name} with ${categories.length} categories and trial subscription`);
 
     return {
       organization,
       settings,
       categories,
+      subscription,
     };
   } catch (error) {
     console.error("❌ Failed to create organization:", error);

@@ -80,6 +80,12 @@ export default function BillingPage() {
   };
 
   const handleManageBilling = async () => {
+    // Check if user has a paid subscription
+    if (subscription?.plan === "trial") {
+      alert("Billing portal is only available for paid subscriptions. Please upgrade to access billing management.");
+      return;
+    }
+
     try {
       setIsProcessing(true);
       const response = await fetch("/api/billing/customer-portal", {
@@ -90,7 +96,8 @@ export default function BillingPage() {
         const data = await response.json();
         window.open(data.url, "_blank");
       } else {
-        alert("Failed to open billing portal. Please try again.");
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to open billing portal. Please try again.");
       }
     } catch (error) {
       console.error("Error opening billing portal:", error);
@@ -247,11 +254,11 @@ export default function BillingPage() {
             </p>
             <Button
               onClick={handleManageBilling}
-              disabled={isProcessing}
+              disabled={isProcessing || subscription?.plan === "trial"}
               className="w-full"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              Manage Billing
+              {subscription?.plan === "trial" ? "Upgrade Required" : "Manage Billing"}
             </Button>
           </CardContent>
         </Card>

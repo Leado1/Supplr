@@ -108,7 +108,7 @@ export default async function HomePage() {
               </Link>
               <Link href="/sign-in">
                 <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300">
-                  Watch Demo
+                  Sign In
                 </Button>
               </Link>
             </div>

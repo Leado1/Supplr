@@ -66,33 +66,55 @@ export async function POST(request: NextRequest) {
         where: { organizationId: organization!.id },
       });
 
-      const itemLimit = organization!.subscription.itemLimit;
+      const subscription = organization!.subscription;
+      const itemLimit = subscription.itemLimit;
+
+      // Check if trial has expired
+      if (subscription.plan === "trial" && subscription.trialEndsAt && new Date() > subscription.trialEndsAt) {
+        return NextResponse.json(
+          {
+            message: "Trial period has expired. Please upgrade to continue adding items.",
+            error: "TRIAL_EXPIRED",
+            trialEndsAt: subscription.trialEndsAt,
+          },
+          { status: 402 } // Payment Required
+        );
+      }
+
+      // Check if subscription is active
+      if (!subscription.isActive) {
+        return NextResponse.json(
+          {
+            message: "Subscription is not active. Please contact support or update your payment method.",
+            error: "SUBSCRIPTION_INACTIVE",
+            status: subscription.status,
+          },
+          { status: 403 }
+        );
+      }
 
       // Check if adding this item would exceed the limit (-1 means unlimited)
       if (itemLimit !== -1 && currentItemCount >= itemLimit) {
         return NextResponse.json(
           {
-            message: "Item limit exceeded",
+            message: `Item limit exceeded. Your ${subscription.plan} plan allows up to ${itemLimit} items. Please upgrade your plan to add more items.`,
             error: "SUBSCRIPTION_LIMIT_EXCEEDED",
             currentCount: currentItemCount,
             limit: itemLimit,
-            plan: organization!.subscription.plan,
+            plan: subscription.plan,
           },
           { status: 403 }
         );
       }
-
-      // Check if subscription is active
-      if (!organization!.subscription.isActive) {
-        return NextResponse.json(
-          {
-            message: "Subscription is not active",
-            error: "SUBSCRIPTION_INACTIVE",
-            status: organization!.subscription.status,
-          },
-          { status: 403 }
-        );
-      }
+    } else {
+      // No subscription found - shouldn't happen but prevent item creation
+      return NextResponse.json(
+        {
+          message: "No subscription found. Please contact support.",
+          error: "NO_SUBSCRIPTION",
+        },
+        { status: 403 }
+      );
     }
 
     // Create the item
