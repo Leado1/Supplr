@@ -334,9 +334,44 @@ export default async function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+      <footer className="border-t py-12 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-8 md:grid-cols-4">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center mb-4">
+                <img src="/images/supplr123.png" alt="Supplr" className="h-8 w-auto" />
+              </div>
+              <p className="text-muted-foreground max-w-md">
+                Smart inventory management for medical practices. Stop losing money on expired supplies and never run out during procedures.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/use-cases" className="hover:text-foreground transition-colors">Use Cases</Link></li>
+                <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link href="/support" className="hover:text-foreground transition-colors">Contact Support</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+          </div>
         </div>
       </footer>
     </div>

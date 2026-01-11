@@ -37,16 +37,16 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
         {/* Header */}
         <div className="text-center mb-12">
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
               <img
                 src="/images/supplr123.png"
                 alt="Supplr Logo"
-                className="h-32 w-auto cursor-pointer block"
+                className="h-16 w-auto cursor-pointer block"
               />
             </Link>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Support Center</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Support Center</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             We're here to help you get the most out of Supplr. Get quick answers or reach out to our support team.
           </p>

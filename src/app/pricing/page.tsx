@@ -37,25 +37,35 @@ export default function PricingPage() {
         const data = await response.json();
         window.location.href = data.url;
       } else {
-        alert("Something went wrong. Please try again.");
+        const errorData = await response.json();
+        console.error("Checkout error:", errorData);
+
+        // If user is not authenticated, redirect to signup
+        if (response.status === 401) {
+          window.location.href = "/sign-up";
+          return;
+        }
+
+        alert(`Checkout failed: ${errorData.message || "Please try again."}`);
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Something went wrong. Please try again.");
+      // If there's a network error or the user is not logged in, redirect to signup
+      window.location.href = "/sign-up";
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Pricing data
+  // Pricing data - Price IDs should be set in environment variables
   const plans = [
     {
       name: "Starter",
       monthlyPrice: 29,
       annualPrice: 288, // $29 * 12 - $60 savings (2 months free)
       monthlyEquivalent: 24, // What they pay per month when billed annually
-      monthlyPriceId: "price_starter_monthly", // Replace with actual Stripe price ID
-      annualPriceId: "price_starter_annual", // Replace with actual Stripe price ID
+      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID || "",
+      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID || "",
       description: "Perfect for small practices",
       features: [
         "Up to 100 items",
@@ -69,8 +79,8 @@ export default function PricingPage() {
       monthlyPrice: 79,
       annualPrice: 792, // $79 * 12 - $156 savings (2 months free)
       monthlyEquivalent: 66, // What they pay per month when billed annually
-      monthlyPriceId: "price_professional_monthly", // Replace with actual Stripe price ID
-      annualPriceId: "price_professional_annual", // Replace with actual Stripe price ID
+      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || "",
+      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || "",
       description: "For growing medical practices",
       popular: true,
       features: [
@@ -86,8 +96,8 @@ export default function PricingPage() {
       monthlyPrice: 199,
       annualPrice: 1992, // $199 * 12 - $396 savings (2 months free)
       monthlyEquivalent: 166, // What they pay per month when billed annually
-      monthlyPriceId: "price_enterprise_monthly", // Replace with actual Stripe price ID
-      annualPriceId: "price_enterprise_annual", // Replace with actual Stripe price ID
+      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || "",
+      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || "",
       description: "For large practices & chains",
       features: [
         "Unlimited items",

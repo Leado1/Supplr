@@ -543,52 +543,12 @@ export default function PrivacyPolicyPage() {
                       If you have questions about this Privacy Policy or how we handle your data, please contact us:
                     </p>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">General Privacy Questions</h4>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                          <p>Email: privacy@supplr.com</p>
-                          <p>Phone: 1-800-SUPPLR-1</p>
-                          <p>Response time: 24-48 hours</p>
+                    <div className="text-center">
+                      <div className="inline-block p-6 bg-muted rounded-lg">
+                        <h4 className="font-semibold mb-3 text-lg">Contact Us</h4>
+                        <div className="text-muted-foreground">
+                          <p className="text-base">Email: info@supplr.net</p>
                         </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-3">HIPAA/Compliance Questions</h4>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                          <p>Email: compliance@supplr.com</p>
-                          <p>Phone: 1-800-SUPPLR-2</p>
-                          <p>Response time: 12-24 hours</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-3">Data Subject Requests</h4>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                          <p>Email: data-requests@supplr.com</p>
-                          <p>Online: Account Settings → Privacy</p>
-                          <p>Response time: 30 days maximum</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-3">Security Incidents</h4>
-                        <div className="space-y-2 text-sm text-muted-foreground">
-                          <p>Email: security@supplr.com</p>
-                          <p>Phone: 1-800-SUPPLR-911</p>
-                          <p>Response time: Immediate</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 p-4 bg-muted rounded-lg">
-                      <h4 className="font-semibold mb-2">Mailing Address</h4>
-                      <div className="text-sm text-muted-foreground">
-                        <p>Supplr Inc.</p>
-                        <p>Attn: Privacy Officer</p>
-                        <p>123 Medical Plaza Drive</p>
-                        <p>Austin, TX 78701</p>
-                        <p>United States</p>
                       </div>
                     </div>
                   </CardContent>
@@ -610,9 +570,11 @@ export default function PrivacyPolicyPage() {
             </p>
 
             <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2">
-                Contact Privacy Team
-              </Button>
+              <Link href="/support">
+                <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2">
+                  Contact Privacy Team
+                </Button>
+              </Link>
               <Link href="/sign-up">
                 <Button size="lg" className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
                   Start Free Trial

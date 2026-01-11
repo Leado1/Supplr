@@ -35,6 +35,7 @@ export default function BillingPage() {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -107,9 +108,83 @@ export default function BillingPage() {
     }
   };
 
+  const handleCheckout = async (plan: any, index: number) => {
+    try {
+      setIsProcessing(true);
+      const priceId = isAnnual ? plan.annualPriceId : plan.monthlyPriceId;
+
+      // Check if price ID exists
+      if (!priceId) {
+        alert("Pricing configuration error. Please contact support.");
+        return;
+      }
+
+      const response = await fetch("/api/billing/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          priceId,
+          planName: plan.name,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        const errorData = await response.json();
+        console.error("Checkout error:", errorData);
+        alert(`Checkout failed: ${errorData.message || "Please try again."}`);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const getPlanDisplayName = (plan: string) => {
     return plan.charAt(0).toUpperCase() + plan.slice(1);
   };
+
+  // Pricing plans data
+  const plans = [
+    {
+      name: "Starter",
+      monthlyPrice: 29,
+      annualPrice: 288,
+      monthlyEquivalent: 24,
+      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID || "",
+      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID || "",
+      description: "Perfect for small practices",
+      features: [
+        "Up to 100 items",
+        "Basic dashboard",
+        "Expiration alerts",
+        "Email support"
+      ]
+    },
+    {
+      name: "Professional",
+      monthlyPrice: 79,
+      annualPrice: 792,
+      monthlyEquivalent: 66,
+      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || "",
+      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || "",
+      description: "For growing medical practices",
+      popular: true,
+      features: [
+        "Up to 500 items",
+        "Advanced analytics",
+        "Custom categories",
+        "Priority support",
+        "Team collaboration"
+      ]
+    }
+  ];
 
   const getStatusBadge = (status: string, isActive: boolean) => {
     if (!isActive) {
@@ -268,18 +343,99 @@ export default function BillingPage() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Settings className="h-5 w-5" />
-              <span>Plan Management</span>
+              <span>Available Plans</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Upgrade, downgrade, or change your subscription plan.
+              Choose a plan that fits your practice's needs.
             </p>
-            <Link href="/pricing">
-              <Button variant="outline" className="w-full">
-                View Plans
+
+            {/* Plan Toggle */}
+            <div className="flex items-center justify-center space-x-4 p-1 bg-muted rounded-lg">
+              <Button
+                variant={!isAnnual ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setIsAnnual(false)}
+                className="h-8"
+              >
+                Monthly
               </Button>
-            </Link>
+              <Button
+                variant={isAnnual ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setIsAnnual(true)}
+                className="h-8"
+              >
+                Annual
+                <Badge variant="secondary" className="ml-2">Save 17%</Badge>
+              </Button>
+            </div>
+
+            {/* Plans Grid */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {plans.slice(0, 2).map((plan, index) => (
+                <div
+                  key={plan.name}
+                  className={`border rounded-lg p-4 ${plan.popular ? "border-primary bg-primary/5" : ""}`}
+                >
+                  {plan.popular && (
+                    <Badge className="mb-2">Most Popular</Badge>
+                  )}
+                  <div className="mb-3">
+                    <h3 className="font-semibold text-lg">{plan.name}</h3>
+                    <p className="text-sm text-muted-foreground">{plan.description}</p>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="flex items-baseline">
+                      <span className="text-2xl font-bold">
+                        ${isAnnual ? plan.monthlyEquivalent : plan.monthlyPrice}
+                      </span>
+                      <span className="text-sm text-muted-foreground ml-1">/month</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-xs text-muted-foreground">
+                        Billed annually (${plan.annualPrice})
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={() => handleCheckout(plan, index)}
+                    disabled={isProcessing || subscription?.plan === plan.name.toLowerCase()}
+                    className="w-full mb-3"
+                    variant={plan.popular ? "default" : "outline"}
+                  >
+                    {subscription?.plan === plan.name.toLowerCase() ? "Current Plan" : "Choose Plan"}
+                  </Button>
+
+                  <ul className="space-y-1 text-xs">
+                    {plan.features.slice(0, 3).map((feature, i) => (
+                      <li key={i} className="flex items-center">
+                        <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Enterprise option */}
+            <div className="border rounded-lg p-4 bg-muted/50">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-semibold">Enterprise</h3>
+                  <p className="text-sm text-muted-foreground">Custom pricing for large practices</p>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="mailto:sales@supplr.com">
+                    Contact Sales
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

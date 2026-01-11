@@ -62,13 +62,40 @@ export async function createOrganizationWithDefaults(
       },
     });
 
-    console.log(`✅ Created organization: ${organization.name} with ${categories.length} categories and trial subscription`);
+    // Create 2 sample items to show how the system works
+    const sampleItems = await Promise.all([
+      prisma.item.create({
+        data: {
+          name: "Sample Product A",
+          categoryId: categories[0].id, // First category (Injectables)
+          organizationId: organization.id,
+          quantity: 3,
+          unitCost: 250.00,
+          expirationDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+          reorderThreshold: 5,
+        },
+      }),
+      prisma.item.create({
+        data: {
+          name: "Sample Product B",
+          categoryId: categories[1].id, // Second category (Skincare)
+          organizationId: organization.id,
+          quantity: 8,
+          unitCost: 125.00,
+          expirationDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
+          reorderThreshold: 10,
+        },
+      }),
+    ]);
+
+    console.log(`✅ Created organization: ${organization.name} with ${categories.length} categories, trial subscription, and ${sampleItems.length} sample items`);
 
     return {
       organization,
       settings,
       categories,
       subscription,
+      sampleItems,
     };
   } catch (error) {
     console.error("❌ Failed to create organization:", error);
