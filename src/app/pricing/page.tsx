@@ -14,13 +14,22 @@ export default function PricingPage() {
   const handleCheckout = async (plan: any, index: number) => {
     if (index === 2) { // Enterprise plan
       // Redirect to contact for enterprise
-      window.location.href = "mailto:sales@supplr.com";
+      window.location.href = "mailto:support@supplr.net";
       return;
     }
 
     try {
       setIsLoading(true);
       const priceId = isAnnual ? plan.annualPriceId : plan.monthlyPriceId;
+
+      // Debug: Log the price ID to see what we're working with
+      console.log("Plan:", plan.name, "PriceId:", priceId, "IsAnnual:", isAnnual);
+
+      // Check if price ID is empty or undefined
+      if (!priceId || priceId.trim() === "") {
+        alert("Pricing configuration error. Please contact support.");
+        return;
+      }
 
       const response = await fetch("/api/billing/create-checkout", {
         method: "POST",

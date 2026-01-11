@@ -423,18 +423,56 @@ export default function BillingPage() {
             </div>
 
             {/* Enterprise option */}
-            <div className="border rounded-lg p-4 bg-muted/50">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold">Enterprise</h3>
-                  <p className="text-sm text-muted-foreground">Custom pricing for large practices</p>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="mailto:sales@supplr.com">
-                    Contact Sales
-                  </Link>
-                </Button>
+            <div className="border rounded-lg p-4">
+              <div className="mb-3">
+                <h3 className="font-semibold text-lg">Enterprise</h3>
+                <p className="text-sm text-muted-foreground">For large practices & chains</p>
               </div>
+
+              <div className="mb-4">
+                <div className="flex items-baseline">
+                  <span className="text-2xl font-bold">
+                    ${isAnnual ? 166 : 199}
+                  </span>
+                  <span className="text-sm text-muted-foreground ml-1">/month</span>
+                </div>
+                {isAnnual && (
+                  <p className="text-xs text-muted-foreground">
+                    Billed annually ($1992)
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={() => handleCheckout({
+                  name: "Enterprise",
+                  monthlyPrice: 199,
+                  annualPrice: 1992,
+                  monthlyEquivalent: 166,
+                  monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || "",
+                  annualPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || ""
+                }, 2)}
+                disabled={isProcessing || subscription?.plan === "enterprise"}
+                className="w-full mb-3"
+                variant="outline"
+              >
+                {subscription?.plan === "enterprise" ? "Current Plan" : "Choose Plan"}
+              </Button>
+
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-center">
+                  <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                  Unlimited items
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                  Multi-location support
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                  API integrations
+                </li>
+              </ul>
             </div>
           </CardContent>
         </Card>
