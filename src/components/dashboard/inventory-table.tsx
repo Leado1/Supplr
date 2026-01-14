@@ -10,21 +10,28 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { ItemWithStatus } from "@/types/inventory";
 import { getStatusBadgeVariant, getStatusLabel } from "@/lib/inventory-status";
 
 interface InventoryTableProps {
   items: ItemWithStatus[];
+  selectedIds?: Set<string>;
   onEditItem?: (item: ItemWithStatus) => void;
   onDeleteItem?: (item: ItemWithStatus) => void;
   onQuantityChange?: (item: ItemWithStatus, newQuantity: number) => void;
+  onSelectionChange?: (itemId: string, isSelected: boolean) => void;
+  onSelectAll?: (isSelected: boolean) => void;
 }
 
 export function InventoryTable({
   items,
+  selectedIds = new Set(),
   onEditItem,
   onDeleteItem,
   onQuantityChange,
+  onSelectionChange,
+  onSelectAll,
 }: InventoryTableProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -49,6 +56,22 @@ export function InventoryTable({
     return diffDays;
   };
 
+  // Handle "Select All" checkbox logic
+  const allSelected = items.length > 0 && items.every(item => selectedIds.has(item.id));
+  const someSelected = items.some(item => selectedIds.has(item.id));
+
+  const handleSelectAllChange = (checked: boolean) => {
+    if (onSelectAll) {
+      onSelectAll(checked);
+    }
+  };
+
+  const handleItemSelectionChange = (itemId: string, checked: boolean) => {
+    if (onSelectionChange) {
+      onSelectionChange(itemId, checked);
+    }
+  };
+
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-8 text-center">
@@ -71,6 +94,16 @@ export function InventoryTable({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12">
+              {onSelectAll && (
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={handleSelectAllChange}
+                  aria-label="Select all items"
+                  className={someSelected && !allSelected ? "data-[state=checked]:bg-blue-600" : ""}
+                />
+              )}
+            </TableHead>
             <TableHead>Item Name</TableHead>
             <TableHead>SKU</TableHead>
             <TableHead>Category</TableHead>
@@ -88,7 +121,16 @@ export function InventoryTable({
             const totalValue = Number(item.unitCost) * item.quantity;
 
             return (
-              <TableRow key={item.id}>
+              <TableRow key={item.id} className={selectedIds.has(item.id) ? "bg-blue-50" : ""}>
+                <TableCell>
+                  {onSelectionChange && (
+                    <Checkbox
+                      checked={selectedIds.has(item.id)}
+                      onCheckedChange={(checked) => handleItemSelectionChange(item.id, checked as boolean)}
+                      aria-label={`Select ${item.name}`}
+                    />
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">
                   <div>
                     <div className="font-semibold">{item.name}</div>

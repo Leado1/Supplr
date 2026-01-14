@@ -81,6 +81,33 @@ export async function POST(req: Request) {
         console.log("✅ User updated successfully");
         break;
 
+      case "session.created":
+        console.log("🔐 User session created:", evt.data.user_id);
+
+        // Check if user exists in database, if not create them (for existing users)
+        const existingUser = await prisma.user.findUnique({
+          where: { clerkId: evt.data.user_id },
+        });
+
+        if (!existingUser) {
+          console.log("🔧 User not found in database, creating user and organization...");
+
+          // Get user info from Clerk using the user_id
+          const { clerkClient } = await import("@clerk/nextjs/server");
+          const clerkUser = await clerkClient.users.getUser(evt.data.user_id);
+
+          // Create user with organization
+          await createUserWithOrganization({
+            clerkId: evt.data.user_id,
+            email: clerkUser.emailAddresses[0]?.emailAddress || "",
+            firstName: clerkUser.firstName || undefined,
+            lastName: clerkUser.lastName || undefined,
+          });
+
+          console.log("✅ Existing user and organization created successfully via session.created");
+        }
+        break;
+
       case "user.deleted":
         console.log("👤 User deleted:", evt.data.id);
 

@@ -20,6 +20,7 @@ export default function InventoryPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemWithStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Fetch data on component mount
   useEffect(() => {
@@ -30,6 +31,11 @@ export default function InventoryPage() {
   useEffect(() => {
     applyFilters();
   }, [items, filters]);
+
+  // Clear selections when filtered items change
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [filteredItems]);
 
   const fetchInventoryData = async () => {
     try {
@@ -156,6 +162,84 @@ export default function InventoryPage() {
     }
   };
 
+  // Selection handlers
+  const handleSelectionChange = (itemId: string, isSelected: boolean) => {
+    const newSelectedIds = new Set(selectedIds);
+    if (isSelected) {
+      newSelectedIds.add(itemId);
+    } else {
+      newSelectedIds.delete(itemId);
+    }
+    setSelectedIds(newSelectedIds);
+  };
+
+  const handleSelectAll = (isSelected: boolean) => {
+    if (isSelected) {
+      const allIds = new Set(filteredItems.map(item => item.id));
+      setSelectedIds(allIds);
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  // Bulk operations
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+
+    const selectedItems = filteredItems.filter(item => selectedIds.has(item.id));
+    const itemNames = selectedItems.map(item => item.name).join(", ");
+
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} item(s)? (${itemNames})`)) {
+      return;
+    }
+
+    try {
+      const deletePromises = Array.from(selectedIds).map(id =>
+        fetch(`/api/items/${id}`, { method: "DELETE" })
+      );
+
+      const results = await Promise.all(deletePromises);
+      const allSuccessful = results.every(response => response.ok);
+
+      if (allSuccessful) {
+        setSelectedIds(new Set());
+        await fetchInventoryData(); // Refresh the data
+      } else {
+        alert("Some items could not be deleted");
+      }
+    } catch (error) {
+      console.error("Error deleting items:", error);
+      alert("Error deleting items");
+    }
+  };
+
+  const handleBulkQuantityUpdate = async (newQuantity: number) => {
+    if (selectedIds.size === 0) return;
+
+    try {
+      const updatePromises = Array.from(selectedIds).map(id =>
+        fetch(`/api/items/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: newQuantity }),
+        })
+      );
+
+      const results = await Promise.all(updatePromises);
+      const allSuccessful = results.every(response => response.ok);
+
+      if (allSuccessful) {
+        setSelectedIds(new Set());
+        await fetchInventoryData(); // Refresh the data
+      } else {
+        alert("Some items could not be updated");
+      }
+    } catch (error) {
+      console.error("Error updating quantities:", error);
+      alert("Error updating quantities");
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto space-y-8 p-6">
@@ -234,11 +318,64 @@ export default function InventoryPage() {
           </h2>
         </div>
 
+        {/* Bulk Actions Toolbar */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-blue-900">
+                {selectedIds.size} item{selectedIds.size > 1 ? 's' : ''} selected
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedIds(new Set())}
+                className="text-blue-700 border-blue-300 hover:bg-blue-100"
+              >
+                Clear Selection
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Selected
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newQuantity = prompt("Enter new quantity for selected items:");
+                  if (newQuantity && !isNaN(parseInt(newQuantity))) {
+                    handleBulkQuantityUpdate(parseInt(newQuantity));
+                  }
+                }}
+                className="border-gray-300 hover:bg-gray-50"
+              >
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Update Quantity
+              </Button>
+            </div>
+          </div>
+        )}
+
         <InventoryTable
           items={filteredItems}
+          selectedIds={selectedIds}
           onEditItem={handleEditItem}
           onDeleteItem={handleDeleteItem}
           onQuantityChange={handleQuantityChange}
+          onSelectionChange={handleSelectionChange}
+          onSelectAll={handleSelectAll}
         />
       </div>
 
