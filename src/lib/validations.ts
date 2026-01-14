@@ -7,7 +7,11 @@ export const createItemSchema = z.object({
   categoryId: z.string().min(1, "Category is required"),
   quantity: z.number().int().min(0, "Quantity must be non-negative"),
   unitCost: z.number().min(0, "Unit cost must be non-negative"),
-  expirationDate: z.date().min(new Date(), "Expiration date must be in the future"),
+  expirationDate: z.date().refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+    return date >= today;
+  }, "Expiration date cannot be in the past"),
   reorderThreshold: z.number().int().min(0, "Reorder threshold must be non-negative"),
 });
 

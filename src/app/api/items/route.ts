@@ -47,15 +47,31 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate the input
-    const validationResult = createItemSchema.safeParse({
+    // Debug: Log the incoming data
+    console.log("Received item creation data:", body);
+
+    // Parse and validate the input
+    const parsedBody = {
       ...body,
+      quantity: Number(body.quantity),
+      unitCost: Number(body.unitCost),
+      reorderThreshold: Number(body.reorderThreshold),
       expirationDate: new Date(body.expirationDate),
-    });
+    };
+
+    console.log("Parsed data for validation:", parsedBody);
+
+    const validationResult = createItemSchema.safeParse(parsedBody);
 
     if (!validationResult.success) {
+      console.error("Validation failed:", validationResult.error.issues);
       return NextResponse.json(
-        { message: "Invalid data", errors: validationResult.error.issues },
+        {
+          message: "Invalid data",
+          errors: validationResult.error.issues,
+          receivedData: body,
+          parsedData: parsedBody
+        },
         { status: 400 }
       );
     }
