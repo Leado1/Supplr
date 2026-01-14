@@ -25,8 +25,19 @@ export default function PricingPage() {
       // Debug: Log the price ID to see what we're working with
       console.log("Plan:", plan.name, "PriceId:", priceId, "IsAnnual:", isAnnual);
 
+      // Debug: Log all environment variables to see what's available
+      console.log("Environment Variables:", {
+        STARTER_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID,
+        STARTER_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID,
+        PROFESSIONAL_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID,
+        PROFESSIONAL_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID,
+        ENTERPRISE_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
+        ENTERPRISE_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
+      });
+
       // Check if price ID is empty or undefined
       if (!priceId || priceId.trim() === "") {
+        console.error("MISSING PRICE ID for plan:", plan.name, "isAnnual:", isAnnual);
         alert("Pricing configuration error. Please contact support.");
         return;
       }
