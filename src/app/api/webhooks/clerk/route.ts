@@ -94,7 +94,8 @@ export async function POST(req: Request) {
 
           // Get user info from Clerk using the user_id
           const { clerkClient } = await import("@clerk/nextjs/server");
-          const clerkUser = await clerkClient.users.getUser(evt.data.user_id);
+          const client = await clerkClient();
+          const clerkUser = await client.users.getUser(evt.data.user_id);
 
           // Create user with organization
           await createUserWithOrganization({
