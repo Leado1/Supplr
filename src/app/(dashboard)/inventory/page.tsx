@@ -376,6 +376,7 @@ export default function InventoryPage() {
           onQuantityChange={handleQuantityChange}
           onSelectionChange={handleSelectionChange}
           onSelectAll={handleSelectAll}
+          onAddItem={handleAddItem}
         />
       </div>
 

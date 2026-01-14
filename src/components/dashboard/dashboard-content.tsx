@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
@@ -22,9 +23,14 @@ export function DashboardContent({
     categories,
     summary,
 }: DashboardContentProps) {
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<InventoryStatus | "all">("all");
     const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
+
+    const handleAddItem = () => {
+        router.push("/inventory");
+    };
 
     // Filter items based on search and filters
     const filteredItems = items.filter((item) => {
@@ -62,7 +68,7 @@ export function DashboardContent({
                         </svg>
                         Export Report
                     </Button>
-                    <Button>
+                    <Button onClick={handleAddItem}>
                         <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
@@ -94,7 +100,7 @@ export function DashboardContent({
                     </div>
                 </div>
 
-                <InventoryTable items={filteredItems} />
+                <InventoryTable items={filteredItems} onAddItem={handleAddItem} />
             </div>
 
             {/* Quick Actions */}

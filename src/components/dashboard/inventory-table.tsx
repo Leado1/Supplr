@@ -22,6 +22,7 @@ interface InventoryTableProps {
   onQuantityChange?: (item: ItemWithStatus, newQuantity: number) => void;
   onSelectionChange?: (itemId: string, isSelected: boolean) => void;
   onSelectAll?: (isSelected: boolean) => void;
+  onAddItem?: () => void;
 }
 
 export function InventoryTable({
@@ -32,6 +33,7 @@ export function InventoryTable({
   onQuantityChange,
   onSelectionChange,
   onSelectAll,
+  onAddItem,
 }: InventoryTableProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -84,7 +86,7 @@ export function InventoryTable({
         <p className="text-muted-foreground mb-4">
           Get started by adding your first inventory item.
         </p>
-        <Button>Add First Item</Button>
+        <Button onClick={onAddItem}>Add First Item</Button>
       </div>
     );
   }
