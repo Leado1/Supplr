@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Price ID is required" }, { status: 400 });
     }
 
-    // Get user's organization
-    const user = await prisma.user.findUnique({
+    // Get user's organization, or create user if they don't exist
+    let user = await prisma.user.findUnique({
       where: { clerkId: userId },
       include: {
         organization: {
@@ -34,8 +34,57 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // If user doesn't exist in database, create them (fallback for webhook failures)
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      console.log("User not found in database, creating user and organization...");
+
+      try {
+        // Import the function we need
+        const { createUserWithOrganization } = await import("@/lib/organization-setup");
+
+        // Get user info from Clerk - use currentUser for better compatibility
+        const { currentUser } = await import("@clerk/nextjs/server");
+        const clerkUser = await currentUser();
+
+        if (!clerkUser) {
+          console.error("Could not get current user from Clerk");
+          return NextResponse.json({ message: "Authentication error" }, { status: 401 });
+        }
+
+        // Create user with organization using Clerk user data
+        const result = await createUserWithOrganization({
+          clerkId: userId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || "",
+          firstName: clerkUser.firstName || undefined,
+          lastName: clerkUser.lastName || undefined,
+        });
+
+        console.log("User creation result:", result);
+      } catch (createError) {
+        console.error("Error creating user:", createError);
+        return NextResponse.json({
+          message: "Failed to create user account",
+          error: createError instanceof Error ? createError.message : "Unknown error"
+        }, { status: 500 });
+      }
+
+      // Re-fetch the user with the organization data
+      user = await prisma.user.findUnique({
+        where: { clerkId: userId },
+        include: {
+          organization: {
+            include: {
+              subscription: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        return NextResponse.json({ message: "Failed to create user" }, { status: 500 });
+      }
+
+      console.log("✅ User and organization created successfully");
     }
 
     let customerId = user.organization.subscription?.stripeCustomerId;
