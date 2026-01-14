@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle } from "lucide-react";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
 import type { InventoryStatus } from "@/types/inventory";
 import type { Category } from "@prisma/client";
@@ -24,9 +26,26 @@ export function DashboardContent({
     summary,
 }: DashboardContentProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<InventoryStatus | "all">("all");
     const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    useEffect(() => {
+        // Check for checkout success parameter
+        if (searchParams.get('checkout_success') === 'true') {
+            setShowSuccessMessage(true);
+
+            // Clean up the URL
+            window.history.replaceState({}, document.title, '/dashboard');
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                setShowSuccessMessage(false);
+            }, 5000);
+        }
+    }, [searchParams]);
 
     const handleAddItem = () => {
         router.push("/inventory");
@@ -53,6 +72,29 @@ export function DashboardContent({
 
     return (
         <div className="container mx-auto space-y-8 p-6">
+            {/* Success Message */}
+            {showSuccessMessage && (
+                <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-700">
+                        <div className="flex items-center justify-between">
+                            <span>
+                                🎉 <strong>Welcome to Supplr!</strong> Your subscription has been activated successfully.
+                                You now have full access to all features.
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowSuccessMessage(false)}
+                                className="ml-4 border-green-300 text-green-700 hover:bg-green-100"
+                            >
+                                Dismiss
+                            </Button>
+                        </div>
+                    </AlertDescription>
+                </Alert>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
