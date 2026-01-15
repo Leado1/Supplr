@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
+import { ExportDropdown } from "@/components/ui/export-dropdown";
+import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
+import { calculateInventorySummary } from "@/lib/inventory-status";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
 import type { InventoryStatus } from "@/types/inventory";
 import type { Category } from "@prisma/client";
@@ -66,6 +69,45 @@ export function DashboardContent({
         router.push(`/inventory?new_barcode=${encodeURIComponent(barcode)}`);
     };
 
+    // Export handlers
+    const handleExportPDF = async () => {
+        // Convert items to the format expected by the PDF generator
+        const convertedItems = filteredItems.map(item => ({
+            ...item,
+            unitCost: item.unitCost.toString(),
+            expirationDate: item.expirationDate.toString()
+        }));
+
+        const reportData = {
+            organizationName,
+            items: convertedItems,
+            summary: summary,
+            filters: {
+                status: statusFilter,
+                category: categoryFilter === "all" ? undefined : categories.find(c => c.id === categoryFilter)?.name,
+                search: searchTerm || undefined
+            }
+        };
+
+        generateInventoryPDF(reportData);
+    };
+
+    const handleExportCSV = async () => {
+        // Convert items to the format expected by the CSV generator
+        const convertedItems = filteredItems.map(item => ({
+            ...item,
+            unitCost: item.unitCost.toString(),
+            expirationDate: item.expirationDate.toString()
+        }));
+
+        const reportData = {
+            organizationName,
+            items: convertedItems
+        };
+
+        generateCSV(reportData);
+    };
+
     // Filter items based on search and filters
     const filteredItems = items.filter((item) => {
         // Search filter
@@ -119,12 +161,11 @@ export function DashboardContent({
                     </p>
                 </div>
                 <div className="flex space-x-2">
-                    <Button variant="outline">
-                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Export Report
-                    </Button>
+                    <ExportDropdown
+                        onExportPDF={handleExportPDF}
+                        onExportCSV={handleExportCSV}
+                        variant="outline"
+                    />
                     <Link href="/import">
                         <Button variant="outline">
                             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

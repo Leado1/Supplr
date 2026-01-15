@@ -8,6 +8,9 @@ import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
 import { ItemModal } from "@/components/modals/item-modal";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
+import { ExportDropdown } from "@/components/ui/export-dropdown";
+import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
+import { calculateInventorySummary } from "@/lib/inventory-status";
 import type { ItemWithStatus, InventoryFilters } from "@/types/inventory";
 import type { Category } from "@prisma/client";
 
@@ -295,6 +298,47 @@ export default function InventoryPage() {
     }, 100);
   };
 
+  // Export handlers
+  const handleExportPDF = async () => {
+    const summary = calculateInventorySummary(filteredItems);
+
+    // Convert items to the format expected by the PDF generator
+    const convertedItems = filteredItems.map(item => ({
+      ...item,
+      unitCost: item.unitCost.toString(),
+      expirationDate: item.expirationDate.toString()
+    }));
+
+    const reportData = {
+      organizationName: "Your Organization", // We'll get this from the organization context
+      items: convertedItems,
+      summary,
+      filters: {
+        status: filters.status,
+        category: filters.categoryId === "all" ? undefined : categories.find(c => c.id === filters.categoryId)?.name,
+        search: filters.search || undefined
+      }
+    };
+
+    generateInventoryPDF(reportData);
+  };
+
+  const handleExportCSV = async () => {
+    // Convert items to the format expected by the CSV generator
+    const convertedItems = filteredItems.map(item => ({
+      ...item,
+      unitCost: item.unitCost.toString(),
+      expirationDate: item.expirationDate.toString()
+    }));
+
+    const reportData = {
+      organizationName: "Your Organization", // We'll get this from the organization context
+      items: convertedItems
+    };
+
+    generateCSV(reportData);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto space-y-8 p-6">
@@ -318,6 +362,11 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex space-x-3">
+          <ExportDropdown
+            onExportPDF={handleExportPDF}
+            onExportCSV={handleExportCSV}
+            variant="outline"
+          />
           <Link href="/import">
             <Button variant="outline">
               <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
