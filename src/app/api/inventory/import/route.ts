@@ -135,7 +135,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
     select: { sku: true },
   });
 
-  const skuSet = new Set(existingSKUs.map(item => item.sku?.toLowerCase()).filter(Boolean));
+  const skuSet = new Set(existingSKUs.map(item => item.sku?.toLowerCase()).filter((sku): sku is string => sku != null));
   const newCategories: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
@@ -164,8 +164,8 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
       let expirationDate: Date;
       if (row.expirationDate) {
         const dateStr = String(row.expirationDate).trim();
-        expirationDate = parseDate(dateStr);
-        if (!expirationDate || expirationDate < new Date()) {
+        const parsedDate = parseDate(dateStr);
+        if (!parsedDate || parsedDate < new Date()) {
           result.errors.push({
             row: rowNumber,
             field: "expirationDate",
@@ -175,6 +175,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
           result.skippedCount++;
           continue;
         }
+        expirationDate = parsedDate;
       } else {
         // Default to 1 year from now
         expirationDate = new Date();
