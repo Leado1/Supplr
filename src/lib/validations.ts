@@ -48,6 +48,16 @@ export const inventoryFiltersSchema = z.object({
   search: z.string().optional(),
 });
 
+export const importItemSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name too long"),
+  sku: z.string().max(50, "SKU too long").optional().nullable(),
+  category: z.string().min(1, "Category is required").max(50, "Category name too long"),
+  quantity: z.number().int().min(0, "Quantity must be non-negative"),
+  unitCost: z.number().min(0, "Unit cost must be non-negative"),
+  expirationDate: z.date().optional(),
+  reorderThreshold: z.number().int().min(0, "Reorder threshold must be non-negative").optional(),
+});
+
 // User and organization schemas
 export const createOrganizationSchema = z.object({
   name: z.string().min(1, "Organization name is required").max(100, "Organization name too long"),
@@ -71,3 +81,4 @@ export type UpdateOrganizationSettingsInput = z.infer<typeof updateOrganizationS
 export type InventoryFiltersInput = z.infer<typeof inventoryFiltersSchema>;
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type ImportItemInput = z.infer<typeof importItemSchema>;
