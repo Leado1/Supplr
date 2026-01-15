@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
 import { ItemModal } from "@/components/modals/item-modal";
+import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
 import type { ItemWithStatus, InventoryFilters } from "@/types/inventory";
 import type { Category } from "@prisma/client";
 
 export default function InventoryPage() {
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<ItemWithStatus[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredItems, setFilteredItems] = useState<ItemWithStatus[]>([]);
@@ -22,11 +25,26 @@ export default function InventoryPage() {
   const [editingItem, setEditingItem] = useState<ItemWithStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [newBarcode, setNewBarcode] = useState<string | null>(null);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchInventoryData();
   }, []);
+
+  // Check for barcode parameter from scanner
+  useEffect(() => {
+    const barcodeParam = searchParams.get('new_barcode');
+    if (barcodeParam) {
+      setNewBarcode(barcodeParam);
+      setEditingItem(null);
+      setIsModalOpen(true);
+
+      // Clean up the URL
+      window.history.replaceState({}, document.title, '/inventory');
+    }
+  }, [searchParams]);
 
   // Apply filters whenever items or filters change
   useEffect(() => {
@@ -127,6 +145,7 @@ export default function InventoryPage() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingItem(null);
+    setNewBarcode(null);
   };
 
   const handleModalSave = async () => {
@@ -241,6 +260,41 @@ export default function InventoryPage() {
     }
   };
 
+  // Barcode scanner handlers
+  const handleItemScanned = (item: any) => {
+    // Highlight the scanned item in the table
+    const foundItem = items.find(i => i.id === item.id);
+    if (foundItem) {
+      // Scroll to and highlight the item
+      const element = document.getElementById(`item-${item.id}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.classList.add('bg-green-100');
+        setTimeout(() => {
+          element.classList.remove('bg-green-100');
+        }, 3000);
+      }
+    }
+
+    // Refresh the inventory data to get latest quantities
+    fetchInventoryData();
+  };
+
+  const handleNewItemFromBarcode = (barcode: string) => {
+    // Pre-fill the item modal with the scanned barcode as SKU
+    setEditingItem(null); // Ensure we're adding, not editing
+    setIsModalOpen(true);
+
+    // Set a timeout to pre-fill the SKU field after modal opens
+    setTimeout(() => {
+      const skuInput = document.querySelector('input[name="sku"]') as HTMLInputElement;
+      if (skuInput) {
+        skuInput.value = barcode;
+        skuInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }, 100);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto space-y-8 p-6">
@@ -272,6 +326,12 @@ export default function InventoryPage() {
               Import Items
             </Button>
           </Link>
+          <Button variant="outline" onClick={() => setIsScannerOpen(true)}>
+            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2zM8 21l4-7 4 7M8 5h8v4H8z" />
+            </svg>
+            Scan Barcode
+          </Button>
           <Button onClick={handleAddItem}>
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -398,6 +458,15 @@ export default function InventoryPage() {
         onSave={handleModalSave}
         categories={categories}
         editItem={editingItem}
+        defaultSku={newBarcode || undefined}
+      />
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onItemScanned={handleItemScanned}
+        onNewItemRequested={handleNewItemFromBarcode}
       />
     </div>
   );

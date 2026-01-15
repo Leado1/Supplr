@@ -27,6 +27,7 @@ interface ItemModalProps {
   onSave: () => void;
   categories: Category[];
   editItem?: ItemWithStatus | null;
+  defaultSku?: string;
 }
 
 interface FormData {
@@ -39,7 +40,7 @@ interface FormData {
   reorderThreshold: string;
 }
 
-export function ItemModal({ isOpen, onClose, onSave, categories, editItem }: ItemModalProps) {
+export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defaultSku }: ItemModalProps) {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     sku: "",
@@ -68,7 +69,7 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem }: Ite
       } else {
         setFormData({
           name: "",
-          sku: "",
+          sku: defaultSku || "",
           categoryId: "",
           quantity: "",
           unitCost: "",
@@ -78,7 +79,7 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem }: Ite
       }
       setErrors({});
     }
-  }, [isOpen, editItem]);
+  }, [isOpen, editItem, defaultSku]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};

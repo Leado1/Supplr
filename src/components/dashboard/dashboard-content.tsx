@@ -9,6 +9,7 @@ import { Filters } from "@/components/dashboard/filters";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
+import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
 import type { InventoryStatus } from "@/types/inventory";
 import type { Category } from "@prisma/client";
@@ -32,6 +33,7 @@ export function DashboardContent({
     const [statusFilter, setStatusFilter] = useState<InventoryStatus | "all">("all");
     const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     useEffect(() => {
         // Check for checkout success parameter
@@ -50,6 +52,18 @@ export function DashboardContent({
 
     const handleAddItem = () => {
         router.push("/inventory");
+    };
+
+    // Barcode scanner handlers
+    const handleItemScanned = (item: any) => {
+        // Show success message and redirect to inventory
+        alert(`Item found: ${item.name}\nQuantity: ${item.quantity}`);
+        router.push("/inventory");
+    };
+
+    const handleNewItemFromBarcode = (barcode: string) => {
+        // Redirect to inventory with the barcode for new item creation
+        router.push(`/inventory?new_barcode=${encodeURIComponent(barcode)}`);
     };
 
     // Filter items based on search and filters
@@ -119,6 +133,12 @@ export function DashboardContent({
                             Import Items
                         </Button>
                     </Link>
+                    <Button variant="outline" onClick={() => setIsScannerOpen(true)}>
+                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2zM8 21l4-7 4 7M8 5h8v4H8z" />
+                        </svg>
+                        Scan Barcode
+                    </Button>
                     <Button onClick={handleAddItem}>
                         <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -215,6 +235,14 @@ export function DashboardContent({
                     </p>
                 </div>
             )}
+
+            {/* Barcode Scanner Modal */}
+            <BarcodeScannerModal
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onItemScanned={handleItemScanned}
+                onNewItemRequested={handleNewItemFromBarcode}
+            />
         </div>
     );
 }
