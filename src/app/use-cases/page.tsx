@@ -3,58 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
+import { PublicHeader } from "@/components/navigation/public-nav";
 
 export default function UseCasesPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center space-x-8">
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <img src="/images/supplr123.png" alt="Supplr" className="h-8 w-auto" />
-            </Link>
-
-            {/* Navigation Tabs */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Home
-              </Link>
-              <Link href="/use-cases" className="text-sm font-medium text-foreground">
-                Use Cases
-              </Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
-              </Link>
-              <div className="relative group">
-                <button className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-1">
-                  <span>Resources</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
-            </nav>
-          </div>
-
-          {/* Auth Buttons */}
-          <div className="flex items-center space-x-4">
-            <Link href="/sign-in">
-              <Button variant="ghost" className="text-sm">Sign In</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-sm">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicHeader showThemeToggle={false} />
 
       {/* Main Content */}
       <main className="flex-1">

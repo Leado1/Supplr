@@ -29,6 +29,7 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannerMode, setScannerMode] = useState<'add' | 'remove'>('add');
   const [newBarcode, setNewBarcode] = useState<string | null>(null);
 
   // Fetch data on component mount
@@ -36,14 +37,20 @@ export default function InventoryPage() {
     fetchInventoryData();
   }, []);
 
-  // Check for barcode parameter from scanner
+  // Check for barcode parameter from scanner or add action from dashboard
   useEffect(() => {
     const barcodeParam = searchParams.get('new_barcode');
+    const actionParam = searchParams.get('action');
+
     if (barcodeParam) {
       setNewBarcode(barcodeParam);
       setEditingItem(null);
       setIsModalOpen(true);
-
+      // Clean up the URL
+      window.history.replaceState({}, document.title, '/inventory');
+    } else if (actionParam === 'add') {
+      setEditingItem(null);
+      setIsModalOpen(true);
       // Clean up the URL
       window.history.replaceState({}, document.title, '/inventory');
     }
@@ -264,23 +271,41 @@ export default function InventoryPage() {
   };
 
   // Barcode scanner handlers
-  const handleItemScanned = (item: any) => {
-    // Highlight the scanned item in the table
+  const handleItemScanned = async (item: any, mode: 'add' | 'remove') => {
     const foundItem = items.find(i => i.id === item.id);
-    if (foundItem) {
-      // Scroll to and highlight the item
-      const element = document.getElementById(`item-${item.id}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        element.classList.add('bg-green-100');
-        setTimeout(() => {
-          element.classList.remove('bg-green-100');
-        }, 3000);
-      }
+    if (!foundItem) return;
+
+    if (mode === 'add') {
+      // Add 1 to quantity
+      await handleQuantityChange(foundItem, foundItem.quantity + 1);
+    } else if (mode === 'remove') {
+      // Remove 1 from quantity (minimum 0)
+      const newQuantity = Math.max(0, foundItem.quantity - 1);
+      await handleQuantityChange(foundItem, newQuantity);
     }
 
-    // Refresh the inventory data to get latest quantities
-    fetchInventoryData();
+    // Scroll to and highlight the item with appropriate color
+    const element = document.getElementById(`item-${item.id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add(mode === 'add' ? 'bg-green-100' : 'bg-red-100');
+      setTimeout(() => {
+        element.classList.remove(mode === 'add' ? 'bg-green-100' : 'bg-red-100');
+      }, 3000);
+    }
+
+    // Close scanner after successful operation
+    setIsScannerOpen(false);
+  };
+
+  const openScannerForAdd = () => {
+    setScannerMode('add');
+    setIsScannerOpen(true);
+  };
+
+  const openScannerForRemove = () => {
+    setScannerMode('remove');
+    setIsScannerOpen(true);
   };
 
   const handleNewItemFromBarcode = (barcode: string) => {
@@ -320,7 +345,12 @@ export default function InventoryPage() {
       }
     };
 
-    generateInventoryPDF(reportData);
+    try {
+      await generateInventoryPDF(reportData);
+    } catch (error) {
+      console.error('PDF export error:', error);
+      alert('Failed to generate PDF. Please check the browser console for details.');
+    }
   };
 
   const handleExportCSV = async () => {
@@ -375,11 +405,17 @@ export default function InventoryPage() {
               Import Items
             </Button>
           </Link>
-          <Button variant="outline" onClick={() => setIsScannerOpen(true)}>
+          <Button variant="outline" onClick={openScannerForAdd} className="text-green-600 hover:text-green-700">
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2zM8 21l4-7 4 7M8 5h8v4H8z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Scan Barcode
+            Scan to Add
+          </Button>
+          <Button variant="outline" onClick={openScannerForRemove} className="text-red-600 hover:text-red-700">
+            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+            </svg>
+            Scan to Remove
           </Button>
           <Button onClick={handleAddItem}>
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,6 +552,7 @@ export default function InventoryPage() {
         onClose={() => setIsScannerOpen(false)}
         onItemScanned={handleItemScanned}
         onNewItemRequested={handleNewItemFromBarcode}
+        mode={scannerMode}
       />
     </div>
   );

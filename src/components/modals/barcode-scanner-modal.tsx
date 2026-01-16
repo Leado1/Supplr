@@ -20,14 +20,17 @@ import {
   Package,
   Loader2,
   AlertTriangle,
-  Zap
+  Zap,
+  Minus,
+  ShoppingCart
 } from "lucide-react";
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onItemScanned?: (item: any) => void;
+  onItemScanned?: (item: any, mode: 'add' | 'remove') => void;
   onNewItemRequested?: (barcode: string) => void;
+  mode?: 'add' | 'remove';
 }
 
 interface ScannedItem {
@@ -45,6 +48,7 @@ export function BarcodeScannerModal({
   onClose,
   onItemScanned,
   onNewItemRequested,
+  mode = 'add',
 }: BarcodeScannerModalProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedCode, setScannedCode] = useState("");
@@ -148,9 +152,9 @@ export function BarcodeScannerModal({
         setFoundItem(item);
         setSuccessMessage(`Found: ${item.name}`);
 
-        // Notify parent component
+        // Notify parent component with the current mode
         if (onItemScanned) {
-          onItemScanned(item);
+          onItemScanned(item, mode);
         }
 
         // Auto-close after successful scan
@@ -203,8 +207,14 @@ export function BarcodeScannerModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Scan className="h-5 w-5" />
-            <span>Barcode Scanner</span>
+            {mode === 'add' ? (
+              <Plus className="h-5 w-5 text-green-600" />
+            ) : (
+              <Minus className="h-5 w-5 text-red-600" />
+            )}
+            <span>
+              {mode === 'add' ? 'Add Inventory' : 'Remove Inventory'} - Barcode Scanner
+            </span>
           </DialogTitle>
         </DialogHeader>
 
@@ -226,7 +236,10 @@ export function BarcodeScannerModal({
                 <div>
                   <p className="font-medium text-green-600">Scanner Ready</p>
                   <p className="text-sm text-muted-foreground">
-                    Scan a barcode or enter it manually below
+                    {mode === 'add'
+                      ? 'Scan a barcode to add inventory'
+                      : 'Scan a barcode to remove inventory'
+                    }
                   </p>
                 </div>
               </div>
@@ -244,10 +257,16 @@ export function BarcodeScannerModal({
 
             {foundItem && (
               <div className="space-y-3">
-                <CheckCircle className="h-12 w-12 mx-auto text-green-600" />
+                {mode === 'add' ? (
+                  <Plus className="h-12 w-12 mx-auto text-green-600" />
+                ) : (
+                  <Minus className="h-12 w-12 mx-auto text-red-600" />
+                )}
                 <div className="space-y-2">
-                  <p className="font-medium text-green-600">Item Found!</p>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 space-y-2">
+                  <p className={`font-medium ${mode === 'add' ? 'text-green-600' : 'text-red-600'}`}>
+                    {mode === 'add' ? 'Item Found - Ready to Add!' : 'Item Found - Ready to Remove!'}
+                  </p>
+                  <div className={`${mode === 'add' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-lg p-3 space-y-2`}>
                     <h3 className="font-semibold">{foundItem.name}</h3>
                     <div className="flex items-center justify-between text-sm">
                       <span>SKU: {foundItem.sku}</span>
@@ -256,6 +275,11 @@ export function BarcodeScannerModal({
                     <div className="text-sm text-muted-foreground">
                       Current quantity: {foundItem.quantity}
                     </div>
+                    {mode === 'remove' && foundItem.quantity === 0 && (
+                      <div className="text-sm text-red-600 font-medium">
+                        ⚠️ Warning: Item is already at 0 quantity
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -316,7 +340,7 @@ export function BarcodeScannerModal({
 
           {/* Action Buttons */}
           <div className="flex space-x-3">
-            {error && scannedCode && (
+            {error && scannedCode && mode === 'add' && (
               <Button
                 onClick={handleAddNewProduct}
                 className="flex-1"

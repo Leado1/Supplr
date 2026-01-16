@@ -67,13 +67,17 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
           reorderThreshold: editItem.reorderThreshold.toString(),
         });
       } else {
+        // Set default expiration date to 1 year from today
+        const defaultExpiration = new Date();
+        defaultExpiration.setFullYear(defaultExpiration.getFullYear() + 1);
+
         setFormData({
           name: "",
           sku: defaultSku || "",
           categoryId: "",
           quantity: "",
           unitCost: "",
-          expirationDate: "",
+          expirationDate: defaultExpiration.toISOString().split('T')[0],
           reorderThreshold: "5",
         });
       }
@@ -104,11 +108,12 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
       newErrors.expirationDate = "Expiration date is required";
     } else {
       const expDate = new Date(formData.expirationDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(23, 59, 59, 999);
 
-      if (expDate < today) {
-        newErrors.expirationDate = "Expiration date should be in the future";
+      if (expDate <= yesterday) {
+        newErrors.expirationDate = "Expiration date cannot be in the past";
       }
     }
 
@@ -163,7 +168,19 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
             window.open("/pricing", "_blank");
           }
         } else {
-          alert(errorData.message || "Failed to save item");
+          // Handle validation errors
+          if (errorData.errors && Array.isArray(errorData.errors)) {
+            const validationErrors: Record<string, string> = {};
+            errorData.errors.forEach((error: any) => {
+              if (error.path && error.path.length > 0) {
+                const fieldName = error.path[0];
+                validationErrors[fieldName] = error.message;
+              }
+            });
+            setErrors(validationErrors);
+          } else {
+            alert(errorData.message || "Failed to save item");
+          }
         }
       }
     } catch (error) {

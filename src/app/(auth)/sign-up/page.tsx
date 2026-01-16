@@ -13,7 +13,8 @@ export default function SignUpPage() {
           </p>
         </div>
         <SignUp
-          routing="hash"
+          routing="path"
+          path="/sign-up"
           signInUrl="/sign-in"
           redirectUrl="/dashboard"
           appearance={{

@@ -3,14 +3,15 @@ import { z } from "zod";
 // Base validation schemas
 export const createItemSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  sku: z.string().max(50, "SKU too long").optional(),
+  sku: z.string().max(50, "SKU too long").optional().nullable(),
   categoryId: z.string().min(1, "Category is required"),
   quantity: z.number().int().min(0, "Quantity must be non-negative"),
   unitCost: z.number().min(0, "Unit cost must be non-negative"),
   expirationDate: z.date().refine((date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to start of today
-    return date >= today;
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(23, 59, 59, 999); // End of yesterday
+    return date > yesterday;
   }, "Expiration date cannot be in the past"),
   reorderThreshold: z.number().int().min(0, "Reorder threshold must be non-negative"),
 });

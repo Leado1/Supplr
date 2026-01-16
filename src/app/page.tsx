@@ -8,7 +8,7 @@ import Image from "next/image";
 import { Check, Star, Shield, TrendingUp, AlertTriangle, Calculator } from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { ROICalculator } from "@/components/roi-calculator";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { PublicHeader } from "@/components/navigation/public-nav";
 
 export default async function HomePage() {
   const { userId } = await auth();
@@ -21,60 +21,7 @@ export default async function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center space-x-8">
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <img
-                src="/images/supplr123.png"
-                alt="Supplr"
-                className="h-8 w-auto"
-              />
-            </Link>
-
-            {/* Navigation Tabs */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/" className="text-sm font-medium text-foreground">
-                Home
-              </Link>
-              <Link href="/use-cases" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Use Cases
-              </Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Blog
-              </Link>
-              <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Support
-              </Link>
-              <div className="relative group">
-                <button className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center space-x-1">
-                  <span>Resources</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
-            </nav>
-          </div>
-
-          {/* Auth Buttons */}
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            <Link href="/sign-in">
-              <Button variant="ghost" className="text-sm">Sign In</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-sm">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicHeader />
 
       {/* Hero Section */}
       <main className="flex-1">
@@ -354,7 +301,7 @@ export default async function HomePage() {
                 <li><Link href="/use-cases" className="hover:text-foreground transition-colors">Use Cases</Link></li>
                 <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link></li>
+                <li><Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
               </ul>
             </div>
 

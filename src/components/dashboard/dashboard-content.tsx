@@ -4,17 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
-import { InventoryTable } from "@/components/dashboard/inventory-table";
-import { Filters } from "@/components/dashboard/filters";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
-import { ExportDropdown } from "@/components/ui/export-dropdown";
-import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
-import { calculateInventorySummary } from "@/lib/inventory-status";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
-import type { InventoryStatus } from "@/types/inventory";
 import type { Category } from "@prisma/client";
 
 interface DashboardContentProps {
@@ -32,9 +26,6 @@ export function DashboardContent({
 }: DashboardContentProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<InventoryStatus | "all">("all");
-    const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [isScannerOpen, setIsScannerOpen] = useState(false);
 
@@ -54,7 +45,7 @@ export function DashboardContent({
     }, [searchParams]);
 
     const handleAddItem = () => {
-        router.push("/inventory");
+        router.push("/inventory?action=add");
     };
 
     // Barcode scanner handlers
@@ -69,63 +60,6 @@ export function DashboardContent({
         router.push(`/inventory?new_barcode=${encodeURIComponent(barcode)}`);
     };
 
-    // Export handlers
-    const handleExportPDF = async () => {
-        // Convert items to the format expected by the PDF generator
-        const convertedItems = filteredItems.map(item => ({
-            ...item,
-            unitCost: item.unitCost.toString(),
-            expirationDate: item.expirationDate.toString()
-        }));
-
-        const reportData = {
-            organizationName,
-            items: convertedItems,
-            summary: summary,
-            filters: {
-                status: statusFilter,
-                category: categoryFilter === "all" ? undefined : categories.find(c => c.id === categoryFilter)?.name,
-                search: searchTerm || undefined
-            }
-        };
-
-        generateInventoryPDF(reportData);
-    };
-
-    const handleExportCSV = async () => {
-        // Convert items to the format expected by the CSV generator
-        const convertedItems = filteredItems.map(item => ({
-            ...item,
-            unitCost: item.unitCost.toString(),
-            expirationDate: item.expirationDate.toString()
-        }));
-
-        const reportData = {
-            organizationName,
-            items: convertedItems
-        };
-
-        generateCSV(reportData);
-    };
-
-    // Filter items based on search and filters
-    const filteredItems = items.filter((item) => {
-        // Search filter
-        const matchesSearch =
-            !searchTerm ||
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            item.category.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-        // Status filter
-        const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-
-        // Category filter
-        const matchesCategory =
-            categoryFilter === "all" || item.category.id === categoryFilter;
-
-        return matchesSearch && matchesStatus && matchesCategory;
-    });
 
     return (
         <div className="container mx-auto space-y-8 p-6">
@@ -161,30 +95,19 @@ export function DashboardContent({
                     </p>
                 </div>
                 <div className="flex space-x-2">
-                    <ExportDropdown
-                        onExportPDF={handleExportPDF}
-                        onExportCSV={handleExportCSV}
-                        variant="outline"
-                    />
-                    <Link href="/import">
-                        <Button variant="outline">
+                    <Link href="/inventory">
+                        <Button>
                             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
-                            Import Items
+                            Manage Inventory
                         </Button>
                     </Link>
-                    <Button variant="outline" onClick={() => setIsScannerOpen(true)}>
-                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2zM8 21l4-7 4 7M8 5h8v4H8z" />
-                        </svg>
-                        Scan Barcode
-                    </Button>
-                    <Button onClick={handleAddItem}>
+                    <Button variant="outline" onClick={handleAddItem}>
                         <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
-                        Add Item
+                        Quick Add
                     </Button>
                 </div>
             </div>
@@ -192,27 +115,132 @@ export function DashboardContent({
             {/* Summary Cards */}
             <SummaryCards summary={summary} />
 
-            {/* Filters */}
-            <Filters
-                categories={categories}
-                onSearchChange={setSearchTerm}
-                onStatusFilter={setStatusFilter}
-                onCategoryFilter={setCategoryFilter}
-                searchValue={searchTerm}
-                statusFilter={statusFilter}
-                categoryFilter={categoryFilter}
-            />
-
-            {/* Inventory Table */}
-            <div className="space-y-4">
+            {/* Recent Activity & Quick Overview */}
+            <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Inventory Items</h2>
-                    <div className="text-sm text-muted-foreground">
-                        {filteredItems.length} total items
-                    </div>
+                    <h2 className="text-xl font-semibold">Recent Inventory Activity</h2>
+                    <Link href="/inventory">
+                        <Button variant="outline" size="sm">
+                            View All Items
+                            <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Button>
+                    </Link>
                 </div>
 
-                <InventoryTable items={filteredItems} onAddItem={handleAddItem} />
+                {items.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+                        <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No inventory items yet</h3>
+                        <p className="text-gray-500 mb-4">Get started by adding your first inventory item</p>
+                        <div className="flex gap-2 justify-center">
+                            <Button onClick={handleAddItem}>
+                                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Add First Item
+                            </Button>
+                            <Link href="/import">
+                                <Button variant="outline">
+                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                    </svg>
+                                    Import Items
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {/* Quick Actions */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Link href="/inventory?action=add">
+                                <div className="p-4 border border-dashed border-blue-300 rounded-lg bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors">
+                                    <div className="flex items-center space-x-2 text-blue-700">
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        <span className="font-medium">Add New Item</span>
+                                    </div>
+                                </div>
+                            </Link>
+
+                            <Link href="/import">
+                                <div className="p-4 border border-dashed border-green-300 rounded-lg bg-green-50 hover:bg-green-100 cursor-pointer transition-colors">
+                                    <div className="flex items-center space-x-2 text-green-700">
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                        </svg>
+                                        <span className="font-medium">Import Items</span>
+                                    </div>
+                                </div>
+                            </Link>
+
+                            <div
+                                onClick={() => setIsScannerOpen(true)}
+                                className="p-4 border border-dashed border-purple-300 rounded-lg bg-purple-50 hover:bg-purple-100 cursor-pointer transition-colors"
+                            >
+                                <div className="flex items-center space-x-2 text-purple-700">
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2zM8 21l4-7 4 7M8 5h8v4H8z" />
+                                    </svg>
+                                    <span className="font-medium">Scan Barcode</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recently Added Items Preview */}
+                        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-medium text-gray-900">Recently Added Items</h3>
+                                <p className="text-sm text-gray-500">Latest {Math.min(items.length, 5)} inventory items</p>
+                            </div>
+                            <div className="divide-y divide-gray-200">
+                                {items.slice(0, 5).map((item) => (
+                                    <div key={item.id} className="px-6 py-4 flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                                                <p className="text-sm text-gray-500">{item.category.name}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-4">
+                                            <div className="text-right">
+                                                <p className="text-sm font-medium text-gray-900">Qty: {item.quantity}</p>
+                                                <p className="text-sm text-gray-500">${item.unitCost.toString()}</p>
+                                            </div>
+                                            <div className="flex items-center">
+                                                {item.status === 'ok' && (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        OK
+                                                    </span>
+                                                )}
+                                                {item.status === 'low_stock' && (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                        Low Stock
+                                                    </span>
+                                                )}
+                                                {item.status === 'expiring_soon' && (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        Expiring Soon
+                                                    </span>
+                                                )}
+                                                {item.status === 'expired' && (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        Expired
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Quick Actions */}

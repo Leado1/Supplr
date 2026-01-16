@@ -11,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ExportDropdown } from "@/components/ui/export-dropdown";
+import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
 import type { ItemWithStatus } from "@/types/inventory";
 
 interface WasteReport {
@@ -24,6 +26,7 @@ export default function ReportsPage() {
   const [wasteReport, setWasteReport] = useState<WasteReport | null>(null);
   const [reportPeriod, setReportPeriod] = useState("30");
   const [loading, setLoading] = useState(true);
+  const [organizationName, setOrganizationName] = useState("Your Organization");
 
   useEffect(() => {
     fetchReportData();
@@ -83,23 +86,70 @@ export default function ReportsPage() {
     }).format(new Date(date));
   };
 
-  const exportReport = () => {
-    if (!wasteReport) return;
+  const handleExportPDF = async () => {
+    if (items.length === 0) return;
 
-    const csvContent = [
-      "Item Name,SKU,Category,Quantity,Unit Cost,Total Value,Expiration Date",
-      ...wasteReport.expiredItems.map(item =>
-        `"${item.name}","${item.sku || ''}","${item.category.name}",${item.quantity},${item.unitCost},${Number(item.unitCost) * item.quantity},"${formatDate(item.expirationDate)}"`
-      )
-    ].join('\n');
+    // If we have waste report data, focus on expired items; otherwise export all items
+    const itemsToExport = wasteReport && wasteReport.expiredItems.length > 0
+      ? wasteReport.expiredItems
+      : items;
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `waste-report-${reportPeriod}-days.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    // Convert items to match the expected format for PDF generation
+    const convertedItems = itemsToExport.map(item => ({
+      ...item,
+      unitCost: item.unitCost.toString(),
+      expirationDate: item.expirationDate.toString(),
+    }));
+
+    // Calculate summary based on what we're exporting
+    const totalValue = itemsToExport.reduce((sum, item) => sum + (Number(item.unitCost) * item.quantity), 0);
+    const expiredCount = itemsToExport.filter(item => item.status === 'expired').length;
+    const expiringSoonCount = itemsToExport.filter(item => item.status === 'expiring_soon').length;
+    const lowStockCount = itemsToExport.filter(item => item.status === 'low_stock').length;
+
+    const summary = {
+      totalItems: itemsToExport.length,
+      totalValue: totalValue,
+      expired: expiredCount,
+      expiringSoon: expiringSoonCount,
+      lowStock: lowStockCount,
+    };
+
+    const reportData = {
+      organizationName,
+      items: convertedItems,
+      summary,
+      filters: {
+        status: wasteReport && wasteReport.expiredItems.length > 0 ? "expired" : "all",
+        category: "all",
+        search: `Report Period: Last ${reportPeriod} days`,
+      },
+    };
+
+    await generateInventoryPDF(reportData);
+  };
+
+  const handleExportCSV = () => {
+    if (items.length === 0) return;
+
+    // If we have waste report data, focus on expired items; otherwise export all items
+    const itemsToExport = wasteReport && wasteReport.expiredItems.length > 0
+      ? wasteReport.expiredItems
+      : items;
+
+    // Convert items to match the expected format for CSV generation
+    const convertedItems = itemsToExport.map(item => ({
+      ...item,
+      unitCost: item.unitCost.toString(),
+      expirationDate: item.expirationDate.toString(),
+    }));
+
+    const reportData = {
+      organizationName,
+      items: convertedItems,
+    };
+
+    generateCSV(reportData);
   };
 
   const getInventoryValueByCategory = () => {
@@ -159,12 +209,12 @@ export default function ReportsPage() {
               <SelectItem value="90">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={exportReport} variant="outline">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Export CSV
-          </Button>
+          <ExportDropdown
+            onExportPDF={handleExportPDF}
+            onExportCSV={handleExportCSV}
+            variant="outline"
+            disabled={loading || items.length === 0}
+          />
         </div>
       </div>
 

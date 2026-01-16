@@ -19,6 +19,7 @@ import {
   CheckCircleIcon,
   AlertCircleIcon
 } from "lucide-react";
+import { PublicHeader } from "@/components/navigation/public-nav";
 
 interface SupportPageProps {
   searchParams: Promise<{ success?: string; error?: string }>;
@@ -32,21 +33,15 @@ export const metadata: Metadata = {
 export default async function SupportPage({ searchParams }: SupportPageProps) {
   const resolvedParams = await searchParams;
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
-              <img
-                src="/images/supplr123.png"
-                alt="Supplr Logo"
-                className="h-16 w-auto cursor-pointer block"
-              />
-            </Link>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Support Center</h1>
+    <div className="flex min-h-screen flex-col">
+      {/* Header */}
+      <PublicHeader showThemeToggle={false} />
+
+      <main className="flex-1 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4 py-12">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Support Center</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             We're here to help you get the most out of Supplr. Get quick answers or reach out to our support team.
           </p>
@@ -288,6 +283,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
           </Card>
         </div>
       </div>
+      </main>
     </div>
   );
 }

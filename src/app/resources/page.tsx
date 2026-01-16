@@ -109,14 +109,12 @@ export default function ResourcesPage() {
               <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Blog
               </Link>
-              <div className="relative group">
-                <button className="text-sm font-medium text-foreground transition-colors flex items-center space-x-1">
-                  <span>Resources</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
+              <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Support
+              </Link>
+              <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Dashboard
+              </Link>
             </nav>
           </div>
 
