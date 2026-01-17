@@ -8,7 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, FileText, Download, Loader2 } from "lucide-react";
+import { ChevronDown, FileText, Download } from "lucide-react";
+import { InlineLoading } from "@/components/ui/loading-spinner";
 
 interface ExportDropdownProps {
   onExportPDF: () => Promise<void> | void;
@@ -48,7 +49,7 @@ export function ExportDropdown({
   if (isExporting) {
     return (
       <Button variant={variant} disabled className="min-w-32">
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <InlineLoading size="sm" className="mr-2" />
         Exporting {exportType?.toUpperCase()}...
       </Button>
     );

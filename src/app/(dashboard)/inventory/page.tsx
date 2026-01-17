@@ -17,6 +17,7 @@ import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
 import { ExportDropdown } from "@/components/ui/export-dropdown";
 import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
 import { calculateInventorySummary } from "@/lib/inventory-status";
+import { LoadingScreen, InlineLoading } from "@/components/ui/loading-spinner";
 import type { ItemWithStatus, InventoryFilters } from "@/types/inventory";
 import type { Category } from "@prisma/client";
 
@@ -467,11 +468,11 @@ export default function InventoryPage() {
   if (loading) {
     return (
       <div className="container mx-auto space-y-8 p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-muted rounded w-1/3"></div>
-          <div className="h-12 bg-muted rounded"></div>
-          <div className="h-64 bg-muted rounded"></div>
-        </div>
+        <LoadingScreen
+          message="Loading inventory..."
+          size="xl"
+          className="min-h-[400px]"
+        />
       </div>
     );
   }
