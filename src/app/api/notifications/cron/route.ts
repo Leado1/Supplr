@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       include: {
         users: true,
         settings: true,
-      }
+      },
     });
 
     let totalEmailsSent = 0;
@@ -42,15 +42,18 @@ export async function POST(request: NextRequest) {
           organizationsProcessed++;
 
           if (result.emailsSent > 0 || result.smsSent > 0) {
-            console.log(`Sent ${result.emailsSent} emails and ${result.smsSent} SMS to ${org.name}`);
+            console.log(
+              `Sent ${result.emailsSent} emails and ${result.smsSent} SMS to ${org.name}`
+            );
           }
         } else {
-          errors.push(`Failed to process ${org.name}: ${result.errors.join(", ")}`);
+          errors.push(
+            `Failed to process ${org.name}: ${result.errors.join(", ")}`
+          );
         }
 
         // Add delay between organizations to avoid overwhelming email servers
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
         console.error(`Error processing organization ${org.name}:`, error);
         errors.push(`Error processing ${org.name}: ${error}`);
@@ -58,7 +61,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the summary
-    console.log(`Notification cron completed. Processed ${organizationsProcessed} organizations, sent ${totalEmailsSent} emails and ${totalSmsSent} SMS`);
+    console.log(
+      `Notification cron completed. Processed ${organizationsProcessed} organizations, sent ${totalEmailsSent} emails and ${totalSmsSent} SMS`
+    );
 
     return NextResponse.json({
       success: true,
@@ -70,14 +75,13 @@ export async function POST(request: NextRequest) {
       },
       errors: errors.length > 0 ? errors : undefined,
     });
-
   } catch (error) {
     console.error("Error in notification cron:", error);
     return NextResponse.json(
       {
         success: false,
         error: "Failed to process notifications",
-        details: String(error)
+        details: String(error),
       },
       { status: 500 }
     );
@@ -89,6 +93,6 @@ export async function GET() {
   return NextResponse.json({
     status: "healthy",
     service: "notification-cron",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }

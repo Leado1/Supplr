@@ -46,7 +46,9 @@ export interface NotificationSettings {
 }
 
 // Get inventory alerts for an organization
-export async function getInventoryAlerts(organizationId: string): Promise<InventoryAlert[]> {
+export async function getInventoryAlerts(
+  organizationId: string
+): Promise<InventoryAlert[]> {
   try {
     // Get organization settings
     const settings = await prisma.settings.findUnique({
@@ -74,7 +76,8 @@ export async function getInventoryAlerts(organizationId: string): Promise<Invent
 
     for (const item of items) {
       const daysUntilExpiration = Math.floor(
-        (item.expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        (item.expirationDate.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
       );
 
       // Check if expired
@@ -141,40 +144,48 @@ export async function getInventoryAlerts(organizationId: string): Promise<Invent
 }
 
 // Generate email HTML for alerts
-function generateEmailHTML(alerts: InventoryAlert[], organizationName: string): string {
-  const alertSections = alerts.map((alert) => {
-    const alertTitle = {
-      expired: "🚨 Expired Items",
-      expiring: "⚠️ Items Expiring Soon",
-      low_stock: "📦 Low Stock Items",
-    };
+function generateEmailHTML(
+  alerts: InventoryAlert[],
+  organizationName: string
+): string {
+  const alertSections = alerts
+    .map((alert) => {
+      const alertTitle = {
+        expired: "🚨 Expired Items",
+        expiring: "⚠️ Items Expiring Soon",
+        low_stock: "📦 Low Stock Items",
+      };
 
-    const itemRows = alert.items.map((item) => {
-      const expirationInfo =
-        alert.type === "expired"
-          ? `<span style="color: #dc2626; font-weight: bold;">Expired ${Math.abs(
-              item.daysUntilExpiration || 0
-            )} days ago</span>`
-          : alert.type === "expiring"
-          ? `<span style="color: #f59e0b;">Expires in ${item.daysUntilExpiration} days</span>`
-          : `<span style="color: #6b7280;">Expires ${format(item.expirationDate, "MMM dd, yyyy")}</span>`;
+      const itemRows = alert.items
+        .map((item) => {
+          const expirationInfo =
+            alert.type === "expired"
+              ? `<span style="color: #dc2626; font-weight: bold;">Expired ${Math.abs(
+                  item.daysUntilExpiration || 0
+                )} days ago</span>`
+              : alert.type === "expiring"
+                ? `<span style="color: #f59e0b;">Expires in ${item.daysUntilExpiration} days</span>`
+                : `<span style="color: #6b7280;">Expires ${format(item.expirationDate, "MMM dd, yyyy")}</span>`;
 
-      return `
+          return `
         <tr style="border-bottom: 1px solid #e5e7eb;">
           <td style="padding: 12px 8px; font-weight: 500;">${item.name}</td>
           <td style="padding: 12px 8px; color: #6b7280;">${item.sku || "N/A"}</td>
           <td style="padding: 12px 8px; color: #6b7280;">${item.category}</td>
           <td style="padding: 12px 8px; text-align: center;">
-            ${alert.type === "low_stock"
-              ? `<span style="color: #dc2626; font-weight: bold;">${item.quantity}</span>`
-              : item.quantity}
+            ${
+              alert.type === "low_stock"
+                ? `<span style="color: #dc2626; font-weight: bold;">${item.quantity}</span>`
+                : item.quantity
+            }
           </td>
           <td style="padding: 12px 8px;">${expirationInfo}</td>
         </tr>
       `;
-    }).join("");
+        })
+        .join("");
 
-    return `
+      return `
       <div style="margin-bottom: 32px;">
         <h2 style="color: #1f2937; font-size: 20px; font-weight: bold; margin-bottom: 16px;">
           ${alertTitle[alert.type]} (${alert.items.length} items)
@@ -195,7 +206,8 @@ function generateEmailHTML(alerts: InventoryAlert[], organizationName: string): 
         </table>
       </div>
     `;
-  }).join("");
+    })
+    .join("");
 
   return `
     <!DOCTYPE html>
@@ -247,7 +259,10 @@ function generateEmailHTML(alerts: InventoryAlert[], organizationName: string): 
 }
 
 // Generate SMS text for alerts
-function generateSMSText(alerts: InventoryAlert[], organizationName: string): string {
+function generateSMSText(
+  alerts: InventoryAlert[],
+  organizationName: string
+): string {
   let message = `🏥 ${organizationName} Inventory Alert\n\n`;
 
   for (const alert of alerts) {
@@ -295,7 +310,10 @@ export async function sendEmailAlert(
 ): Promise<boolean> {
   try {
     const transporter = createTransporter();
-    const alertCount = alerts.reduce((sum, alert) => sum + alert.items.length, 0);
+    const alertCount = alerts.reduce(
+      (sum, alert) => sum + alert.items.length,
+      0
+    );
 
     const subject = `🚨 Inventory Alert - ${alertCount} items need attention`;
     const html = generateEmailHTML(alerts, organizationName);
@@ -354,7 +372,9 @@ export async function sendSMSAlert(
 }
 
 // Send notifications to organization users
-export async function sendInventoryNotifications(organizationId: string): Promise<{
+export async function sendInventoryNotifications(
+  organizationId: string
+): Promise<{
   success: boolean;
   emailsSent: number;
   smsSent: number;
@@ -372,16 +392,21 @@ export async function sendInventoryNotifications(organizationId: string): Promis
       where: { id: organizationId },
       include: {
         users: true,
-        settings: true
+        settings: true,
       },
     });
 
     if (!organization) {
-      return { success: false, emailsSent: 0, smsSent: 0, errors: ["Organization not found"] };
+      return {
+        success: false,
+        emailsSent: 0,
+        smsSent: 0,
+        errors: ["Organization not found"],
+      };
     }
 
     let emailsSent = 0;
-    let smsSent = 0;
+    const smsSent = 0;
     const errors: string[] = [];
 
     // Send notifications to each user
@@ -403,6 +428,11 @@ export async function sendInventoryNotifications(organizationId: string): Promis
     return { success: true, emailsSent, smsSent, errors };
   } catch (error) {
     console.error("Error sending inventory notifications:", error);
-    return { success: false, emailsSent: 0, smsSent: 0, errors: [String(error)] };
+    return {
+      success: false,
+      emailsSent: 0,
+      smsSent: 0,
+      errors: [String(error)],
+    };
   }
 }

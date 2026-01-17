@@ -24,7 +24,11 @@ export default function DeleteAccountPage() {
       return;
     }
 
-    if (!confirm("This action cannot be undone. Are you absolutely sure you want to delete your account?")) {
+    if (
+      !confirm(
+        "This action cannot be undone. Are you absolutely sure you want to delete your account?"
+      )
+    ) {
       return;
     }
 
@@ -62,7 +66,9 @@ export default function DeleteAccountPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Billing
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight text-red-600">Delete Account</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-red-600">
+          Delete Account
+        </h1>
         <p className="text-muted-foreground">
           Permanently delete your account and all associated data
         </p>
@@ -72,7 +78,8 @@ export default function DeleteAccountPage() {
       <Alert className="border-red-200 bg-red-50">
         <AlertTriangle className="h-4 w-4 text-red-600" />
         <AlertDescription className="text-red-800">
-          <strong>Warning:</strong> This action is irreversible. All your data will be permanently deleted.
+          <strong>Warning:</strong> This action is irreversible. All your data
+          will be permanently deleted.
         </AlertDescription>
       </Alert>
 
@@ -122,10 +129,13 @@ export default function DeleteAccountPage() {
               <Checkbox
                 id="acknowledge"
                 checked={acknowledged}
-                onCheckedChange={(checked) => setAcknowledged(checked as boolean)}
+                onCheckedChange={(checked) =>
+                  setAcknowledged(checked as boolean)
+                }
               />
               <Label htmlFor="acknowledge" className="text-sm">
-                I understand this action cannot be undone and all data will be permanently lost
+                I understand this action cannot be undone and all data will be
+                permanently lost
               </Label>
             </div>
 

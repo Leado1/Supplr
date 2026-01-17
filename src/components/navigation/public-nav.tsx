@@ -62,7 +62,9 @@ export function PublicHeader({ showThemeToggle = true }: PublicHeaderProps) {
         <div className="flex items-center space-x-4">
           {showThemeToggle && <ThemeToggle />}
           <Link href="/sign-in">
-            <Button variant="ghost" className="text-sm">Sign In</Button>
+            <Button variant="ghost" className="text-sm">
+              Sign In
+            </Button>
           </Link>
           <Link href="/sign-up">
             <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-sm">

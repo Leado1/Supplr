@@ -17,7 +17,7 @@ export function ROICalculator() {
   const supplrSavings = currentWaste * 0.85; // 85% waste reduction
   const supplrCost = 79 * 12; // Professional plan yearly
   const netSavings = supplrSavings - supplrCost;
-  const roi = ((netSavings / supplrCost) * 100);
+  const roi = (netSavings / supplrCost) * 100;
 
   return (
     <section className="py-20 bg-gradient-to-b from-muted/30 to-background">
@@ -40,16 +40,23 @@ export function ROICalculator() {
               {/* Input Section */}
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="monthlySpend" className="text-base font-medium">
+                  <Label
+                    htmlFor="monthlySpend"
+                    className="text-base font-medium"
+                  >
                     Monthly inventory spend (Botox, fillers, supplies)
                   </Label>
                   <div className="relative mt-2">
-                    <span className="absolute left-3 top-3 text-gray-500">$</span>
+                    <span className="absolute left-3 top-3 text-gray-500">
+                      $
+                    </span>
                     <Input
                       id="monthlySpend"
                       type="number"
                       value={monthlySpend}
-                      onChange={(e) => setMonthlySpend(Number(e.target.value) || 0)}
+                      onChange={(e) =>
+                        setMonthlySpend(Number(e.target.value) || 0)
+                      }
                       className="pl-8 h-12 text-lg"
                       placeholder="10,000"
                     />
@@ -95,11 +102,15 @@ export function ROICalculator() {
                 <div className="text-sm space-y-2">
                   <div className="flex justify-between">
                     <span>Waste prevented with Supplr:</span>
-                    <span className="font-medium">${supplrSavings.toLocaleString()}</span>
+                    <span className="font-medium">
+                      ${supplrSavings.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Supplr Professional plan:</span>
-                    <span className="font-medium">-${supplrCost.toLocaleString()}</span>
+                    <span className="font-medium">
+                      -${supplrCost.toLocaleString()}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between font-bold text-green-600">
                     <span>Total net savings:</span>
@@ -113,7 +124,10 @@ export function ROICalculator() {
                   Based on industry averages and Supplr customer data
                 </p>
                 <Link href="/sign-up">
-                  <Button size="lg" className="px-8 bg-gradient-to-r from-primary to-primary/80">
+                  <Button
+                    size="lg"
+                    className="px-8 bg-gradient-to-r from-primary to-primary/80"
+                  >
                     Start Saving Today
                   </Button>
                 </Link>

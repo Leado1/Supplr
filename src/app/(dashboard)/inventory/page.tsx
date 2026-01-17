@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
@@ -29,8 +35,12 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [scannerMode, setScannerMode] = useState<'add' | 'remove'>('add');
+  const [scannerMode, setScannerMode] = useState<"add" | "remove">("add");
   const [newBarcode, setNewBarcode] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<
+    "name" | "quantity" | "unitCost" | "expirationDate" | "status" | "category"
+  >("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Fetch data on component mount
   useEffect(() => {
@@ -39,27 +49,27 @@ export default function InventoryPage() {
 
   // Check for barcode parameter from scanner or add action from dashboard
   useEffect(() => {
-    const barcodeParam = searchParams.get('new_barcode');
-    const actionParam = searchParams.get('action');
+    const barcodeParam = searchParams.get("new_barcode");
+    const actionParam = searchParams.get("action");
 
     if (barcodeParam) {
       setNewBarcode(barcodeParam);
       setEditingItem(null);
       setIsModalOpen(true);
       // Clean up the URL
-      window.history.replaceState({}, document.title, '/inventory');
-    } else if (actionParam === 'add') {
+      window.history.replaceState({}, document.title, "/inventory");
+    } else if (actionParam === "add") {
       setEditingItem(null);
       setIsModalOpen(true);
       // Clean up the URL
-      window.history.replaceState({}, document.title, '/inventory');
+      window.history.replaceState({}, document.title, "/inventory");
     }
   }, [searchParams]);
 
-  // Apply filters whenever items or filters change
+  // Apply filters whenever items, filters, or sorting changes
   useEffect(() => {
     applyFilters();
-  }, [items, filters]);
+  }, [items, filters, sortField, sortDirection]);
 
   // Clear selections when filtered items change
   useEffect(() => {
@@ -95,30 +105,97 @@ export default function InventoryPage() {
     if (filters.status && filters.status !== "all") {
       if (filters.status === "ok") {
         // "In Stock" should show items with any quantity > 0
-        filtered = filtered.filter(item =>
-          item.quantity > 0 && (item.status === "ok" || item.status === "low_stock")
+        filtered = filtered.filter(
+          (item) =>
+            item.quantity > 0 &&
+            (item.status === "ok" || item.status === "low_stock")
         );
       } else {
-        filtered = filtered.filter(item => item.status === filters.status);
+        filtered = filtered.filter((item) => item.status === filters.status);
       }
     }
 
     // Apply category filter
     if (filters.categoryId && filters.categoryId !== "all") {
-      filtered = filtered.filter(item => item.categoryId === filters.categoryId);
+      filtered = filtered.filter(
+        (item) => item.categoryId === filters.categoryId
+      );
     }
 
     // Apply search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(item =>
-        item.name.toLowerCase().includes(searchTerm) ||
-        (item.sku && item.sku.toLowerCase().includes(searchTerm)) ||
-        item.category.name.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchTerm) ||
+          (item.sku && item.sku.toLowerCase().includes(searchTerm)) ||
+          item.category.name.toLowerCase().includes(searchTerm)
       );
     }
 
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortField) {
+        case "name":
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case "quantity":
+          aValue = a.quantity;
+          bValue = b.quantity;
+          break;
+        case "unitCost":
+          aValue = Number(a.unitCost);
+          bValue = Number(b.unitCost);
+          break;
+        case "expirationDate":
+          aValue = new Date(a.expirationDate).getTime();
+          bValue = new Date(b.expirationDate).getTime();
+          break;
+        case "status":
+          // Define status priority for sorting
+          const statusPriority = {
+            expired: 0,
+            expiring_soon: 1,
+            low_stock: 2,
+            ok: 3,
+          };
+          aValue = statusPriority[a.status];
+          bValue = statusPriority[b.status];
+          break;
+        case "category":
+          aValue = a.category.name.toLowerCase();
+          bValue = b.category.name.toLowerCase();
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
+
     setFilteredItems(filtered);
+  };
+
+  const handleSort = (field: typeof sortField) => {
+    if (field === sortField) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field and default to ascending
+      setSortField(field);
+      setSortDirection("asc");
+    }
   };
 
   const handleAddItem = () => {
@@ -164,7 +241,10 @@ export default function InventoryPage() {
     await fetchInventoryData(); // Refresh the data
   };
 
-  const handleQuantityChange = async (item: ItemWithStatus, newQuantity: number) => {
+  const handleQuantityChange = async (
+    item: ItemWithStatus,
+    newQuantity: number
+  ) => {
     try {
       const response = await fetch(`/api/items/${item.id}`, {
         method: "PATCH",
@@ -178,8 +258,8 @@ export default function InventoryPage() {
 
       if (response.ok) {
         // Update the local state immediately for better UX
-        setItems(prevItems =>
-          prevItems.map(i =>
+        setItems((prevItems) =>
+          prevItems.map((i) =>
             i.id === item.id ? { ...i, quantity: newQuantity } : i
           )
         );
@@ -205,7 +285,7 @@ export default function InventoryPage() {
 
   const handleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
-      const allIds = new Set(filteredItems.map(item => item.id));
+      const allIds = new Set(filteredItems.map((item) => item.id));
       setSelectedIds(allIds);
     } else {
       setSelectedIds(new Set());
@@ -216,20 +296,26 @@ export default function InventoryPage() {
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
 
-    const selectedItems = filteredItems.filter(item => selectedIds.has(item.id));
-    const itemNames = selectedItems.map(item => item.name).join(", ");
+    const selectedItems = filteredItems.filter((item) =>
+      selectedIds.has(item.id)
+    );
+    const itemNames = selectedItems.map((item) => item.name).join(", ");
 
-    if (!confirm(`Are you sure you want to delete ${selectedIds.size} item(s)? (${itemNames})`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete ${selectedIds.size} item(s)? (${itemNames})`
+      )
+    ) {
       return;
     }
 
     try {
-      const deletePromises = Array.from(selectedIds).map(id =>
+      const deletePromises = Array.from(selectedIds).map((id) =>
         fetch(`/api/items/${id}`, { method: "DELETE" })
       );
 
       const results = await Promise.all(deletePromises);
-      const allSuccessful = results.every(response => response.ok);
+      const allSuccessful = results.every((response) => response.ok);
 
       if (allSuccessful) {
         setSelectedIds(new Set());
@@ -247,7 +333,7 @@ export default function InventoryPage() {
     if (selectedIds.size === 0) return;
 
     try {
-      const updatePromises = Array.from(selectedIds).map(id =>
+      const updatePromises = Array.from(selectedIds).map((id) =>
         fetch(`/api/items/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -256,7 +342,7 @@ export default function InventoryPage() {
       );
 
       const results = await Promise.all(updatePromises);
-      const allSuccessful = results.every(response => response.ok);
+      const allSuccessful = results.every((response) => response.ok);
 
       if (allSuccessful) {
         setSelectedIds(new Set());
@@ -271,14 +357,14 @@ export default function InventoryPage() {
   };
 
   // Barcode scanner handlers
-  const handleItemScanned = async (item: any, mode: 'add' | 'remove') => {
-    const foundItem = items.find(i => i.id === item.id);
+  const handleItemScanned = async (item: any, mode: "add" | "remove") => {
+    const foundItem = items.find((i) => i.id === item.id);
     if (!foundItem) return;
 
-    if (mode === 'add') {
+    if (mode === "add") {
       // Add 1 to quantity
       await handleQuantityChange(foundItem, foundItem.quantity + 1);
-    } else if (mode === 'remove') {
+    } else if (mode === "remove") {
       // Remove 1 from quantity (minimum 0)
       const newQuantity = Math.max(0, foundItem.quantity - 1);
       await handleQuantityChange(foundItem, newQuantity);
@@ -287,10 +373,12 @@ export default function InventoryPage() {
     // Scroll to and highlight the item with appropriate color
     const element = document.getElementById(`item-${item.id}`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      element.classList.add(mode === 'add' ? 'bg-green-100' : 'bg-red-100');
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      element.classList.add(mode === "add" ? "bg-green-100" : "bg-red-100");
       setTimeout(() => {
-        element.classList.remove(mode === 'add' ? 'bg-green-100' : 'bg-red-100');
+        element.classList.remove(
+          mode === "add" ? "bg-green-100" : "bg-red-100"
+        );
       }, 3000);
     }
 
@@ -299,12 +387,12 @@ export default function InventoryPage() {
   };
 
   const openScannerForAdd = () => {
-    setScannerMode('add');
+    setScannerMode("add");
     setIsScannerOpen(true);
   };
 
   const openScannerForRemove = () => {
-    setScannerMode('remove');
+    setScannerMode("remove");
     setIsScannerOpen(true);
   };
 
@@ -315,10 +403,12 @@ export default function InventoryPage() {
 
     // Set a timeout to pre-fill the SKU field after modal opens
     setTimeout(() => {
-      const skuInput = document.querySelector('input[name="sku"]') as HTMLInputElement;
+      const skuInput = document.querySelector(
+        'input[name="sku"]'
+      ) as HTMLInputElement;
       if (skuInput) {
         skuInput.value = barcode;
-        skuInput.dispatchEvent(new Event('input', { bubbles: true }));
+        skuInput.dispatchEvent(new Event("input", { bubbles: true }));
       }
     }, 100);
   };
@@ -328,10 +418,10 @@ export default function InventoryPage() {
     const summary = calculateInventorySummary(filteredItems);
 
     // Convert items to the format expected by the PDF generator
-    const convertedItems = filteredItems.map(item => ({
+    const convertedItems = filteredItems.map((item) => ({
       ...item,
       unitCost: item.unitCost.toString(),
-      expirationDate: item.expirationDate.toString()
+      expirationDate: item.expirationDate.toString(),
     }));
 
     const reportData = {
@@ -340,30 +430,35 @@ export default function InventoryPage() {
       summary,
       filters: {
         status: filters.status,
-        category: filters.categoryId === "all" ? undefined : categories.find(c => c.id === filters.categoryId)?.name,
-        search: filters.search || undefined
-      }
+        category:
+          filters.categoryId === "all"
+            ? undefined
+            : categories.find((c) => c.id === filters.categoryId)?.name,
+        search: filters.search || undefined,
+      },
     };
 
     try {
       await generateInventoryPDF(reportData);
     } catch (error) {
-      console.error('PDF export error:', error);
-      alert('Failed to generate PDF. Please check the browser console for details.');
+      console.error("PDF export error:", error);
+      alert(
+        "Failed to generate PDF. Please check the browser console for details."
+      );
     }
   };
 
   const handleExportCSV = async () => {
     // Convert items to the format expected by the CSV generator
-    const convertedItems = filteredItems.map(item => ({
+    const convertedItems = filteredItems.map((item) => ({
       ...item,
       unitCost: item.unitCost.toString(),
-      expirationDate: item.expirationDate.toString()
+      expirationDate: item.expirationDate.toString(),
     }));
 
     const reportData = {
       organizationName: "Your Organization", // We'll get this from the organization context
-      items: convertedItems
+      items: convertedItems,
     };
 
     generateCSV(reportData);
@@ -386,9 +481,12 @@ export default function InventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Inventory Management
+          </h1>
           <p className="text-muted-foreground">
-            Manage your medical supplies, track expiration dates, and monitor stock levels
+            Manage your medical supplies, track expiration dates, and monitor
+            stock levels
           </p>
         </div>
         <div className="flex space-x-3">
@@ -399,27 +497,75 @@ export default function InventoryPage() {
           />
           <Link href="/import">
             <Button variant="outline">
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              <svg
+                className="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                />
               </svg>
               Import Items
             </Button>
           </Link>
-          <Button variant="outline" onClick={openScannerForAdd} className="text-green-600 hover:text-green-700">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          <Button
+            variant="outline"
+            onClick={openScannerForAdd}
+            className="text-green-600 hover:text-green-700"
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             Scan to Add
           </Button>
-          <Button variant="outline" onClick={openScannerForRemove} className="text-red-600 hover:text-red-700">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+          <Button
+            variant="outline"
+            onClick={openScannerForRemove}
+            className="text-red-600 hover:text-red-700"
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M18 12H6"
+              />
             </svg>
             Scan to Remove
           </Button>
           <Button onClick={handleAddItem}>
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add New Item
           </Button>
@@ -431,11 +577,190 @@ export default function InventoryPage() {
         categories={categories}
         onSearchChange={(search) => setFilters({ ...filters, search })}
         onStatusFilter={(status) => setFilters({ ...filters, status })}
-        onCategoryFilter={(categoryId) => setFilters({ ...filters, categoryId })}
+        onCategoryFilter={(categoryId) =>
+          setFilters({ ...filters, categoryId })
+        }
         searchValue={filters.search}
         statusFilter={filters.status}
         categoryFilter={filters.categoryId}
       />
+
+      {/* Sort Controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-medium text-muted-foreground">
+            Sort by:
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center space-x-2">
+                <span className="capitalize">
+                  {sortField === "unitCost"
+                    ? "Unit Cost"
+                    : sortField === "expirationDate"
+                      ? "Expiration Date"
+                      : sortField}
+                </span>
+                {sortDirection === "asc" ? (
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 15l7-7 7 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => handleSort("name")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Name</span>
+                  {sortField === "name" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSort("quantity")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Quantity</span>
+                  {sortField === "quantity" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSort("unitCost")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Unit Cost</span>
+                  {sortField === "unitCost" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSort("expirationDate")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Expiration Date</span>
+                  {sortField === "expirationDate" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSort("status")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Status</span>
+                  {sortField === "status" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSort("category")}>
+                <div className="flex items-center justify-between w-full">
+                  <span>Category</span>
+                  {sortField === "category" && (
+                    <svg
+                      className="h-4 w-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}{" "}
+          displayed
+        </div>
+      </div>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -445,19 +770,19 @@ export default function InventoryPage() {
         </div>
         <div className="rounded-lg border bg-card p-4">
           <div className="text-2xl font-bold text-yellow-600">
-            {items.filter(item => item.status === "expiring_soon").length}
+            {items.filter((item) => item.status === "expiring_soon").length}
           </div>
           <p className="text-sm text-muted-foreground">Expiring Soon</p>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <div className="text-2xl font-bold text-red-600">
-            {items.filter(item => item.status === "expired").length}
+            {items.filter((item) => item.status === "expired").length}
           </div>
           <p className="text-sm text-muted-foreground">Expired</p>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <div className="text-2xl font-bold text-orange-600">
-            {items.filter(item => item.status === "low_stock").length}
+            {items.filter((item) => item.status === "low_stock").length}
           </div>
           <p className="text-sm text-muted-foreground">Low Stock</p>
         </div>
@@ -469,8 +794,7 @@ export default function InventoryPage() {
           <h2 className="text-xl font-semibold">
             {filteredItems.length === items.length
               ? "All Inventory Items"
-              : `Filtered Results (${filteredItems.length} of ${items.length})`
-            }
+              : `Filtered Results (${filteredItems.length} of ${items.length})`}
           </h2>
         </div>
 
@@ -479,7 +803,8 @@ export default function InventoryPage() {
           <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-900">
-                {selectedIds.size} item{selectedIds.size > 1 ? 's' : ''} selected
+                {selectedIds.size} item{selectedIds.size > 1 ? "s" : ""}{" "}
+                selected
               </span>
               <Button
                 variant="outline"
@@ -498,8 +823,18 @@ export default function InventoryPage() {
                 onClick={handleBulkDelete}
                 className="bg-red-600 hover:bg-red-700"
               >
-                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  className="mr-2 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
                 Delete Selected
               </Button>
@@ -508,15 +843,27 @@ export default function InventoryPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const newQuantity = prompt("Enter new quantity for selected items:");
+                  const newQuantity = prompt(
+                    "Enter new quantity for selected items:"
+                  );
                   if (newQuantity && !isNaN(parseInt(newQuantity))) {
                     handleBulkQuantityUpdate(parseInt(newQuantity));
                   }
                 }}
                 className="border-gray-300 hover:bg-gray-50"
               >
-                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <svg
+                  className="mr-2 h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
                 Update Quantity
               </Button>

@@ -36,11 +36,15 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
-        await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
+        await handleSubscriptionUpdate(
+          event.data.object as Stripe.Subscription
+        );
         break;
 
       case "customer.subscription.deleted":
-        await handleSubscriptionCanceled(event.data.object as Stripe.Subscription);
+        await handleSubscriptionCanceled(
+          event.data.object as Stripe.Subscription
+        );
         break;
 
       case "invoice.payment_succeeded":
@@ -58,7 +62,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("Webhook handler failed:", error);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 }
+    );
   }
 }
 
@@ -83,11 +90,19 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       data: {
         stripeSubscriptionId: subscriptionId,
         stripePriceId: priceId,
-        stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        stripeCurrentPeriodEnd: new Date(
+          subscription.current_period_end * 1000
+        ),
         plan: planDetails.plan,
         status: subscription.status,
         itemLimit: planDetails.itemLimit,
         isActive: subscription.status === "active",
+        // Update feature flags based on plan
+        advancedAnalytics: planDetails.advancedAnalytics,
+        customCategories: planDetails.customCategories,
+        apiAccess: planDetails.apiAccess,
+        multiLocation: planDetails.multiLocation,
+        customReports: planDetails.customReports,
       },
     });
   }
@@ -137,19 +152,88 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
 function getPlanDetails(priceId?: string) {
   // Map Stripe price IDs to plan details using environment variables
-  const plans: Record<string, { plan: string; itemLimit: number }> = {
+  const plans: Record<
+    string,
+    {
+      plan: string;
+      itemLimit: number;
+      advancedAnalytics: boolean;
+      customCategories: boolean;
+      apiAccess: boolean;
+      multiLocation: boolean;
+      customReports: boolean;
+    }
+  > = {
     // Starter Plan
-    [process.env.STRIPE_PRICE_STARTER_MONTHLY || ""]: { plan: "starter", itemLimit: 100 },
-    [process.env.STRIPE_PRICE_STARTER_ANNUAL || ""]: { plan: "starter", itemLimit: 100 },
+    [process.env.STRIPE_PRICE_STARTER_MONTHLY || ""]: {
+      plan: "starter",
+      itemLimit: 100,
+      advancedAnalytics: false,
+      customCategories: false,
+      apiAccess: false,
+      multiLocation: false,
+      customReports: false,
+    },
+    [process.env.STRIPE_PRICE_STARTER_ANNUAL || ""]: {
+      plan: "starter",
+      itemLimit: 100,
+      advancedAnalytics: false,
+      customCategories: false,
+      apiAccess: false,
+      multiLocation: false,
+      customReports: false,
+    },
 
     // Professional Plan
-    [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: { plan: "professional", itemLimit: 500 },
-    [process.env.STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: { plan: "professional", itemLimit: 500 },
+    [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || ""]: {
+      plan: "professional",
+      itemLimit: 500,
+      advancedAnalytics: true,
+      customCategories: true,
+      apiAccess: false,
+      multiLocation: false,
+      customReports: false,
+    },
+    [process.env.STRIPE_PRICE_PROFESSIONAL_ANNUAL || ""]: {
+      plan: "professional",
+      itemLimit: 500,
+      advancedAnalytics: true,
+      customCategories: true,
+      apiAccess: false,
+      multiLocation: false,
+      customReports: false,
+    },
 
     // Enterprise Plan
-    [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || ""]: { plan: "enterprise", itemLimit: -1 }, // unlimited
-    [process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || ""]: { plan: "enterprise", itemLimit: -1 }, // unlimited
+    [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || ""]: {
+      plan: "enterprise",
+      itemLimit: -1,
+      advancedAnalytics: true,
+      customCategories: true,
+      apiAccess: true,
+      multiLocation: true,
+      customReports: true,
+    },
+    [process.env.STRIPE_PRICE_ENTERPRISE_ANNUAL || ""]: {
+      plan: "enterprise",
+      itemLimit: -1,
+      advancedAnalytics: true,
+      customCategories: true,
+      apiAccess: true,
+      multiLocation: true,
+      customReports: true,
+    },
   };
 
-  return plans[priceId || ""] || { plan: "trial", itemLimit: 5 };
+  return (
+    plans[priceId || ""] || {
+      plan: "trial",
+      itemLimit: 5,
+      advancedAnalytics: false,
+      customCategories: false,
+      apiAccess: false,
+      multiLocation: false,
+      customReports: false,
+    }
+  );
 }

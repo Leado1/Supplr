@@ -5,7 +5,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Supplr - Medical Inventory Management",
-  description: "Simple, visual inventory management for medical practices. Track supplies, expiration dates, and stock levels.",
+  description:
+    "Simple, visual inventory management for medical practices. Track supplies, expiration dates, and stock levels.",
 };
 
 export default function RootLayout({

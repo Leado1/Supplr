@@ -7,7 +7,14 @@ const supportFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
   organization: z.string().optional(),
-  category: z.enum(["general", "technical", "billing", "feature", "bug", "training"]),
+  category: z.enum([
+    "general",
+    "technical",
+    "billing",
+    "feature",
+    "bug",
+    "training",
+  ]),
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(10, "Message must be at least 10 characters"),
   urgency: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
@@ -37,7 +44,7 @@ const formatUrgency = (urgency: string) => {
     low: "🟢 Low",
     normal: "🟡 Normal",
     high: "🟠 High",
-    urgent: "🔴 URGENT"
+    urgent: "🔴 URGENT",
   };
   return urgencyMap[urgency as keyof typeof urgencyMap] || urgency;
 };
@@ -50,7 +57,7 @@ const formatCategory = (category: string) => {
     billing: "Billing & Subscriptions",
     feature: "Feature Request",
     bug: "Bug Report",
-    training: "Training & Onboarding"
+    training: "Training & Onboarding",
   };
   return categoryMap[category as keyof typeof categoryMap] || category;
 };
@@ -63,11 +70,11 @@ export async function POST(request: NextRequest) {
     const data = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
-      organization: formData.get("organization") as string || "",
+      organization: (formData.get("organization") as string) || "",
       category: formData.get("category") as string,
       subject: formData.get("subject") as string,
       message: formData.get("message") as string,
-      urgency: formData.get("urgency") as string || "normal",
+      urgency: (formData.get("urgency") as string) || "normal",
     };
 
     // Validate the form data
@@ -77,19 +84,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           message: "Invalid form data",
-          errors: validationResult.error.issues
+          errors: validationResult.error.issues,
         },
         { status: 400 }
       );
     }
 
-    const { name, email, organization, category, subject, message, urgency } = validationResult.data;
+    const { name, email, organization, category, subject, message, urgency } =
+      validationResult.data;
 
     // Check if SMTP is configured
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
       console.error("SMTP credentials not configured");
       return NextResponse.json(
-        { message: "Email service not configured. Please contact support directly at support@supplr.net" },
+        {
+          message:
+            "Email service not configured. Please contact support directly at support@supplr.net",
+        },
         { status: 500 }
       );
     }
@@ -101,7 +112,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.SMTP_SECURE,
       user: process.env.SMTP_USER,
       // Don't log the actual password for security
-      hasPassword: !!process.env.SMTP_PASS
+      hasPassword: !!process.env.SMTP_PASS,
     });
 
     // Create email transporter
@@ -133,12 +144,16 @@ export async function POST(request: NextRequest) {
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Email:</td>
               <td style="padding: 8px 0; color: #666;"><a href="mailto:${email}">${email}</a></td>
             </tr>
-            ${organization ? `
+            ${
+              organization
+                ? `
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Organization:</td>
               <td style="padding: 8px 0; color: #666;">${organization}</td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Subject:</td>
               <td style="padding: 8px 0; color: #666;">${subject}</td>
@@ -148,7 +163,7 @@ export async function POST(request: NextRequest) {
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
             <h4 style="color: #333; margin: 0 0 10px 0;">Message:</h4>
             <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; line-height: 1.6; color: #333;">
-              ${message.replace(/\n/g, '<br>')}
+              ${message.replace(/\n/g, "<br>")}
             </div>
           </div>
         </div>
@@ -206,7 +221,7 @@ export async function POST(request: NextRequest) {
           <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #1976d2;">
               <strong>📧 Response Time:</strong> We typically respond within 24 hours for normal priority requests.
-              ${urgency === 'urgent' ? ' Since this is marked as urgent, we\'ll prioritize your request.' : ''}
+              ${urgency === "urgent" ? " Since this is marked as urgent, we'll prioritize your request." : ""}
             </p>
           </div>
 
@@ -237,7 +252,6 @@ export async function POST(request: NextRequest) {
 
     // Redirect back to support page with success message
     return NextResponse.redirect(new URL("/support?success=true", request.url));
-
   } catch (error) {
     console.error("Error sending support email:", error);
 

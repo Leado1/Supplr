@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user?.organization.subscription?.stripeCustomerId) {
-      return NextResponse.json({ message: "No customer found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No customer found" },
+        { status: 404 }
+      );
     }
 
     // Create customer portal session

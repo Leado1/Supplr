@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Shield, Lock, Eye, FileText, Users, Globe, Calendar } from "lucide-react";
+import {
+  Shield,
+  Lock,
+  Eye,
+  FileText,
+  Users,
+  Globe,
+  Calendar,
+} from "lucide-react";
 import { PublicHeader } from "@/components/navigation/public-nav";
 
 export default function PrivacyPolicyPage() {
-
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
@@ -23,7 +30,8 @@ export default function PrivacyPolicyPage() {
               </h1>
             </div>
             <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground leading-relaxed">
-              Your privacy and data security are our top priorities. Learn how we protect your medical practice's information.
+              Your privacy and data security are our top priorities. Learn how
+              we protect your medical practice's information.
             </p>
             <div className="flex items-center justify-center text-sm text-muted-foreground">
               <Calendar className="w-4 h-4 mr-2" />
@@ -37,24 +45,36 @@ export default function PrivacyPolicyPage() {
           <div className="container mx-auto max-w-4xl px-4">
             <Card className="border-2 border-primary/20 shadow-xl">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">Privacy at a Glance</CardTitle>
+                <CardTitle className="text-2xl text-center">
+                  Privacy at a Glance
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-6 text-center">
                   <div>
                     <Lock className="w-8 h-8 text-green-600 mx-auto mb-3" />
                     <h3 className="font-semibold mb-2">HIPAA Compliant</h3>
-                    <p className="text-sm text-muted-foreground">Enterprise-grade security with Business Associate Agreement available</p>
+                    <p className="text-sm text-muted-foreground">
+                      Enterprise-grade security with Business Associate
+                      Agreement available
+                    </p>
                   </div>
                   <div>
                     <Eye className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                     <h3 className="font-semibold mb-2">No Data Selling</h3>
-                    <p className="text-sm text-muted-foreground">We never sell, rent, or share your practice data with third parties</p>
+                    <p className="text-sm text-muted-foreground">
+                      We never sell, rent, or share your practice data with
+                      third parties
+                    </p>
                   </div>
                   <div>
                     <Users className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-                    <h3 className="font-semibold mb-2">Your Data, Your Control</h3>
-                    <p className="text-sm text-muted-foreground">Export or delete your data anytime with one-click controls</p>
+                    <h3 className="font-semibold mb-2">
+                      Your Data, Your Control
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Export or delete your data anytime with one-click controls
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -66,7 +86,6 @@ export default function PrivacyPolicyPage() {
         <section className="pb-20">
           <div className="container mx-auto max-w-4xl px-4">
             <div className="prose prose-lg max-w-none">
-
               {/* Information We Collect */}
               <div className="mb-12">
                 <h2 className="text-3xl font-bold mb-6 flex items-center">
@@ -76,15 +95,23 @@ export default function PrivacyPolicyPage() {
 
                 <Card className="mb-6">
                   <CardHeader>
-                    <CardTitle className="text-xl">Account Information</CardTitle>
+                    <CardTitle className="text-xl">
+                      Account Information
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">When you create a Supplr account, we collect:</p>
+                    <p className="text-muted-foreground">
+                      When you create a Supplr account, we collect:
+                    </p>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                       <li>Practice name and business information</li>
                       <li>Your name, email address, and phone number</li>
-                      <li>Billing information (securely processed by Stripe)</li>
-                      <li>Practice type and location (for service optimization)</li>
+                      <li>
+                        Billing information (securely processed by Stripe)
+                      </li>
+                      <li>
+                        Practice type and location (for service optimization)
+                      </li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -94,13 +121,20 @@ export default function PrivacyPolicyPage() {
                     <CardTitle className="text-xl">Inventory Data</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">To provide inventory management services, we store:</p>
+                    <p className="text-muted-foreground">
+                      To provide inventory management services, we store:
+                    </p>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                       <li>Product names, SKUs, and category information</li>
-                      <li>Expiration dates, quantities, and reorder thresholds</li>
+                      <li>
+                        Expiration dates, quantities, and reorder thresholds
+                      </li>
                       <li>Vendor information and purchase history</li>
                       <li>Temperature monitoring data (if applicable)</li>
-                      <li><strong>Note:</strong> We do not collect patient information or medical records</li>
+                      <li>
+                        <strong>Note:</strong> We do not collect patient
+                        information or medical records
+                      </li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -110,9 +144,13 @@ export default function PrivacyPolicyPage() {
                     <CardTitle className="text-xl">Usage Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">To improve our service, we automatically collect:</p>
+                    <p className="text-muted-foreground">
+                      To improve our service, we automatically collect:
+                    </p>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                      <li>Log data (IP addresses, browser type, pages visited)</li>
+                      <li>
+                        Log data (IP addresses, browser type, pages visited)
+                      </li>
                       <li>Feature usage patterns and preferences</li>
                       <li>Device information and operating system</li>
                       <li>Performance and error reporting data</li>
@@ -131,7 +169,9 @@ export default function PrivacyPolicyPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Service Delivery</CardTitle>
+                      <CardTitle className="text-lg">
+                        Service Delivery
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -173,7 +213,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Legal Compliance</CardTitle>
+                      <CardTitle className="text-lg">
+                        Legal Compliance
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -196,20 +238,45 @@ export default function PrivacyPolicyPage() {
 
                 <Card className="border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
                   <CardHeader>
-                    <CardTitle className="text-xl text-green-800 dark:text-green-200">Business Associate Agreement (BAA)</CardTitle>
+                    <CardTitle className="text-xl text-green-800 dark:text-green-200">
+                      Business Associate Agreement (BAA)
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 text-green-700 dark:text-green-300">
-                    <p>Supplr is HIPAA compliant and can serve as your Business Associate. We provide:</p>
+                    <p>
+                      Supplr is HIPAA compliant and can serve as your Business
+                      Associate. We provide:
+                    </p>
                     <ul className="list-disc list-inside space-y-2">
-                      <li><strong>Data Encryption:</strong> All data encrypted in transit and at rest using AES-256</li>
-                      <li><strong>Access Controls:</strong> Role-based permissions and multi-factor authentication</li>
-                      <li><strong>Audit Logs:</strong> Complete tracking of all data access and modifications</li>
-                      <li><strong>BAA Available:</strong> Formal Business Associate Agreements for covered entities</li>
-                      <li><strong>Staff Training:</strong> All employees trained on HIPAA requirements</li>
+                      <li>
+                        <strong>Data Encryption:</strong> All data encrypted in
+                        transit and at rest using AES-256
+                      </li>
+                      <li>
+                        <strong>Access Controls:</strong> Role-based permissions
+                        and multi-factor authentication
+                      </li>
+                      <li>
+                        <strong>Audit Logs:</strong> Complete tracking of all
+                        data access and modifications
+                      </li>
+                      <li>
+                        <strong>BAA Available:</strong> Formal Business
+                        Associate Agreements for covered entities
+                      </li>
+                      <li>
+                        <strong>Staff Training:</strong> All employees trained
+                        on HIPAA requirements
+                      </li>
                     </ul>
                     <div className="bg-green-100 dark:bg-green-800/30 border border-green-300 dark:border-green-700 rounded-lg p-4 mt-4">
                       <p className="text-sm font-semibold">Important Note:</p>
-                      <p className="text-sm">While Supplr handles practice inventory data, we do not store Protected Health Information (PHI) such as patient records or medical history. Our focus is strictly on inventory management.</p>
+                      <p className="text-sm">
+                        While Supplr handles practice inventory data, we do not
+                        store Protected Health Information (PHI) such as patient
+                        records or medical history. Our focus is strictly on
+                        inventory management.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -224,7 +291,9 @@ export default function PrivacyPolicyPage() {
 
                 <Card className="mb-6">
                   <CardHeader>
-                    <CardTitle className="text-xl">We DO NOT share your data with:</CardTitle>
+                    <CardTitle className="text-xl">
+                      We DO NOT share your data with:
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
@@ -238,13 +307,20 @@ export default function PrivacyPolicyPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl">Limited sharing occurs only with:</CardTitle>
+                    <CardTitle className="text-xl">
+                      Limited sharing occurs only with:
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold text-green-600">Service Providers</h4>
-                        <p className="text-sm text-muted-foreground">Trusted vendors who help operate our service under strict contractual obligations:</p>
+                        <h4 className="font-semibold text-green-600">
+                          Service Providers
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Trusted vendors who help operate our service under
+                          strict contractual obligations:
+                        </p>
                         <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 ml-4">
                           <li>AWS (secure cloud hosting)</li>
                           <li>Stripe (payment processing)</li>
@@ -253,12 +329,22 @@ export default function PrivacyPolicyPage() {
                         </ul>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-amber-600">Legal Requirements</h4>
-                        <p className="text-sm text-muted-foreground">Only when required by law, court order, or regulatory investigation</p>
+                        <h4 className="font-semibold text-amber-600">
+                          Legal Requirements
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Only when required by law, court order, or regulatory
+                          investigation
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-blue-600">Business Transfers</h4>
-                        <p className="text-sm text-muted-foreground">In the unlikely event of acquisition or merger (with 30-day advance notice)</p>
+                        <h4 className="font-semibold text-blue-600">
+                          Business Transfers
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          In the unlikely event of acquisition or merger (with
+                          30-day advance notice)
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -275,7 +361,9 @@ export default function PrivacyPolicyPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Technical Safeguards</CardTitle>
+                      <CardTitle className="text-lg">
+                        Technical Safeguards
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -290,7 +378,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Physical Safeguards</CardTitle>
+                      <CardTitle className="text-lg">
+                        Physical Safeguards
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -305,7 +395,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Administrative Safeguards</CardTitle>
+                      <CardTitle className="text-lg">
+                        Administrative Safeguards
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -320,7 +412,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Compliance Certifications</CardTitle>
+                      <CardTitle className="text-lg">
+                        Compliance Certifications
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -345,7 +439,9 @@ export default function PrivacyPolicyPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Data Access Rights</CardTitle>
+                      <CardTitle className="text-lg">
+                        Data Access Rights
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -359,7 +455,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Data Deletion Rights</CardTitle>
+                      <CardTitle className="text-lg">
+                        Data Deletion Rights
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -373,7 +471,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Communication Controls</CardTitle>
+                      <CardTitle className="text-lg">
+                        Communication Controls
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -387,7 +487,9 @@ export default function PrivacyPolicyPage() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Account Controls</CardTitle>
+                      <CardTitle className="text-lg">
+                        Account Controls
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
@@ -403,26 +505,50 @@ export default function PrivacyPolicyPage() {
 
               {/* Data Retention */}
               <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-6">Data Retention Policy</h2>
+                <h2 className="text-3xl font-bold mb-6">
+                  Data Retention Policy
+                </h2>
 
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold text-green-600 mb-2">Active Accounts</h4>
-                        <p className="text-sm text-muted-foreground">Data retained as long as your account is active and for legitimate business purposes</p>
+                        <h4 className="font-semibold text-green-600 mb-2">
+                          Active Accounts
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Data retained as long as your account is active and
+                          for legitimate business purposes
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-amber-600 mb-2">Cancelled Accounts</h4>
-                        <p className="text-sm text-muted-foreground">Data retained for 30 days to allow account reactivation, then permanently deleted unless legally required to retain</p>
+                        <h4 className="font-semibold text-amber-600 mb-2">
+                          Cancelled Accounts
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Data retained for 30 days to allow account
+                          reactivation, then permanently deleted unless legally
+                          required to retain
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-blue-600 mb-2">Legal Requirements</h4>
-                        <p className="text-sm text-muted-foreground">Some data may be retained longer to comply with regulatory requirements (e.g., tax records for 7 years)</p>
+                        <h4 className="font-semibold text-blue-600 mb-2">
+                          Legal Requirements
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Some data may be retained longer to comply with
+                          regulatory requirements (e.g., tax records for 7
+                          years)
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-red-600 mb-2">Backup Systems</h4>
-                        <p className="text-sm text-muted-foreground">Backup copies automatically purged within 90 days of data deletion</p>
+                        <h4 className="font-semibold text-red-600 mb-2">
+                          Backup Systems
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Backup copies automatically purged within 90 days of
+                          data deletion
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -439,14 +565,24 @@ export default function PrivacyPolicyPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground mb-4">
-                      Supplr is based in the United States. If you are located outside the US, your information will be transferred to and processed in the United States where our servers are located.
+                      Supplr is based in the United States. If you are located
+                      outside the US, your information will be transferred to
+                      and processed in the United States where our servers are
+                      located.
                     </p>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold mb-2">Data Protection Measures</h4>
+                        <h4 className="font-semibold mb-2">
+                          Data Protection Measures
+                        </h4>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                          <li>Standard Contractual Clauses (SCCs) for EU data transfers</li>
-                          <li>Adequate protection measures as required by GDPR</li>
+                          <li>
+                            Standard Contractual Clauses (SCCs) for EU data
+                            transfers
+                          </li>
+                          <li>
+                            Adequate protection measures as required by GDPR
+                          </li>
                           <li>Regular assessment of data protection laws</li>
                           <li>Encryption during all international transfers</li>
                         </ul>
@@ -458,16 +594,22 @@ export default function PrivacyPolicyPage() {
 
               {/* Changes to Privacy Policy */}
               <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-6">Changes to This Privacy Policy</h2>
+                <h2 className="text-3xl font-bold mb-6">
+                  Changes to This Privacy Policy
+                </h2>
 
                 <Card>
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground mb-4">
-                      We may update this Privacy Policy from time to time to reflect changes in our practices or for legal and regulatory reasons.
+                      We may update this Privacy Policy from time to time to
+                      reflect changes in our practices or for legal and
+                      regulatory reasons.
                     </p>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold text-blue-600 mb-2">Notification Process</h4>
+                        <h4 className="font-semibold text-blue-600 mb-2">
+                          Notification Process
+                        </h4>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                           <li>Email notification for significant changes</li>
                           <li>In-app notifications for policy updates</li>
@@ -476,11 +618,15 @@ export default function PrivacyPolicyPage() {
                         </ul>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-green-600 mb-2">Your Options</h4>
+                        <h4 className="font-semibold text-green-600 mb-2">
+                          Your Options
+                        </h4>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                           <li>Review changes before they take effect</li>
                           <li>Contact us with questions or concerns</li>
-                          <li>Cancel your account if you disagree with changes</li>
+                          <li>
+                            Cancel your account if you disagree with changes
+                          </li>
                           <li>Request data export before cancellation</li>
                         </ul>
                       </div>
@@ -496,12 +642,15 @@ export default function PrivacyPolicyPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <p className="text-muted-foreground mb-6">
-                      If you have questions about this Privacy Policy or how we handle your data, please contact us:
+                      If you have questions about this Privacy Policy or how we
+                      handle your data, please contact us:
                     </p>
 
                     <div className="text-center">
                       <div className="inline-block p-6 bg-muted rounded-lg">
-                        <h4 className="font-semibold mb-3 text-lg">Contact Us</h4>
+                        <h4 className="font-semibold mb-3 text-lg">
+                          Contact Us
+                        </h4>
                         <div className="text-muted-foreground">
                           <p className="text-base">Email: info@supplr.net</p>
                         </div>
@@ -510,7 +659,6 @@ export default function PrivacyPolicyPage() {
                   </CardContent>
                 </Card>
               </div>
-
             </div>
           </div>
         </section>
@@ -522,17 +670,25 @@ export default function PrivacyPolicyPage() {
               Questions About Our Privacy Policy?
             </h2>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Our privacy team is here to help. Contact us anytime with questions or concerns.
+              Our privacy team is here to help. Contact us anytime with
+              questions or concerns.
             </p>
 
             <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <Link href="/support">
-                <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-10 py-6 text-lg border-2"
+                >
                   Contact Privacy Team
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button size="lg" className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+                <Button
+                  size="lg"
+                  className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                >
                   Start Free Trial
                 </Button>
               </Link>
@@ -544,7 +700,10 @@ export default function PrivacyPolicyPage() {
       {/* Footer */}
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+          <p>
+            &copy; 2026 Supplr. Built for medical practices that care about
+            efficiency.
+          </p>
         </div>
       </footer>
     </div>

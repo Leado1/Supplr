@@ -1,4 +1,10 @@
-import type { User, Organization, Category, Item, Settings } from "@prisma/client";
+import type {
+  User,
+  Organization,
+  Category,
+  Item,
+  Settings,
+} from "@prisma/client";
 
 // Extended types with relationships
 export type UserWithOrganization = User & {

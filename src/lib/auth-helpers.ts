@@ -17,7 +17,7 @@ export async function getUserOrganization() {
   }
 
   // Get user with their organization
-  let user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { clerkId: userId },
     include: {
       organization: {
@@ -50,14 +50,20 @@ export async function getUserOrganization() {
     }
 
     return {
-      error: NextResponse.json({ message: "No organization found. Please run database seed." }, { status: 404 }),
+      error: NextResponse.json(
+        { message: "No organization found. Please run database seed." },
+        { status: 404 }
+      ),
       organization: null,
     };
   }
 
   if (!user.organization) {
     return {
-      error: NextResponse.json({ message: "Organization not found" }, { status: 404 }),
+      error: NextResponse.json(
+        { message: "Organization not found" },
+        { status: 404 }
+      ),
       organization: null,
     };
   }
@@ -72,7 +78,10 @@ export async function getUserOrganization() {
 /**
  * Verify that an item belongs to the user's organization
  */
-export async function verifyItemOwnership(itemId: string, organizationId: string) {
+export async function verifyItemOwnership(
+  itemId: string,
+  organizationId: string
+) {
   const item = await prisma.item.findUnique({
     where: { id: itemId },
     include: { organization: true },
@@ -87,7 +96,12 @@ export async function verifyItemOwnership(itemId: string, organizationId: string
 
   if (item.organizationId !== organizationId) {
     return {
-      error: NextResponse.json({ message: "Access denied - item does not belong to your organization" }, { status: 403 }),
+      error: NextResponse.json(
+        {
+          message: "Access denied - item does not belong to your organization",
+        },
+        { status: 403 }
+      ),
       item: null,
     };
   }
@@ -101,7 +115,10 @@ export async function verifyItemOwnership(itemId: string, organizationId: string
 /**
  * Verify that a category belongs to the user's organization
  */
-export async function verifyCategoryOwnership(categoryId: string, organizationId: string) {
+export async function verifyCategoryOwnership(
+  categoryId: string,
+  organizationId: string
+) {
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
     include: {
@@ -114,14 +131,23 @@ export async function verifyCategoryOwnership(categoryId: string, organizationId
 
   if (!category) {
     return {
-      error: NextResponse.json({ message: "Category not found" }, { status: 404 }),
+      error: NextResponse.json(
+        { message: "Category not found" },
+        { status: 404 }
+      ),
       category: null,
     };
   }
 
   if (category.organizationId !== organizationId) {
     return {
-      error: NextResponse.json({ message: "Access denied - category does not belong to your organization" }, { status: 403 }),
+      error: NextResponse.json(
+        {
+          message:
+            "Access denied - category does not belong to your organization",
+        },
+        { status: 403 }
+      ),
       category: null,
     };
   }

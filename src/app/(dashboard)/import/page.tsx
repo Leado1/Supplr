@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Loader2,
-  Info
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -70,11 +70,11 @@ export default function ImportPage() {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ['.csv', '.xlsx', '.xls'];
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const validTypes = [".csv", ".xlsx", ".xls"];
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
     if (!validTypes.includes(fileExtension)) {
-      alert('Please upload a CSV or Excel file (.csv, .xlsx, .xls)');
+      alert("Please upload a CSV or Excel file (.csv, .xlsx, .xls)");
       return;
     }
 
@@ -83,10 +83,10 @@ export default function ImportPage() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch('/api/inventory/import', {
-        method: 'POST',
+      const response = await fetch("/api/inventory/import", {
+        method: "POST",
         body: formData,
       });
 
@@ -95,16 +95,16 @@ export default function ImportPage() {
       if (response.ok) {
         setImportResult(result);
       } else {
-        alert(`Import failed: ${result.message || 'Please try again.'}`);
+        alert(`Import failed: ${result.message || "Please try again."}`);
       }
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
+      console.error("Upload error:", error);
+      alert("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -114,11 +114,11 @@ export default function ImportPage() {
 Sample Product A,SKU001,Medical Supplies,10,25.99,2024-12-31,5
 Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'supplr-inventory-template.csv';
+    a.download = "supplr-inventory-template.csv";
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -136,7 +136,9 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Import Inventory</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Import Inventory
+          </h1>
           <p className="text-muted-foreground">
             Upload a CSV or Excel file to bulk import your inventory data
           </p>
@@ -157,9 +159,9 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 dragActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-              } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                  ? "border-primary bg-primary/5"
+                  : "border-muted-foreground/25 hover:border-muted-foreground/50"
+              } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
@@ -236,26 +238,39 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="text-muted-foreground">
-              Use our CSV template to ensure your data imports correctly. The template includes all required columns and sample data.
+              Use our CSV template to ensure your data imports correctly. The
+              template includes all required columns and sample data.
             </p>
 
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Required Columns:</h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-red-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-red-100"
+                  />
                   <span>name</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-red-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-red-100"
+                  />
                   <span>category</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-red-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-red-100"
+                  />
                   <span>quantity</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-red-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-red-100"
+                  />
                   <span>unitCost</span>
                 </div>
               </div>
@@ -263,21 +278,34 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
               <h4 className="font-medium text-sm mt-4">Optional Columns:</h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-gray-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-gray-100"
+                  />
                   <span>sku</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-gray-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-gray-100"
+                  />
                   <span>expirationDate</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="w-3 h-3 p-0 rounded-full bg-gray-100" />
+                  <Badge
+                    variant="outline"
+                    className="w-3 h-3 p-0 rounded-full bg-gray-100"
+                  />
                   <span>reorderThreshold</span>
                 </div>
               </div>
             </div>
 
-            <Button onClick={downloadTemplate} variant="outline" className="w-full">
+            <Button
+              onClick={downloadTemplate}
+              variant="outline"
+              className="w-full"
+            >
               <Download className="mr-2 h-4 w-4" />
               Download CSV Template
             </Button>
@@ -325,10 +353,13 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700">
-                  Successfully imported {importResult.importedCount} items to your inventory.
+                  Successfully imported {importResult.importedCount} items to
+                  your inventory.
                   {importResult.categories.length > 0 && (
                     <span>
-                      {" "}New categories created: {importResult.categories.join(", ")}.
+                      {" "}
+                      New categories created:{" "}
+                      {importResult.categories.join(", ")}.
                     </span>
                   )}
                 </AlertDescription>
@@ -346,7 +377,8 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
                   {importResult.errors.slice(0, 10).map((error, index) => (
                     <Alert key={index} className="border-red-200 bg-red-50">
                       <AlertDescription className="text-red-700 text-sm">
-                        <strong>Row {error.row}:</strong> {error.field} - {error.message}
+                        <strong>Row {error.row}:</strong> {error.field} -{" "}
+                        {error.message}
                       </AlertDescription>
                     </Alert>
                   ))}
@@ -361,9 +393,7 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
 
             <div className="flex space-x-3">
               <Link href="/inventory">
-                <Button className="flex-1">
-                  View Inventory
-                </Button>
+                <Button className="flex-1">View Inventory</Button>
               </Link>
               <Button
                 variant="outline"

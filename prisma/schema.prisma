@@ -102,6 +102,13 @@ model Subscription {
   status             String       @default("trialing") // trialing, active, canceled, incomplete, past_due
   itemLimit          Int          @default(5) // Number of items allowed
   isActive           Boolean      @default(true)
+
+  // Feature flags for plan-based restrictions
+  advancedAnalytics  Boolean      @default(false) // Professional+
+  customCategories   Boolean      @default(false) // Professional+
+  apiAccess          Boolean      @default(false) // Enterprise only
+  multiLocation      Boolean      @default(false) // Enterprise only
+  customReports      Boolean      @default(false) // Enterprise only
   trialEndsAt        DateTime?
   canceledAt         DateTime?
 

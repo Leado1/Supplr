@@ -18,11 +18,15 @@ export async function POST(request: NextRequest) {
     // Get user's organization
     const { error: authError, organization } = await getUserOrganization();
     if (authError || !organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
     }
 
     // Import notification functions
-    const { getInventoryAlerts, sendEmailAlert, sendSMSAlert } = await import("@/lib/notifications");
+    const { getInventoryAlerts, sendEmailAlert, sendSMSAlert } =
+      await import("@/lib/notifications");
 
     // Get alerts for this organization
     const alerts = await getInventoryAlerts(organization.id);
@@ -42,12 +46,17 @@ export async function POST(request: NextRequest) {
     // Send email notification
     try {
       // Use custom email if provided, otherwise fall back to user's Clerk email
-      const targetEmail = notificationEmail && notificationEmail.trim()
-        ? notificationEmail.trim()
-        : organization.users[0]?.email;
+      const targetEmail =
+        notificationEmail && notificationEmail.trim()
+          ? notificationEmail.trim()
+          : organization.users[0]?.email;
 
       if (targetEmail) {
-        const emailSuccess = await sendEmailAlert(targetEmail, alerts, organization.name);
+        const emailSuccess = await sendEmailAlert(
+          targetEmail,
+          alerts,
+          organization.name
+        );
         if (emailSuccess) emailsSent++;
       } else {
         errors.push("No email address available");
@@ -59,7 +68,12 @@ export async function POST(request: NextRequest) {
     // Send SMS notification if enabled
     if (smsEnabled && phone && carrier) {
       try {
-        const smsSuccess = await sendSMSAlert(phone, alerts, organization.name, carrier);
+        const smsSuccess = await sendSMSAlert(
+          phone,
+          alerts,
+          organization.name,
+          carrier
+        );
         if (smsSuccess) smsSent++;
       } catch (error) {
         errors.push(`SMS failed: ${error}`);
@@ -73,7 +87,6 @@ export async function POST(request: NextRequest) {
       message: `Notifications sent! Emails: ${result.emailsSent}, SMS: ${result.smsSent}`,
       details: result,
     });
-
   } catch (error) {
     console.error("Error testing notifications:", error);
     return NextResponse.json(
@@ -94,7 +107,10 @@ export async function GET() {
     // Get user's organization
     const { error: authError, organization } = await getUserOrganization();
     if (authError || !organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
     }
 
     // Import here to avoid build-time issues
@@ -104,9 +120,11 @@ export async function GET() {
     const alertSummary = {
       totalAlerts: alerts.length,
       totalItems: alerts.reduce((sum, alert) => sum + alert.items.length, 0),
-      expiredItems: alerts.find(a => a.type === "expired")?.items.length || 0,
-      expiringItems: alerts.find(a => a.type === "expiring")?.items.length || 0,
-      lowStockItems: alerts.find(a => a.type === "low_stock")?.items.length || 0,
+      expiredItems: alerts.find((a) => a.type === "expired")?.items.length || 0,
+      expiringItems:
+        alerts.find((a) => a.type === "expiring")?.items.length || 0,
+      lowStockItems:
+        alerts.find((a) => a.type === "low_stock")?.items.length || 0,
     };
 
     return NextResponse.json({
@@ -114,7 +132,6 @@ export async function GET() {
       summary: alertSummary,
       alerts: alerts,
     });
-
   } catch (error) {
     console.error("Error getting alerts:", error);
     return NextResponse.json(

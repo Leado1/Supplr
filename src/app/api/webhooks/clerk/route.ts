@@ -9,7 +9,9 @@ export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    throw new Error("Please add CLERK_WEBHOOK_SECRET to your environment variables");
+    throw new Error(
+      "Please add CLERK_WEBHOOK_SECRET to your environment variables"
+    );
   }
 
   // Get the headers
@@ -90,7 +92,9 @@ export async function POST(req: Request) {
         });
 
         if (!existingUser) {
-          console.log("🔧 User not found in database, creating user and organization...");
+          console.log(
+            "🔧 User not found in database, creating user and organization..."
+          );
 
           // Get user info from Clerk using the user_id
           const { clerkClient } = await import("@clerk/nextjs/server");
@@ -105,7 +109,9 @@ export async function POST(req: Request) {
             lastName: clerkUser.lastName || undefined,
           });
 
-          console.log("✅ Existing user and organization created successfully via session.created");
+          console.log(
+            "✅ Existing user and organization created successfully via session.created"
+          );
         }
         break;
 

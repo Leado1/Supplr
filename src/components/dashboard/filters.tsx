@@ -73,7 +73,9 @@ export function Filters({
         <div className="min-w-[160px]">
           <Select
             value={statusFilter}
-            onValueChange={(value) => onStatusFilter(value as InventoryStatus | "all")}
+            onValueChange={(value) =>
+              onStatusFilter(value as InventoryStatus | "all")
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Filter by status" />
@@ -113,8 +115,18 @@ export function Filters({
       {onAddItem && (
         <div className="flex space-x-2">
           <Button onClick={onAddItem} className="whitespace-nowrap">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             Add Item
           </Button>

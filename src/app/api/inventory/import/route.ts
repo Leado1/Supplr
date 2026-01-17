@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
 
     // Validate file type
     const fileName = file.name.toLowerCase();
-    const isCSV = fileName.endsWith('.csv');
-    const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+    const isCSV = fileName.endsWith(".csv");
+    const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
 
     if (!isCSV && !isExcel) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     try {
       if (isCSV) {
         // Parse CSV
-        const csvContent = buffer.toString('utf-8');
+        const csvContent = buffer.toString("utf-8");
         rows = parse(csvContent, {
           columns: true,
           skip_empty_lines: true,
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         });
       } else {
         // Parse Excel
-        const workbook = XLSX.read(buffer, { type: 'buffer' });
+        const workbook = XLSX.read(buffer, { type: "buffer" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         rows = XLSX.utils.sheet_to_json(worksheet) as ImportRow[];
@@ -106,7 +106,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function processImportData(rows: ImportRow[], organizationId: string): Promise<ImportResult> {
+async function processImportData(
+  rows: ImportRow[],
+  organizationId: string
+): Promise<ImportResult> {
   const result: ImportResult = {
     success: true,
     importedCount: 0,
@@ -123,19 +126,23 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
   });
 
   const categoryMap = new Map(
-    existingCategories.map(cat => [cat.name.toLowerCase(), cat.id])
+    existingCategories.map((cat) => [cat.name.toLowerCase(), cat.id])
   );
 
   // Get existing SKUs to check for duplicates
   const existingSKUs = await prisma.item.findMany({
     where: {
       organizationId,
-      sku: { not: null }
+      sku: { not: null },
     },
     select: { sku: true },
   });
 
-  const skuSet = new Set(existingSKUs.map(item => item.sku?.toLowerCase()).filter((sku): sku is string => sku != null));
+  const skuSet = new Set(
+    existingSKUs
+      .map((item) => item.sku?.toLowerCase())
+      .filter((sku): sku is string => sku != null)
+  );
   const newCategories: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
@@ -157,7 +164,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
       const sku = row.sku ? String(row.sku).trim() : null;
       const categoryName = String(row.category).trim();
       const quantity = Number(row.quantity);
-      const unitCost = Number(String(row.unitCost).replace(/[$,]/g, ''));
+      const unitCost = Number(String(row.unitCost).replace(/[$,]/g, ""));
       const reorderThreshold = Number(row.reorderThreshold || 5);
 
       // Handle expiration date
@@ -169,7 +176,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
           result.errors.push({
             row: rowNumber,
             field: "expirationDate",
-            message: "Invalid or past date"
+            message: "Invalid or past date",
           });
           result.errorCount++;
           result.skippedCount++;
@@ -199,7 +206,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
           result.errors.push({
             row: rowNumber,
             field: "category",
-            message: "Failed to create category"
+            message: "Failed to create category",
           });
           result.errorCount++;
           result.skippedCount++;
@@ -233,7 +240,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
         result.errors.push({
           row: rowNumber,
           field: "general",
-          message: "Failed to create item"
+          message: "Failed to create item",
         });
         result.errorCount++;
         result.skippedCount++;
@@ -243,7 +250,7 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
       result.errors.push({
         row: rowNumber,
         field: "general",
-        message: "Unexpected error processing row"
+        message: "Unexpected error processing row",
       });
       result.errorCount++;
       result.skippedCount++;
@@ -256,7 +263,11 @@ async function processImportData(rows: ImportRow[], organizationId: string): Pro
   return result;
 }
 
-function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string>): ImportError[] {
+function validateRow(
+  row: ImportRow,
+  rowNumber: number,
+  existingSKUs: Set<string>
+): ImportError[] {
   const errors: ImportError[] = [];
 
   // Required fields
@@ -264,7 +275,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
     errors.push({
       row: rowNumber,
       field: "name",
-      message: "Name is required"
+      message: "Name is required",
     });
   }
 
@@ -272,7 +283,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
     errors.push({
       row: rowNumber,
       field: "category",
-      message: "Category is required"
+      message: "Category is required",
     });
   }
 
@@ -282,17 +293,17 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
     errors.push({
       row: rowNumber,
       field: "quantity",
-      message: "Quantity must be a non-negative number"
+      message: "Quantity must be a non-negative number",
     });
   }
 
   // Validate unit cost
-  const unitCost = Number(String(row.unitCost).replace(/[$,]/g, ''));
+  const unitCost = Number(String(row.unitCost).replace(/[$,]/g, ""));
   if (isNaN(unitCost) || unitCost < 0) {
     errors.push({
       row: rowNumber,
       field: "unitCost",
-      message: "Unit cost must be a non-negative number"
+      message: "Unit cost must be a non-negative number",
     });
   }
 
@@ -303,7 +314,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
       errors.push({
         row: rowNumber,
         field: "reorderThreshold",
-        message: "Reorder threshold must be a non-negative number"
+        message: "Reorder threshold must be a non-negative number",
       });
     }
   }
@@ -315,7 +326,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
       errors.push({
         row: rowNumber,
         field: "sku",
-        message: "SKU already exists"
+        message: "SKU already exists",
       });
     }
   }
@@ -325,7 +336,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
     errors.push({
       row: rowNumber,
       field: "name",
-      message: "Name is too long (max 100 characters)"
+      message: "Name is too long (max 100 characters)",
     });
   }
 
@@ -334,7 +345,7 @@ function validateRow(row: ImportRow, rowNumber: number, existingSKUs: Set<string
     errors.push({
       row: rowNumber,
       field: "sku",
-      message: "SKU is too long (max 50 characters)"
+      message: "SKU is too long (max 50 characters)",
     });
   }
 

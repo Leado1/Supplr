@@ -21,7 +21,7 @@ export function ExportDropdown({
   onExportPDF,
   onExportCSV,
   disabled = false,
-  variant = "outline"
+  variant = "outline",
 }: ExportDropdownProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportType, setExportType] = useState<"pdf" | "csv" | null>(null);

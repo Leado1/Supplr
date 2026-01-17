@@ -23,7 +23,10 @@ export default async function DashboardLayout({
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <div className="flex items-center space-x-6">
             {/* Logo */}
-            <Link href="/dashboard" className="inline-block hover:opacity-80 transition-opacity">
+            <Link
+              href="/dashboard"
+              className="inline-block hover:opacity-80 transition-opacity"
+            >
               <img
                 src="/images/supplr123.png"
                 alt="Supplr Logo"
@@ -81,14 +84,15 @@ export default async function DashboardLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 bg-muted/20">
-        {children}
-      </main>
+      <main className="flex-1 bg-muted/20">{children}</main>
 
       {/* Footer */}
       <footer className="border-t py-4">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+          <p>
+            &copy; 2026 Supplr. Built for medical practices that care about
+            efficiency.
+          </p>
         </div>
       </footer>
     </div>

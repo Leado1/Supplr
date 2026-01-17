@@ -8,7 +8,7 @@ const DEFAULT_CATEGORIES = [
   "Skincare",
   "Consumables",
   "Equipment",
-  "Other"
+  "Other",
 ];
 
 /**
@@ -70,7 +70,7 @@ export async function createOrganizationWithDefaults(
           categoryId: categories[0].id, // First category (Injectables)
           organizationId: organization.id,
           quantity: 3,
-          unitCost: 250.00,
+          unitCost: 250.0,
           expirationDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
           reorderThreshold: 5,
         },
@@ -81,14 +81,16 @@ export async function createOrganizationWithDefaults(
           categoryId: categories[1].id, // Second category (Skincare)
           organizationId: organization.id,
           quantity: 8,
-          unitCost: 125.00,
+          unitCost: 125.0,
           expirationDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
           reorderThreshold: 10,
         },
       }),
     ]);
 
-    console.log(`✅ Created organization: ${organization.name} with ${categories.length} categories, trial subscription, and ${sampleItems.length} sample items`);
+    console.log(
+      `✅ Created organization: ${organization.name} with ${categories.length} categories, trial subscription, and ${sampleItems.length} sample items`
+    );
 
     return {
       organization,
@@ -118,10 +120,13 @@ export async function createUserWithOrganization(userData: {
     // In the future, this could support team invitations
     const organizationName = userData.firstName
       ? `${userData.firstName}'s Clinic`
-      : `${userData.email.split('@')[0]}'s Clinic`;
+      : `${userData.email.split("@")[0]}'s Clinic`;
 
     // Create organization with defaults
-    const { organization } = await createOrganizationWithDefaults(organizationName, "clinic");
+    const { organization } = await createOrganizationWithDefaults(
+      organizationName,
+      "clinic"
+    );
 
     // Create the user
     const user = await prisma.user.create({
@@ -142,7 +147,9 @@ export async function createUserWithOrganization(userData: {
       },
     });
 
-    console.log(`✅ Created user: ${user.email} for organization: ${organization.name}`);
+    console.log(
+      `✅ Created user: ${user.email} for organization: ${organization.name}`
+    );
 
     return user;
   } catch (error) {

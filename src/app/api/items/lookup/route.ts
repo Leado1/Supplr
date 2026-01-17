@@ -38,41 +38,41 @@ export async function GET(request: NextRequest) {
           {
             sku: {
               equals: cleanBarcode,
-              mode: 'insensitive'
-            }
+              mode: "insensitive",
+            },
           },
           {
             name: {
               contains: cleanBarcode,
-              mode: 'insensitive'
-            }
+              mode: "insensitive",
+            },
           },
           // Some barcodes might be stored as part of the name or description
           {
             name: {
-              contains: cleanBarcode.replace(/\D/g, ''), // Remove non-digits for partial matching
-              mode: 'insensitive'
-            }
-          }
-        ]
+              contains: cleanBarcode.replace(/\D/g, ""), // Remove non-digits for partial matching
+              mode: "insensitive",
+            },
+          },
+        ],
       },
       include: {
         category: {
           select: {
             id: true,
             name: true,
-          }
-        }
+          },
+        },
       },
       orderBy: [
         // Prefer exact SKU matches
         {
-          sku: 'asc'
+          sku: "asc",
         },
         {
-          createdAt: 'desc'
-        }
-      ]
+          createdAt: "desc",
+        },
+      ],
     });
 
     if (!item) {
@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
             "Check if the barcode is readable",
             "Verify the product is in your inventory",
             "Try scanning again or enter manually",
-            "Add as new product if this is a new item"
-          ]
+            "Add as new product if this is a new item",
+          ],
         },
         { status: 404 }
       );
@@ -140,16 +140,13 @@ export async function POST(request: NextRequest) {
         organizationId: organization!.id,
         sku: {
           equals: barcode.trim(),
-          mode: 'insensitive'
-        }
-      }
+          mode: "insensitive",
+        },
+      },
     });
 
     if (!item) {
-      return NextResponse.json(
-        { message: "Item not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Item not found" }, { status: 404 });
     }
 
     // Update quantity based on operation
@@ -166,7 +163,10 @@ export async function POST(request: NextRequest) {
         break;
       default:
         return NextResponse.json(
-          { message: "Invalid operation. Use 'increment', 'decrement', or 'set'" },
+          {
+            message:
+              "Invalid operation. Use 'increment', 'decrement', or 'set'",
+          },
           { status: 400 }
         );
     }
@@ -180,9 +180,9 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Return updated item
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
       },
       previousQuantity: item.quantity,
       operation,
-      quantityChanged: Math.abs(quantity)
+      quantityChanged: Math.abs(quantity),
     };
 
     return NextResponse.json(serializedItem);

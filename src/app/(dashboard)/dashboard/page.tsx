@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { addStatusToItems, calculateInventorySummary } from "@/lib/inventory-status";
+import {
+  addStatusToItems,
+  calculateInventorySummary,
+} from "@/lib/inventory-status";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { Button } from "@/components/ui/button";
 import { getUserOrganization } from "@/lib/auth-helpers";
@@ -8,7 +11,8 @@ import { getUserOrganization } from "@/lib/auth-helpers";
 export default async function DashboardPage() {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization: existingOrg } = await getUserOrganization();
+    const { error: orgError, organization: existingOrg } =
+      await getUserOrganization();
     if (orgError) {
       redirect("/sign-in");
     }
@@ -72,9 +76,12 @@ export default async function DashboardPage() {
     return (
       <div className="container mx-auto p-8">
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <h2 className="mb-4 text-xl font-semibold text-red-800">Error Loading Dashboard</h2>
+          <h2 className="mb-4 text-xl font-semibold text-red-800">
+            Error Loading Dashboard
+          </h2>
           <p className="text-red-600 mb-4">
-            There was an issue loading your inventory data. This might be because:
+            There was an issue loading your inventory data. This might be
+            because:
           </p>
           <ul className="text-left text-sm text-red-600 space-y-1 mb-4">
             <li>• Your database connection needs to be configured</li>

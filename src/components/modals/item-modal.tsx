@@ -40,7 +40,14 @@ interface FormData {
   reorderThreshold: string;
 }
 
-export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defaultSku }: ItemModalProps) {
+export function ItemModal({
+  isOpen,
+  onClose,
+  onSave,
+  categories,
+  editItem,
+  defaultSku,
+}: ItemModalProps) {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     sku: "",
@@ -63,7 +70,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
           categoryId: editItem.categoryId,
           quantity: editItem.quantity.toString(),
           unitCost: editItem.unitCost.toString(),
-          expirationDate: new Date(editItem.expirationDate).toISOString().split('T')[0],
+          expirationDate: new Date(editItem.expirationDate)
+            .toISOString()
+            .split("T")[0],
           reorderThreshold: editItem.reorderThreshold.toString(),
         });
       } else {
@@ -77,7 +86,7 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
           categoryId: "",
           quantity: "",
           unitCost: "",
-          expirationDate: defaultExpiration.toISOString().split('T')[0],
+          expirationDate: defaultExpiration.toISOString().split("T")[0],
           reorderThreshold: "5",
         });
       }
@@ -162,8 +171,14 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
         const errorData = await response.json();
 
         // Handle subscription-related errors with better UX
-        if (errorData.error === "TRIAL_EXPIRED" || errorData.error === "SUBSCRIPTION_LIMIT_EXCEEDED" || errorData.error === "SUBSCRIPTION_INACTIVE") {
-          const userConfirmed = confirm(`${errorData.message}\n\nWould you like to view our pricing plans to upgrade?`);
+        if (
+          errorData.error === "TRIAL_EXPIRED" ||
+          errorData.error === "SUBSCRIPTION_LIMIT_EXCEEDED" ||
+          errorData.error === "SUBSCRIPTION_INACTIVE"
+        ) {
+          const userConfirmed = confirm(
+            `${errorData.message}\n\nWould you like to view our pricing plans to upgrade?`
+          );
           if (userConfirmed) {
             window.open("/pricing", "_blank");
           }
@@ -204,9 +219,7 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editItem ? "Edit Item" : "Add New Item"}
-          </DialogTitle>
+          <DialogTitle>{editItem ? "Edit Item" : "Add New Item"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -219,7 +232,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
               placeholder="e.g., Botox 100 Units"
               className={errors.name ? "border-red-500" : ""}
             />
-            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -238,7 +253,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
               value={formData.categoryId}
               onValueChange={(value) => handleInputChange("categoryId", value)}
             >
-              <SelectTrigger className={errors.categoryId ? "border-red-500" : ""}>
+              <SelectTrigger
+                className={errors.categoryId ? "border-red-500" : ""}
+              >
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -249,7 +266,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
                 ))}
               </SelectContent>
             </Select>
-            {errors.categoryId && <p className="text-sm text-red-500">{errors.categoryId}</p>}
+            {errors.categoryId && (
+              <p className="text-sm text-red-500">{errors.categoryId}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -264,7 +283,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
                 placeholder="0"
                 className={errors.quantity ? "border-red-500" : ""}
               />
-              {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
+              {errors.quantity && (
+                <p className="text-sm text-red-500">{errors.quantity}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -279,7 +300,9 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
                 placeholder="0.00"
                 className={errors.unitCost ? "border-red-500" : ""}
               />
-              {errors.unitCost && <p className="text-sm text-red-500">{errors.unitCost}</p>}
+              {errors.unitCost && (
+                <p className="text-sm text-red-500">{errors.unitCost}</p>
+              )}
             </div>
           </div>
 
@@ -289,10 +312,14 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
               id="expirationDate"
               type="date"
               value={formData.expirationDate}
-              onChange={(e) => handleInputChange("expirationDate", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("expirationDate", e.target.value)
+              }
               className={errors.expirationDate ? "border-red-500" : ""}
             />
-            {errors.expirationDate && <p className="text-sm text-red-500">{errors.expirationDate}</p>}
+            {errors.expirationDate && (
+              <p className="text-sm text-red-500">{errors.expirationDate}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -302,14 +329,18 @@ export function ItemModal({ isOpen, onClose, onSave, categories, editItem, defau
               type="number"
               min="0"
               value={formData.reorderThreshold}
-              onChange={(e) => handleInputChange("reorderThreshold", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("reorderThreshold", e.target.value)
+              }
               placeholder="5"
               className={errors.reorderThreshold ? "border-red-500" : ""}
             />
             <p className="text-sm text-muted-foreground">
               Alert when quantity falls below this level
             </p>
-            {errors.reorderThreshold && <p className="text-sm text-red-500">{errors.reorderThreshold}</p>}
+            {errors.reorderThreshold && (
+              <p className="text-sm text-red-500">{errors.reorderThreshold}</p>
+            )}
           </div>
 
           <DialogFooter>

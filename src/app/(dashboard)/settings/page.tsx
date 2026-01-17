@@ -68,7 +68,8 @@ export default function SettingsPage() {
         setFormData({
           organizationName: settings.organization.name,
           organizationType: settings.organization.type,
-          expirationWarningDays: settings.settings.expirationWarningDays.toString(),
+          expirationWarningDays:
+            settings.settings.expirationWarningDays.toString(),
           lowStockThreshold: settings.settings.lowStockThreshold.toString(),
           currency: settings.settings.currency,
           timezone: settings.settings.timezone,
@@ -144,8 +145,15 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteCategory = async (categoryId: string, categoryName: string) => {
-    if (!confirm(`Are you sure you want to delete the "${categoryName}" category? This will also delete all items in this category.`)) {
+  const handleDeleteCategory = async (
+    categoryId: string,
+    categoryName: string
+  ) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete the "${categoryName}" category? This will also delete all items in this category.`
+      )
+    ) {
       return;
     }
 
@@ -189,7 +197,9 @@ export default function SettingsPage() {
           ? notificationSettings.notificationEmail
           : "your account email";
 
-        alert(`Test notifications sent successfully!\n\nEmails sent: ${result.details.emailsSent}\nSMS sent: ${result.details.smsSent}\n\nCheck ${emailTarget} for notifications about any inventory alerts.`);
+        alert(
+          `Test notifications sent successfully!\n\nEmails sent: ${result.details.emailsSent}\nSMS sent: ${result.details.smsSent}\n\nCheck ${emailTarget} for notifications about any inventory alerts.`
+        );
       } else {
         alert(`Failed to send test notifications: ${result.error}`);
       }
@@ -220,7 +230,9 @@ export default function SettingsPage() {
       <div className="container mx-auto p-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Error Loading Settings</h2>
-          <p className="text-muted-foreground">Could not load organization settings.</p>
+          <p className="text-muted-foreground">
+            Could not load organization settings.
+          </p>
         </div>
       </div>
     );
@@ -248,7 +260,9 @@ export default function SettingsPage() {
               <Input
                 id="orgName"
                 value={formData.organizationName}
-                onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, organizationName: e.target.value })
+                }
                 placeholder="Enter organization name"
               />
             </div>
@@ -257,7 +271,9 @@ export default function SettingsPage() {
               <Label htmlFor="orgType">Organization Type</Label>
               <Select
                 value={formData.organizationType}
-                onValueChange={(value) => setFormData({ ...formData, organizationType: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, organizationType: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select organization type" />
@@ -277,7 +293,9 @@ export default function SettingsPage() {
               <Label htmlFor="currency">Currency</Label>
               <Select
                 value={formData.currency}
-                onValueChange={(value) => setFormData({ ...formData, currency: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, currency: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
@@ -296,7 +314,9 @@ export default function SettingsPage() {
               <Label htmlFor="timezone">Timezone</Label>
               <Select
                 value={formData.timezone}
-                onValueChange={(value) => setFormData({ ...formData, timezone: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, timezone: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select timezone" />
@@ -306,7 +326,9 @@ export default function SettingsPage() {
                   <SelectItem value="America/New_York">Eastern Time</SelectItem>
                   <SelectItem value="America/Chicago">Central Time</SelectItem>
                   <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                  <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
+                  <SelectItem value="America/Los_Angeles">
+                    Pacific Time
+                  </SelectItem>
                   <SelectItem value="Europe/London">London</SelectItem>
                   <SelectItem value="Europe/Paris">Paris</SelectItem>
                 </SelectContent>
@@ -329,7 +351,12 @@ export default function SettingsPage() {
                 min="1"
                 max="365"
                 value={formData.expirationWarningDays}
-                onChange={(e) => setFormData({ ...formData, expirationWarningDays: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    expirationWarningDays: e.target.value,
+                  })
+                }
                 placeholder="30"
               />
               <p className="text-sm text-muted-foreground">
@@ -345,7 +372,12 @@ export default function SettingsPage() {
                 min="1"
                 max="1000"
                 value={formData.lowStockThreshold}
-                onChange={(e) => setFormData({ ...formData, lowStockThreshold: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    lowStockThreshold: e.target.value,
+                  })
+                }
                 placeholder="5"
               />
               <p className="text-sm text-muted-foreground">
@@ -374,7 +406,10 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label htmlFor="email-notifications" className="text-base font-medium">
+                <Label
+                  htmlFor="email-notifications"
+                  className="text-base font-medium"
+                >
                   Email Notifications
                 </Label>
                 <p className="text-sm text-muted-foreground">
@@ -385,7 +420,10 @@ export default function SettingsPage() {
                 id="email-notifications"
                 checked={notificationSettings.emailNotifications}
                 onCheckedChange={(checked) =>
-                  setNotificationSettings({ ...notificationSettings, emailNotifications: checked })
+                  setNotificationSettings({
+                    ...notificationSettings,
+                    emailNotifications: checked,
+                  })
                 }
               />
             </div>
@@ -398,7 +436,10 @@ export default function SettingsPage() {
                   type="email"
                   value={notificationSettings.notificationEmail}
                   onChange={(e) =>
-                    setNotificationSettings({ ...notificationSettings, notificationEmail: e.target.value })
+                    setNotificationSettings({
+                      ...notificationSettings,
+                      notificationEmail: e.target.value,
+                    })
                   }
                   placeholder="Enter email for notifications"
                 />
@@ -413,7 +454,10 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label htmlFor="sms-notifications" className="text-base font-medium">
+                <Label
+                  htmlFor="sms-notifications"
+                  className="text-base font-medium"
+                >
                   SMS Notifications
                 </Label>
                 <p className="text-sm text-muted-foreground">
@@ -424,7 +468,10 @@ export default function SettingsPage() {
                 id="sms-notifications"
                 checked={notificationSettings.smsNotifications}
                 onCheckedChange={(checked) =>
-                  setNotificationSettings({ ...notificationSettings, smsNotifications: checked })
+                  setNotificationSettings({
+                    ...notificationSettings,
+                    smsNotifications: checked,
+                  })
                 }
               />
             </div>
@@ -439,7 +486,10 @@ export default function SettingsPage() {
                       type="tel"
                       value={notificationSettings.notificationPhone}
                       onChange={(e) =>
-                        setNotificationSettings({ ...notificationSettings, notificationPhone: e.target.value })
+                        setNotificationSettings({
+                          ...notificationSettings,
+                          notificationPhone: e.target.value,
+                        })
                       }
                       placeholder="1234567890"
                     />
@@ -449,7 +499,10 @@ export default function SettingsPage() {
                     <Select
                       value={notificationSettings.smsCarrier}
                       onValueChange={(value) =>
-                        setNotificationSettings({ ...notificationSettings, smsCarrier: value })
+                        setNotificationSettings({
+                          ...notificationSettings,
+                          smsCarrier: value,
+                        })
                       }
                     >
                       <SelectTrigger>
@@ -468,7 +521,8 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  SMS uses email-to-SMS gateways. Standard messaging rates may apply.
+                  SMS uses email-to-SMS gateways. Standard messaging rates may
+                  apply.
                 </p>
               </div>
             )}
@@ -480,7 +534,10 @@ export default function SettingsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="expiration-alerts" className="text-sm font-medium">
+                  <Label
+                    htmlFor="expiration-alerts"
+                    className="text-sm font-medium"
+                  >
                     Expiration Alerts
                   </Label>
                   <p className="text-xs text-muted-foreground">
@@ -491,14 +548,20 @@ export default function SettingsPage() {
                   id="expiration-alerts"
                   checked={notificationSettings.expirationAlerts}
                   onCheckedChange={(checked) =>
-                    setNotificationSettings({ ...notificationSettings, expirationAlerts: checked })
+                    setNotificationSettings({
+                      ...notificationSettings,
+                      expirationAlerts: checked,
+                    })
                   }
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="low-stock-alerts" className="text-sm font-medium">
+                  <Label
+                    htmlFor="low-stock-alerts"
+                    className="text-sm font-medium"
+                  >
                     Low Stock Alerts
                   </Label>
                   <p className="text-xs text-muted-foreground">
@@ -509,7 +572,10 @@ export default function SettingsPage() {
                   id="low-stock-alerts"
                   checked={notificationSettings.lowStockAlerts}
                   onCheckedChange={(checked) =>
-                    setNotificationSettings({ ...notificationSettings, lowStockAlerts: checked })
+                    setNotificationSettings({
+                      ...notificationSettings,
+                      lowStockAlerts: checked,
+                    })
                   }
                 />
               </div>
@@ -518,11 +584,16 @@ export default function SettingsPage() {
 
           {/* Notification Frequency */}
           <div className="space-y-2">
-            <Label htmlFor="notification-frequency">Notification Frequency</Label>
+            <Label htmlFor="notification-frequency">
+              Notification Frequency
+            </Label>
             <Select
               value={notificationSettings.notificationFrequency}
               onValueChange={(value: "daily" | "weekly" | "immediate") =>
-                setNotificationSettings({ ...notificationSettings, notificationFrequency: value })
+                setNotificationSettings({
+                  ...notificationSettings,
+                  notificationFrequency: value,
+                })
               }
             >
               <SelectTrigger>
@@ -583,13 +654,21 @@ export default function SettingsPage() {
 
             {/* Existing Categories */}
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-muted-foreground">Current Categories</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Current Categories
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {settingsData.categories.map((category) => (
-                  <Badge key={category.id} variant="secondary" className="text-sm">
+                  <Badge
+                    key={category.id}
+                    variant="secondary"
+                    className="text-sm"
+                  >
                     {category.name}
                     <button
-                      onClick={() => handleDeleteCategory(category.id, category.name)}
+                      onClick={() =>
+                        handleDeleteCategory(category.id, category.name)
+                      }
                       className="ml-2 text-red-600 hover:text-red-800"
                     >
                       ×
@@ -610,17 +689,27 @@ export default function SettingsPage() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-sm font-medium text-muted-foreground">Organization ID</Label>
-              <p className="font-mono text-sm">{settingsData.organization.id}</p>
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">Created</Label>
-              <p className="text-sm">
-                {new Date(settingsData.organization.createdAt).toLocaleDateString()}
+              <Label className="text-sm font-medium text-muted-foreground">
+                Organization ID
+              </Label>
+              <p className="font-mono text-sm">
+                {settingsData.organization.id}
               </p>
             </div>
             <div>
-              <Label className="text-sm font-medium text-muted-foreground">Last Updated</Label>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Created
+              </Label>
+              <p className="text-sm">
+                {new Date(
+                  settingsData.organization.createdAt
+                ).toLocaleDateString()}
+              </p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">
+                Last Updated
+              </Label>
               <p className="text-sm">
                 {new Date(settingsData.settings.updatedAt).toLocaleDateString()}
               </p>

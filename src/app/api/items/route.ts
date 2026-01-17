@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
           message: "Invalid data",
           errors: validationResult.error.issues,
           receivedData: body,
-          parsedData: parsedBody
+          parsedData: parsedBody,
         },
         { status: 400 }
       );
@@ -86,10 +86,15 @@ export async function POST(request: NextRequest) {
       const itemLimit = subscription.itemLimit;
 
       // Check if trial has expired
-      if (subscription.plan === "trial" && subscription.trialEndsAt && new Date() > subscription.trialEndsAt) {
+      if (
+        subscription.plan === "trial" &&
+        subscription.trialEndsAt &&
+        new Date() > subscription.trialEndsAt
+      ) {
         return NextResponse.json(
           {
-            message: "Trial period has expired. Please upgrade to continue adding items.",
+            message:
+              "Trial period has expired. Please upgrade to continue adding items.",
             error: "TRIAL_EXPIRED",
             trialEndsAt: subscription.trialEndsAt,
           },
@@ -101,7 +106,8 @@ export async function POST(request: NextRequest) {
       if (!subscription.isActive) {
         return NextResponse.json(
           {
-            message: "Subscription is not active. Please contact support or update your payment method.",
+            message:
+              "Subscription is not active. Please contact support or update your payment method.",
             error: "SUBSCRIPTION_INACTIVE",
             status: subscription.status,
           },

@@ -22,15 +22,15 @@ import {
   AlertTriangle,
   Zap,
   Minus,
-  ShoppingCart
+  ShoppingCart,
 } from "lucide-react";
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onItemScanned?: (item: any, mode: 'add' | 'remove') => void;
+  onItemScanned?: (item: any, mode: "add" | "remove") => void;
   onNewItemRequested?: (barcode: string) => void;
-  mode?: 'add' | 'remove';
+  mode?: "add" | "remove";
 }
 
 interface ScannedItem {
@@ -48,7 +48,7 @@ export function BarcodeScannerModal({
   onClose,
   onItemScanned,
   onNewItemRequested,
-  mode = 'add',
+  mode = "add",
 }: BarcodeScannerModalProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedCode, setScannedCode] = useState("");
@@ -106,7 +106,7 @@ export function BarcodeScannerModal({
         if (!isRapidInput && timeSinceLastScan > 100) {
           setScanBuffer(e.key);
         } else {
-          setScanBuffer(prev => prev + e.key);
+          setScanBuffer((prev) => prev + e.key);
         }
 
         // Clear buffer timeout
@@ -145,7 +145,9 @@ export function BarcodeScannerModal({
 
     try {
       // Look up item by barcode/SKU
-      const response = await fetch(`/api/items/lookup?barcode=${encodeURIComponent(barcode)}`);
+      const response = await fetch(
+        `/api/items/lookup?barcode=${encodeURIComponent(barcode)}`
+      );
 
       if (response.ok) {
         const item = await response.json();
@@ -162,7 +164,9 @@ export function BarcodeScannerModal({
           handleClose();
         }, 2000);
       } else if (response.status === 404) {
-        setError(`Product with barcode "${barcode}" not found in your inventory.`);
+        setError(
+          `Product with barcode "${barcode}" not found in your inventory.`
+        );
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Failed to lookup barcode");
@@ -207,13 +211,14 @@ export function BarcodeScannerModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            {mode === 'add' ? (
+            {mode === "add" ? (
               <Plus className="h-5 w-5 text-green-600" />
             ) : (
               <Minus className="h-5 w-5 text-red-600" />
             )}
             <span>
-              {mode === 'add' ? 'Add Inventory' : 'Remove Inventory'} - Barcode Scanner
+              {mode === "add" ? "Add Inventory" : "Remove Inventory"} - Barcode
+              Scanner
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -236,10 +241,9 @@ export function BarcodeScannerModal({
                 <div>
                   <p className="font-medium text-green-600">Scanner Ready</p>
                   <p className="text-sm text-muted-foreground">
-                    {mode === 'add'
-                      ? 'Scan a barcode to add inventory'
-                      : 'Scan a barcode to remove inventory'
-                    }
+                    {mode === "add"
+                      ? "Scan a barcode to add inventory"
+                      : "Scan a barcode to remove inventory"}
                   </p>
                 </div>
               </div>
@@ -257,25 +261,33 @@ export function BarcodeScannerModal({
 
             {foundItem && (
               <div className="space-y-3">
-                {mode === 'add' ? (
+                {mode === "add" ? (
                   <Plus className="h-12 w-12 mx-auto text-green-600" />
                 ) : (
                   <Minus className="h-12 w-12 mx-auto text-red-600" />
                 )}
                 <div className="space-y-2">
-                  <p className={`font-medium ${mode === 'add' ? 'text-green-600' : 'text-red-600'}`}>
-                    {mode === 'add' ? 'Item Found - Ready to Add!' : 'Item Found - Ready to Remove!'}
+                  <p
+                    className={`font-medium ${mode === "add" ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {mode === "add"
+                      ? "Item Found - Ready to Add!"
+                      : "Item Found - Ready to Remove!"}
                   </p>
-                  <div className={`${mode === 'add' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-lg p-3 space-y-2`}>
+                  <div
+                    className={`${mode === "add" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"} border rounded-lg p-3 space-y-2`}
+                  >
                     <h3 className="font-semibold">{foundItem.name}</h3>
                     <div className="flex items-center justify-between text-sm">
                       <span>SKU: {foundItem.sku}</span>
-                      <Badge variant="secondary">{foundItem.category.name}</Badge>
+                      <Badge variant="secondary">
+                        {foundItem.category.name}
+                      </Badge>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Current quantity: {foundItem.quantity}
                     </div>
-                    {mode === 'remove' && foundItem.quantity === 0 && (
+                    {mode === "remove" && foundItem.quantity === 0 && (
                       <div className="text-sm text-red-600 font-medium">
                         ⚠️ Warning: Item is already at 0 quantity
                       </div>
@@ -340,7 +352,7 @@ export function BarcodeScannerModal({
 
           {/* Action Buttons */}
           <div className="flex space-x-3">
-            {error && scannedCode && mode === 'add' && (
+            {error && scannedCode && mode === "add" && (
               <Button
                 onClick={handleAddNewProduct}
                 className="flex-1"

@@ -1,5 +1,10 @@
 import type { Item, Settings } from "@prisma/client";
-import type { InventoryStatus, ItemWithStatus, InventorySummary, ItemWithRelations } from "@/types/inventory";
+import type {
+  InventoryStatus,
+  ItemWithStatus,
+  InventorySummary,
+  ItemWithRelations,
+} from "@/types/inventory";
 
 /**
  * Calculate the status of an inventory item based on current date,
@@ -123,8 +128,9 @@ export function searchItems(
 /**
  * Get status badge color for UI components
  */
-export function getStatusBadgeVariant(status: InventoryStatus):
-  "default" | "secondary" | "destructive" | "warning" {
+export function getStatusBadgeVariant(
+  status: InventoryStatus
+): "default" | "secondary" | "destructive" | "warning" {
   switch (status) {
     case "ok":
       return "default";
@@ -160,7 +166,9 @@ export function getStatusLabel(status: InventoryStatus): string {
 /**
  * Get items that need attention (expired, expiring soon, or low stock)
  */
-export function getItemsNeedingAttention(items: ItemWithStatus[]): ItemWithStatus[] {
+export function getItemsNeedingAttention(
+  items: ItemWithStatus[]
+): ItemWithStatus[] {
   return items.filter(
     (item) =>
       item.status === "expired" ||
@@ -184,13 +192,11 @@ export function calculateWasteReport(
   cutoffDate.setDate(cutoffDate.getDate() - days);
 
   const expiredItems = items.filter(
-    (item) =>
-      item.status === "expired" &&
-      item.expirationDate >= cutoffDate
+    (item) => item.status === "expired" && item.expirationDate >= cutoffDate
   );
 
   const totalWasteValue = expiredItems.reduce(
-    (sum, item) => sum + (Number(item.unitCost) * item.quantity),
+    (sum, item) => sum + Number(item.unitCost) * item.quantity,
     0
   );
 

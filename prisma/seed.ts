@@ -45,8 +45,8 @@ async function main() {
       where: {
         organizationId_name: {
           organizationId: organization.id,
-          name: "Injectables"
-        }
+          name: "Injectables",
+        },
       },
       update: {},
       create: {
@@ -58,8 +58,8 @@ async function main() {
       where: {
         organizationId_name: {
           organizationId: organization.id,
-          name: "Skincare"
-        }
+          name: "Skincare",
+        },
       },
       update: {},
       create: {
@@ -71,8 +71,8 @@ async function main() {
       where: {
         organizationId_name: {
           organizationId: organization.id,
-          name: "Consumables"
-        }
+          name: "Consumables",
+        },
       },
       update: {},
       create: {
@@ -84,8 +84,8 @@ async function main() {
       where: {
         organizationId_name: {
           organizationId: organization.id,
-          name: "Equipment"
-        }
+          name: "Equipment",
+        },
       },
       update: {},
       create: {
@@ -97,8 +97,8 @@ async function main() {
       where: {
         organizationId_name: {
           organizationId: organization.id,
-          name: "Other"
-        }
+          name: "Other",
+        },
       },
       update: {},
       create: {
@@ -162,7 +162,7 @@ async function main() {
         categoryId: categories[0].id,
         organizationId: organization.id,
         quantity: 12,
-        unitCost: 450.00,
+        unitCost: 450.0,
         expirationDate: nextSixMonths, // Good status - plenty of stock and time
         reorderThreshold: 5,
       },
@@ -174,7 +174,7 @@ async function main() {
         categoryId: categories[0].id,
         organizationId: organization.id,
         quantity: 3,
-        unitCost: 320.00,
+        unitCost: 320.0,
         expirationDate: nextThreeDays, // Expiring soon (within 7 days)
         reorderThreshold: 5,
       },
@@ -186,7 +186,7 @@ async function main() {
         categoryId: categories[0].id,
         organizationId: organization.id,
         quantity: 2,
-        unitCost: 380.00,
+        unitCost: 380.0,
         expirationDate: lastMonth, // Expired
         reorderThreshold: 5,
       },
@@ -198,7 +198,7 @@ async function main() {
         categoryId: categories[1].id,
         organizationId: organization.id,
         quantity: 8,
-        unitCost: 75.00,
+        unitCost: 75.0,
         expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 10,
       },
@@ -210,7 +210,7 @@ async function main() {
         categoryId: categories[1].id,
         organizationId: organization.id,
         quantity: 15,
-        unitCost: 65.00,
+        unitCost: 65.0,
         expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 20,
       },
@@ -223,7 +223,7 @@ async function main() {
         categoryId: categories[2].id,
         organizationId: organization.id,
         quantity: 4, // Low stock
-        unitCost: 1.50,
+        unitCost: 1.5,
         expirationDate: nextSixMonths, // Low stock but not expiring
         reorderThreshold: 50,
       },
@@ -234,7 +234,7 @@ async function main() {
         categoryId: categories[2].id,
         organizationId: organization.id,
         quantity: 25,
-        unitCost: 12.00,
+        unitCost: 12.0,
         expirationDate: nextSixMonths, // Good stock
         reorderThreshold: 10,
       },

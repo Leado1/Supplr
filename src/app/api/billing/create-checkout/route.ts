@@ -19,7 +19,10 @@ export async function POST(request: NextRequest) {
     const { priceId, planName } = body;
 
     if (!priceId) {
-      return NextResponse.json({ message: "Price ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Price ID is required" },
+        { status: 400 }
+      );
     }
 
     // Get user's organization, or create user if they don't exist
@@ -36,11 +39,14 @@ export async function POST(request: NextRequest) {
 
     // If user doesn't exist in database, create them (fallback for webhook failures)
     if (!user) {
-      console.log("User not found in database, creating user and organization...");
+      console.log(
+        "User not found in database, creating user and organization..."
+      );
 
       try {
         // Import the function we need
-        const { createUserWithOrganization } = await import("@/lib/organization-setup");
+        const { createUserWithOrganization } =
+          await import("@/lib/organization-setup");
 
         // Get user info from Clerk - use currentUser for better compatibility
         const { currentUser } = await import("@clerk/nextjs/server");
@@ -48,7 +54,10 @@ export async function POST(request: NextRequest) {
 
         if (!clerkUser) {
           console.error("Could not get current user from Clerk");
-          return NextResponse.json({ message: "Authentication error" }, { status: 401 });
+          return NextResponse.json(
+            { message: "Authentication error" },
+            { status: 401 }
+          );
         }
 
         // Create user with organization using Clerk user data
@@ -62,10 +71,16 @@ export async function POST(request: NextRequest) {
         console.log("User creation result:", result);
       } catch (createError) {
         console.error("Error creating user:", createError);
-        return NextResponse.json({
-          message: "Failed to create user account",
-          error: createError instanceof Error ? createError.message : "Unknown error"
-        }, { status: 500 });
+        return NextResponse.json(
+          {
+            message: "Failed to create user account",
+            error:
+              createError instanceof Error
+                ? createError.message
+                : "Unknown error",
+          },
+          { status: 500 }
+        );
       }
 
       // Re-fetch the user with the organization data
@@ -81,7 +96,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!user) {
-        return NextResponse.json({ message: "Failed to create user" }, { status: 500 });
+        return NextResponse.json(
+          { message: "Failed to create user" },
+          { status: 500 }
+        );
       }
 
       console.log("✅ User and organization created successfully");

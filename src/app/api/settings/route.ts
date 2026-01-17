@@ -11,7 +11,10 @@ export async function GET() {
     if (orgError) return orgError;
 
     if (!organization!.settings) {
-      return NextResponse.json({ message: "Settings not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Settings not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -44,7 +47,8 @@ export async function PUT(request: NextRequest) {
       timezone: body.timezone,
     };
 
-    const validationResult = updateOrganizationSettingsSchema.safeParse(settingsData);
+    const validationResult =
+      updateOrganizationSettingsSchema.safeParse(settingsData);
 
     if (!validationResult.success) {
       return NextResponse.json(

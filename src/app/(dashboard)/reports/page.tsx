@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/select";
 import { ExportDropdown } from "@/components/ui/export-dropdown";
 import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
+import {
+  FeatureGate,
+  InlineUpgrade,
+} from "@/components/subscription/feature-gate";
 import type { ItemWithStatus } from "@/types/inventory";
+import type { SubscriptionFeatures } from "@/lib/subscription-helpers";
 
 interface WasteReport {
   expiredItems: ItemWithStatus[];
@@ -27,10 +32,34 @@ export default function ReportsPage() {
   const [reportPeriod, setReportPeriod] = useState("30");
   const [loading, setLoading] = useState(true);
   const [organizationName, setOrganizationName] = useState("Your Organization");
+  const [subscription, setSubscription] = useState<SubscriptionFeatures | null>(
+    null
+  );
 
   useEffect(() => {
     fetchReportData();
+    fetchSubscription();
   }, [reportPeriod]);
+
+  const fetchSubscription = async () => {
+    try {
+      const response = await fetch("/api/billing/subscription");
+      if (response.ok) {
+        const data = await response.json();
+        setSubscription({
+          advancedAnalytics: data.subscription.advancedAnalytics,
+          customCategories: data.subscription.customCategories,
+          apiAccess: data.subscription.apiAccess,
+          multiLocation: data.subscription.multiLocation,
+          customReports: data.subscription.customReports,
+          itemLimit: data.subscription.itemLimit,
+          plan: data.subscription.plan,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
 
   const fetchReportData = async () => {
     try {
@@ -55,12 +84,11 @@ export default function ReportsPage() {
 
     const expiredItems = itemsData.filter(
       (item) =>
-        item.status === "expired" &&
-        new Date(item.expirationDate) >= cutoffDate
+        item.status === "expired" && new Date(item.expirationDate) >= cutoffDate
     );
 
     const totalWasteValue = expiredItems.reduce(
-      (sum, item) => sum + (Number(item.unitCost) * item.quantity),
+      (sum, item) => sum + Number(item.unitCost) * item.quantity,
       0
     );
 
@@ -90,22 +118,32 @@ export default function ReportsPage() {
     if (items.length === 0) return;
 
     // If we have waste report data, focus on expired items; otherwise export all items
-    const itemsToExport = wasteReport && wasteReport.expiredItems.length > 0
-      ? wasteReport.expiredItems
-      : items;
+    const itemsToExport =
+      wasteReport && wasteReport.expiredItems.length > 0
+        ? wasteReport.expiredItems
+        : items;
 
     // Convert items to match the expected format for PDF generation
-    const convertedItems = itemsToExport.map(item => ({
+    const convertedItems = itemsToExport.map((item) => ({
       ...item,
       unitCost: item.unitCost.toString(),
       expirationDate: item.expirationDate.toString(),
     }));
 
     // Calculate summary based on what we're exporting
-    const totalValue = itemsToExport.reduce((sum, item) => sum + (Number(item.unitCost) * item.quantity), 0);
-    const expiredCount = itemsToExport.filter(item => item.status === 'expired').length;
-    const expiringSoonCount = itemsToExport.filter(item => item.status === 'expiring_soon').length;
-    const lowStockCount = itemsToExport.filter(item => item.status === 'low_stock').length;
+    const totalValue = itemsToExport.reduce(
+      (sum, item) => sum + Number(item.unitCost) * item.quantity,
+      0
+    );
+    const expiredCount = itemsToExport.filter(
+      (item) => item.status === "expired"
+    ).length;
+    const expiringSoonCount = itemsToExport.filter(
+      (item) => item.status === "expiring_soon"
+    ).length;
+    const lowStockCount = itemsToExport.filter(
+      (item) => item.status === "low_stock"
+    ).length;
 
     const summary = {
       totalItems: itemsToExport.length,
@@ -120,7 +158,10 @@ export default function ReportsPage() {
       items: convertedItems,
       summary,
       filters: {
-        status: wasteReport && wasteReport.expiredItems.length > 0 ? "expired" : "all",
+        status:
+          wasteReport && wasteReport.expiredItems.length > 0
+            ? "expired"
+            : "all",
         category: "all",
         search: `Report Period: Last ${reportPeriod} days`,
       },
@@ -133,12 +174,13 @@ export default function ReportsPage() {
     if (items.length === 0) return;
 
     // If we have waste report data, focus on expired items; otherwise export all items
-    const itemsToExport = wasteReport && wasteReport.expiredItems.length > 0
-      ? wasteReport.expiredItems
-      : items;
+    const itemsToExport =
+      wasteReport && wasteReport.expiredItems.length > 0
+        ? wasteReport.expiredItems
+        : items;
 
     // Convert items to match the expected format for CSV generation
-    const convertedItems = itemsToExport.map(item => ({
+    const convertedItems = itemsToExport.map((item) => ({
       ...item,
       unitCost: item.unitCost.toString(),
       expirationDate: item.expirationDate.toString(),
@@ -155,7 +197,7 @@ export default function ReportsPage() {
   const getInventoryValueByCategory = () => {
     const categoryTotals: Record<string, { value: number; count: number }> = {};
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const categoryName = item.category.name;
       const itemValue = Number(item.unitCost) * item.quantity;
 
@@ -192,9 +234,12 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Reports & Analytics
+          </h1>
           <p className="text-muted-foreground">
-            Track waste, analyze inventory value, and optimize your medical supplies
+            Track waste, analyze inventory value, and optimize your medical
+            supplies
           </p>
         </div>
         <div className="flex items-center space-x-4">
@@ -225,7 +270,12 @@ export default function ReportsPage() {
             <CardTitle className="text-sm font-medium">Items Expired</CardTitle>
             <div className="h-4 w-4 text-red-600">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
           </CardHeader>
@@ -244,7 +294,12 @@ export default function ReportsPage() {
             <CardTitle className="text-sm font-medium">Waste Value</CardTitle>
             <div className="h-4 w-4 text-red-600">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                />
               </svg>
             </div>
           </CardHeader>
@@ -252,97 +307,172 @@ export default function ReportsPage() {
             <div className="text-2xl font-bold text-red-600">
               {formatCurrency(wasteReport?.totalWasteValue || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Lost to expiration
-            </p>
+            <p className="text-xs text-muted-foreground">Lost to expiration</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Inventory Value</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Inventory Value
+            </CardTitle>
             <div className="h-4 w-4 text-green-600">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
               </svg>
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(
-                items.reduce((sum, item) => sum + (Number(item.unitCost) * item.quantity), 0)
+                items.reduce(
+                  (sum, item) => sum + Number(item.unitCost) * item.quantity,
+                  0
+                )
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Current stock value
-            </p>
+            <p className="text-xs text-muted-foreground">Current stock value</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Inventory Value by Category */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Inventory Value by Category</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {getInventoryValueByCategory().map(({ category, value, count }) => (
-              <div key={category} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Badge variant="outline">{category}</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {count} items
-                  </span>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">{formatCurrency(value)}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {((value / items.reduce((sum, item) => sum + (Number(item.unitCost) * item.quantity), 0)) * 100).toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Expired Items Detail */}
-      {wasteReport && wasteReport.expiredItems.length > 0 && (
+      {/* Advanced Analytics - Professional+ */}
+      <FeatureGate
+        feature="Advanced Analytics"
+        hasAccess={subscription?.advancedAnalytics || false}
+        plan={subscription?.plan || "trial"}
+        requiredPlan="professional"
+        fallback={
+          <InlineUpgrade
+            feature="Advanced Analytics (Category Breakdown)"
+            requiredPlan="Professional"
+            className="py-12"
+          />
+        }
+      >
+        {/* Inventory Value by Category */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <span>Expired Items Detail</span>
-              <Badge variant="destructive">{wasteReport.expiredItems.length}</Badge>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Inventory Value by Category</CardTitle>
+              <Badge variant="outline" className="text-xs">
+                Professional
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {wasteReport.expiredItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {item.sku && `SKU: ${item.sku} • `}
-                      Category: {item.category.name}
+              {getInventoryValueByCategory().map(
+                ({ category, value, count }) => (
+                  <div
+                    key={category}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline">{category}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {count} items
+                      </span>
                     </div>
-                    <div className="text-sm text-red-600">
-                      Expired on {formatDate(item.expirationDate)}
+                    <div className="text-right">
+                      <div className="font-medium">{formatCurrency(value)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {(
+                          (value /
+                            items.reduce(
+                              (sum, item) =>
+                                sum + Number(item.unitCost) * item.quantity,
+                              0
+                            )) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium">
-                      {formatCurrency(Number(item.unitCost) * item.quantity)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {item.quantity} × {formatCurrency(Number(item.unitCost))}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </CardContent>
         </Card>
+      </FeatureGate>
+
+      {/* Expired Items Detail - Professional+ */}
+      {wasteReport && wasteReport.expiredItems.length > 0 && (
+        <FeatureGate
+          feature="Detailed Expired Items Analysis"
+          hasAccess={subscription?.advancedAnalytics || false}
+          plan={subscription?.plan || "trial"}
+          requiredPlan="professional"
+          fallback={
+            <Card className="border-2 border-dashed border-muted-foreground/25">
+              <CardContent className="py-8">
+                <div className="text-center space-y-3">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {wasteReport.expiredItems.length} expired items detected
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Detailed expired items analysis requires Professional plan
+                  </div>
+                  <Button size="sm" asChild>
+                    <a href="/billing">Upgrade to View Details</a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          }
+        >
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center space-x-2">
+                  <span>Expired Items Detail</span>
+                  <Badge variant="destructive">
+                    {wasteReport.expiredItems.length}
+                  </Badge>
+                </CardTitle>
+                <Badge variant="outline" className="text-xs">
+                  Professional
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {wasteReport.expiredItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div>
+                      <div className="font-medium">{item.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {item.sku && `SKU: ${item.sku} • `}
+                        Category: {item.category.name}
+                      </div>
+                      <div className="text-sm text-red-600">
+                        Expired on {formatDate(item.expirationDate)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium">
+                        {formatCurrency(Number(item.unitCost) * item.quantity)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {item.quantity} ×{" "}
+                        {formatCurrency(Number(item.unitCost))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </FeatureGate>
       )}
 
       {/* Empty State for Waste Report */}
@@ -351,11 +481,23 @@ export default function ReportsPage() {
           <CardContent className="py-8">
             <div className="text-center">
               <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-green-800">Excellent Waste Management!</h3>
+              <h3 className="text-lg font-semibold text-green-800">
+                Excellent Waste Management!
+              </h3>
               <p className="text-green-600">
                 No items have expired in the last {reportPeriod} days.
               </p>

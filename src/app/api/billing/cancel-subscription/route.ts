@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user?.organization.subscription?.stripeSubscriptionId) {
-      return NextResponse.json({ message: "No active subscription found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No active subscription found" },
+        { status: 404 }
+      );
     }
 
     // Cancel subscription at period end
@@ -47,7 +50,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ message: "Subscription will be canceled at the end of the billing period" });
+    return NextResponse.json({
+      message: "Subscription will be canceled at the end of the billing period",
+    });
   } catch (error) {
     console.error("Error canceling subscription:", error);
     return NextResponse.json(

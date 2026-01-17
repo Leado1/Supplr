@@ -5,7 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Star, Shield, TrendingUp, AlertTriangle, Calculator } from "lucide-react";
+import {
+  Check,
+  Star,
+  Shield,
+  TrendingUp,
+  AlertTriangle,
+  Calculator,
+} from "lucide-react";
 import { Particles } from "@/components/ui/particles";
 import { ROICalculator } from "@/components/roi-calculator";
 import { PublicHeader } from "@/components/navigation/public-nav";
@@ -40,21 +47,32 @@ export default async function HomePage() {
             <h1 className="mb-8 text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
               Stop Losing Money on
               <br />
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">Expired Medical Supplies</span>
+              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+                Expired Medical Supplies
+              </span>
             </h1>
 
             <p className="mx-auto mb-12 max-w-2xl text-xl md:text-2xl text-muted-foreground leading-relaxed">
-              Stop losing thousands to expired inventory. Track, optimize, and protect your medical supplies with intelligent alerts and insights that keep your practice profitable.
+              Stop losing thousands to expired inventory. Track, optimize, and
+              protect your medical supplies with intelligent alerts and insights
+              that keep your practice profitable.
             </p>
 
             <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-16">
               <Link href="/sign-up">
-                <Button size="lg" className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Button
+                  size="lg"
+                  className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl transition-all duration-300"
+                >
                   Start Free Trial
                 </Button>
               </Link>
               <Link href="/sign-in">
-                <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -66,7 +84,9 @@ export default async function HomePage() {
 
             {/* How It Works Section */}
             <div className="mt-24">
-              <h2 className="text-3xl md:text-4xl font-bold mb-16">How Supplr Works</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-16">
+                How Supplr Works
+              </h2>
 
               <div className="grid md:grid-cols-3 gap-12">
                 {/* Step 1 */}
@@ -74,9 +94,12 @@ export default async function HomePage() {
                   <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-6">
                     1
                   </div>
-                  <h3 className="text-xl font-semibold mb-4">Add Your Inventory</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Add Your Inventory
+                  </h3>
                   <p className="text-muted-foreground">
-                    Quickly add your Botox, fillers, and medical supplies with expiration dates and quantities.
+                    Quickly add your Botox, fillers, and medical supplies with
+                    expiration dates and quantities.
                   </p>
                 </div>
 
@@ -85,9 +108,12 @@ export default async function HomePage() {
                   <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-6">
                     2
                   </div>
-                  <h3 className="text-xl font-semibold mb-4">Get Smart Alerts</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Get Smart Alerts
+                  </h3>
                   <p className="text-muted-foreground">
-                    Receive email and SMS notifications when products are expiring soon or running low.
+                    Receive email and SMS notifications when products are
+                    expiring soon or running low.
                   </p>
                 </div>
 
@@ -98,7 +124,8 @@ export default async function HomePage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-4">Save Money</h3>
                   <p className="text-muted-foreground">
-                    Use products before they expire and optimize your ordering to reduce waste by 85%.
+                    Use products before they expire and optimize your ordering
+                    to reduce waste by 85%.
                   </p>
                 </div>
               </div>
@@ -126,9 +153,12 @@ export default async function HomePage() {
                     unoptimized
                   />
                 </div>
-                <h3 className="text-xl font-semibold mb-4">Save $47k Annually</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  Save $47k Annually
+                </h3>
                 <p className="text-muted-foreground">
-                  Prevent waste from expired Botox, fillers, and medical supplies with smart tracking and alerts.
+                  Prevent waste from expired Botox, fillers, and medical
+                  supplies with smart tracking and alerts.
                 </p>
               </div>
 
@@ -146,7 +176,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Never Run Out</h3>
                 <p className="text-muted-foreground">
-                  Get notified when inventory is low so you can reorder before running out during procedures.
+                  Get notified when inventory is low so you can reorder before
+                  running out during procedures.
                 </p>
               </div>
 
@@ -164,7 +195,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Stay Compliant</h3>
                 <p className="text-muted-foreground">
-                  HIPAA-secure platform with FDA lot tracking and temperature monitoring capabilities.
+                  HIPAA-secure platform with FDA lot tracking and temperature
+                  monitoring capabilities.
                 </p>
               </div>
             </div>
@@ -190,12 +222,16 @@ export default async function HomePage() {
                 <CardContent className="p-0">
                   <div className="flex mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                   </div>
                   <blockquote className="text-lg mb-4">
-                    "Supplr has completely transformed how we manage our Botox and filler inventory.
-                    We haven't wasted a single vial in 6 months."
+                    "Supplr has completely transformed how we manage our Botox
+                    and filler inventory. We haven't wasted a single vial in 6
+                    months."
                   </blockquote>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-primary-foreground font-semibold">
@@ -213,12 +249,16 @@ export default async function HomePage() {
                 <CardContent className="p-0">
                   <div className="flex mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                   </div>
                   <blockquote className="text-lg mb-4">
-                    "The visual dashboard makes it so easy to see what's running low or expiring soon.
-                    My staff can check inventory in seconds."
+                    "The visual dashboard makes it so easy to see what's running
+                    low or expiring soon. My staff can check inventory in
+                    seconds."
                   </blockquote>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-primary-foreground font-semibold">
@@ -234,7 +274,9 @@ export default async function HomePage() {
 
             {/* Trust Badges */}
             <div className="mt-16">
-              <p className="text-sm text-muted-foreground mb-6">Trusted & Compliant</p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Trusted & Compliant
+              </p>
               <div className="flex flex-wrap justify-center items-center gap-6">
                 <Badge variant="outline" className="px-4 py-2 text-sm">
                   🔒 HIPAA Compliant
@@ -257,24 +299,33 @@ export default async function HomePage() {
               Ready to Stop Losing Money on Expired Supplies?
             </h2>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Join hundreds of medical practices saving thousands annually with Supplr's smart inventory management.
+              Join hundreds of medical practices saving thousands annually with
+              Supplr's smart inventory management.
             </p>
 
             <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-8">
               <Link href="/sign-up">
-                <Button size="lg" className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Button
+                  size="lg"
+                  className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl transition-all duration-300"
+                >
                   Start Your Free Trial
                 </Button>
               </Link>
               <Link href="/pricing">
-                <Button size="lg" variant="outline" className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300"
+                >
                   View Pricing
                 </Button>
               </Link>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              14-day free trial • No credit card required • Setup in under 5 minutes
+              14-day free trial • No credit card required • Setup in under 5
+              minutes
             </p>
           </div>
         </section>
@@ -287,10 +338,15 @@ export default async function HomePage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center mb-4">
-                <img src="/images/supplr123.png" alt="Supplr" className="h-8 w-auto" />
+                <img
+                  src="/images/supplr123.png"
+                  alt="Supplr"
+                  className="h-8 w-auto"
+                />
               </div>
               <p className="text-muted-foreground max-w-md">
-                Smart inventory management for medical practices. Stop losing money on expired supplies and never run out during procedures.
+                Smart inventory management for medical practices. Stop losing
+                money on expired supplies and never run out during procedures.
               </p>
             </div>
 
@@ -298,10 +354,38 @@ export default async function HomePage() {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/use-cases" className="hover:text-foreground transition-colors">Use Cases</Link></li>
-                <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link></li>
+                <li>
+                  <Link
+                    href="/use-cases"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Use Cases
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/pricing"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/blog"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -309,15 +393,39 @@ export default async function HomePage() {
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
-                <li><Link href="/support" className="hover:text-foreground transition-colors">Contact Support</Link></li>
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/terms"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/support"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Contact Support
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+            <p>
+              &copy; 2026 Supplr. Built for medical practices that care about
+              efficiency.
+            </p>
           </div>
         </div>
       </footer>

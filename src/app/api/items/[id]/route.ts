@@ -23,7 +23,10 @@ export async function PUT(
     const { id: itemId } = await params;
 
     // Verify item ownership - CRITICAL SECURITY CHECK
-    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(
+      itemId,
+      organization!.id
+    );
     if (itemError) return itemError;
 
     // Prepare update data
@@ -93,7 +96,10 @@ export async function PATCH(
     }
 
     // Verify item ownership - CRITICAL SECURITY CHECK
-    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(
+      itemId,
+      organization!.id
+    );
     if (itemError) return itemError;
 
     // Update only the provided fields
@@ -129,7 +135,10 @@ export async function DELETE(
     const { id: itemId } = await params;
 
     // Verify item ownership - CRITICAL SECURITY CHECK
-    const { error: itemError, item: existingItem } = await verifyItemOwnership(itemId, organization!.id);
+    const { error: itemError, item: existingItem } = await verifyItemOwnership(
+      itemId,
+      organization!.id
+    );
     if (itemError) return itemError;
 
     // Delete the item

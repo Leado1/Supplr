@@ -13,7 +13,8 @@ export default function PricingPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckout = async (plan: any, index: number) => {
-    if (index === 2) { // Enterprise plan
+    if (index === 2) {
+      // Enterprise plan
       // Redirect to contact for enterprise
       window.location.href = "mailto:support@supplr.net";
       return;
@@ -24,21 +25,38 @@ export default function PricingPage() {
       const priceId = isAnnual ? plan.annualPriceId : plan.monthlyPriceId;
 
       // Debug: Log the price ID to see what we're working with
-      console.log("Plan:", plan.name, "PriceId:", priceId, "IsAnnual:", isAnnual);
+      console.log(
+        "Plan:",
+        plan.name,
+        "PriceId:",
+        priceId,
+        "IsAnnual:",
+        isAnnual
+      );
 
       // Debug: Log all environment variables to see what's available
       console.log("Environment Variables:", {
-        STARTER_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID,
+        STARTER_MONTHLY:
+          process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID,
         STARTER_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID,
-        PROFESSIONAL_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID,
-        PROFESSIONAL_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID,
-        ENTERPRISE_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
-        ENTERPRISE_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
+        PROFESSIONAL_MONTHLY:
+          process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID,
+        PROFESSIONAL_ANNUAL:
+          process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID,
+        ENTERPRISE_MONTHLY:
+          process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
+        ENTERPRISE_ANNUAL:
+          process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
       });
 
       // Check if price ID is empty or undefined
       if (!priceId || priceId.trim() === "") {
-        console.error("MISSING PRICE ID for plan:", plan.name, "isAnnual:", isAnnual);
+        console.error(
+          "MISSING PRICE ID for plan:",
+          plan.name,
+          "isAnnual:",
+          isAnnual
+        );
         alert("Pricing configuration error. Please contact support.");
         return;
       }
@@ -85,23 +103,27 @@ export default function PricingPage() {
       monthlyPrice: 29,
       annualPrice: 288, // $29 * 12 - $60 savings (2 months free)
       monthlyEquivalent: 24, // What they pay per month when billed annually
-      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID || "",
-      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID || "",
+      monthlyPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID || "",
+      annualPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID || "",
       description: "Perfect for small practices",
       features: [
         "Up to 100 items",
         "Basic dashboard",
         "Expiration alerts",
-        "Email support"
-      ]
+        "Email support",
+      ],
     },
     {
       name: "Professional",
       monthlyPrice: 79,
       annualPrice: 792, // $79 * 12 - $156 savings (2 months free)
       monthlyEquivalent: 66, // What they pay per month when billed annually
-      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || "",
-      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || "",
+      monthlyPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || "",
+      annualPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || "",
       description: "For growing medical practices",
       popular: true,
       features: [
@@ -109,25 +131,27 @@ export default function PricingPage() {
         "Advanced analytics",
         "Custom categories",
         "Priority support",
-        "Team collaboration"
-      ]
+        "Team collaboration",
+      ],
     },
     {
       name: "Enterprise",
       monthlyPrice: 199,
       annualPrice: 1992, // $199 * 12 - $396 savings (2 months free)
       monthlyEquivalent: 166, // What they pay per month when billed annually
-      monthlyPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || "",
-      annualPriceId: process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || "",
+      monthlyPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || "",
+      annualPriceId:
+        process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || "",
       description: "For large practices & chains",
       features: [
         "Unlimited items",
         "Multi-location support",
         "API integrations",
         "Custom reports",
-        "Dedicated support"
-      ]
-    }
+        "Dedicated support",
+      ],
+    },
   ];
 
   return (
@@ -142,7 +166,10 @@ export default function PricingPage() {
           <div className="container mx-auto max-w-4xl px-4 text-center">
             <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               Simple, Transparent
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent"> Pricing</span>
+              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+                {" "}
+                Pricing
+              </span>
             </h1>
             <p className="mx-auto mb-10 max-w-2xl text-xl text-muted-foreground leading-relaxed">
               Choose the plan that fits your practice.
@@ -173,7 +200,9 @@ export default function PricingPage() {
                 }`}
               >
                 Annual
-                <Badge className="ml-2 bg-green-100 text-green-700 text-xs">Save 17%</Badge>
+                <Badge className="ml-2 bg-green-100 text-green-700 text-xs">
+                  Save 17%
+                </Badge>
               </button>
             </div>
           </div>
@@ -185,27 +214,33 @@ export default function PricingPage() {
             <div className="grid gap-8 lg:grid-cols-3">
               {plans.map((plan, index) => {
                 const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-                const monthlyEquivalent = isAnnual ? plan.monthlyEquivalent : null;
-                const originalMonthlyPrice = isAnnual ? plan.monthlyPrice : null;
+                const monthlyEquivalent = isAnnual
+                  ? plan.monthlyEquivalent
+                  : null;
+                const originalMonthlyPrice = isAnnual
+                  ? plan.monthlyPrice
+                  : null;
 
                 return (
                   <Card
                     key={plan.name}
-                    className={`relative overflow-hidden ${plan.popular ? 'border-primary shadow-xl' : ''}`}
+                    className={`relative overflow-hidden ${plan.popular ? "border-primary shadow-xl" : ""}`}
                   >
                     {plan.popular && (
                       <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-center py-2 text-sm font-medium">
                         Most Popular
                       </div>
                     )}
-                    <CardHeader className={`text-center pb-8 ${plan.popular ? 'pt-12' : ''}`}>
+                    <CardHeader
+                      className={`text-center pb-8 ${plan.popular ? "pt-12" : ""}`}
+                    >
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
                       <div className="mt-4">
                         <div className="flex items-center justify-center space-x-2">
                           <span className="text-4xl font-bold">${price}</span>
                           <div className="flex flex-col items-start">
                             <span className="text-muted-foreground">
-                              /{isAnnual ? 'year' : 'month'}
+                              /{isAnnual ? "year" : "month"}
                             </span>
                             {isAnnual && monthlyEquivalent && (
                               <span className="text-xs text-muted-foreground">
@@ -220,17 +255,22 @@ export default function PricingPage() {
                               ${originalMonthlyPrice * 12}/year if paid monthly
                             </div>
                             <div className="text-sm text-green-600 font-medium">
-                              Save ${(originalMonthlyPrice * 12) - price}/year
+                              Save ${originalMonthlyPrice * 12 - price}/year
                             </div>
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {plan.description}
+                      </p>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         {plan.features.map((feature, featureIndex) => (
-                          <div key={featureIndex} className="flex items-center space-x-3">
+                          <div
+                            key={featureIndex}
+                            className="flex items-center space-x-3"
+                          >
                             <Check className="h-4 w-4 text-green-500" />
                             <span className="text-sm">{feature}</span>
                           </div>
@@ -241,19 +281,20 @@ export default function PricingPage() {
                         disabled={isLoading}
                         className={`w-full mt-6 ${
                           plan.popular
-                            ? 'bg-gradient-to-r from-primary to-primary/80'
+                            ? "bg-gradient-to-r from-primary to-primary/80"
                             : index === plans.length - 1
-                              ? ''
-                              : ''
+                              ? ""
+                              : ""
                         }`}
-                        variant={index === plans.length - 1 ? 'outline' : 'default'}
+                        variant={
+                          index === plans.length - 1 ? "outline" : "default"
+                        }
                       >
                         {isLoading
-                          ? 'Processing...'
+                          ? "Processing..."
                           : index === plans.length - 1
-                            ? 'Contact Sales'
-                            : 'Start Free Trial'
-                        }
+                            ? "Contact Sales"
+                            : "Start Free Trial"}
                       </Button>
                     </CardContent>
                   </Card>
@@ -263,7 +304,8 @@ export default function PricingPage() {
 
             <div className="text-center mt-12">
               <p className="text-sm text-muted-foreground">
-                All plans include 14-day free trial • No setup fees • Cancel anytime
+                All plans include 14-day free trial • No setup fees • Cancel
+                anytime
               </p>
             </div>
           </div>
@@ -280,23 +322,46 @@ export default function PricingPage() {
 
             <div className="space-y-8">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Can I change plans anytime?</h3>
-                <p className="text-muted-foreground">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and billing is prorated.</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  Can I change plans anytime?
+                </h3>
+                <p className="text-muted-foreground">
+                  Yes, you can upgrade or downgrade your plan at any time.
+                  Changes take effect immediately, and billing is prorated.
+                </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">What happens after the free trial?</h3>
-                <p className="text-muted-foreground">Your 14-day free trial gives you full access to all features. No credit card required. After the trial, choose a plan to continue using Supplr.</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  What happens after the free trial?
+                </h3>
+                <p className="text-muted-foreground">
+                  Your 14-day free trial gives you full access to all features.
+                  No credit card required. After the trial, choose a plan to
+                  continue using Supplr.
+                </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">Is my data secure?</h3>
-                <p className="text-muted-foreground">Absolutely. We use enterprise-grade encryption and security measures. Your practice data is protected and never shared with third parties.</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  Is my data secure?
+                </h3>
+                <p className="text-muted-foreground">
+                  Absolutely. We use enterprise-grade encryption and security
+                  measures. Your practice data is protected and never shared
+                  with third parties.
+                </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">Do you offer custom enterprise solutions?</h3>
-                <p className="text-muted-foreground">Yes! Our Enterprise plan includes custom integrations, dedicated support, and multi-location features. Contact our sales team for more details.</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  Do you offer custom enterprise solutions?
+                </h3>
+                <p className="text-muted-foreground">
+                  Yes! Our Enterprise plan includes custom integrations,
+                  dedicated support, and multi-location features. Contact our
+                  sales team for more details.
+                </p>
               </div>
             </div>
           </div>
@@ -306,7 +371,10 @@ export default function PricingPage() {
       {/* Footer */}
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2026 Supplr. Built for medical practices that care about efficiency.</p>
+          <p>
+            &copy; 2026 Supplr. Built for medical practices that care about
+            efficiency.
+          </p>
         </div>
       </footer>
     </div>
