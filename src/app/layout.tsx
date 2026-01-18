@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
-import { PageLoadingBar } from "@/components/providers/page-loading-bar";
+import { RouteLoading } from "@/components/providers/route-loading";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -30,7 +30,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <PageLoadingBar />
+            <RouteLoading />
             {children}
           </ThemeProvider>
         </body>

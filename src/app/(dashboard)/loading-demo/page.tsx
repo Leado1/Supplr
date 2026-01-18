@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSpinner, LoadingScreen, InlineLoading } from "@/components/ui/loading-spinner";
+import Link from "next/link";
 
 export default function LoadingDemoPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,45 @@ export default function LoadingDemoPage() {
           Showcase of the chaotic orbit loading spinner in different contexts
         </p>
       </div>
+
+      {/* Navigation Loading Test */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Navigation Loading Test</CardTitle>
+          <CardDescription>
+            Test the loading spinner during page navigation. Click these links to see the loading bar at the top.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/dashboard">
+              <Button variant="outline">Dashboard</Button>
+            </Link>
+            <Link href="/inventory">
+              <Button variant="outline">Inventory</Button>
+            </Link>
+            <Link href="/reports">
+              <Button variant="outline">Reports</Button>
+            </Link>
+            <Link href="/settings">
+              <Button variant="outline">Settings</Button>
+            </Link>
+            <Link href="/billing">
+              <Button variant="outline">Billing</Button>
+            </Link>
+            <Link href="/slow-page">
+              <Button variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+                Slow Page (2s delay)
+              </Button>
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">
+            💡 Look for the loading bar at the very top of the page and the spinner in the top-right corner during navigation.
+            <br />
+            ⚡ The "Slow Page" button demonstrates longer loading with Suspense boundaries.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Basic Spinners */}
