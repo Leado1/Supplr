@@ -34,6 +34,7 @@ export default function InventoryPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemWithStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannerMode, setScannerMode] = useState<"add" | "remove">("add");
@@ -295,7 +296,7 @@ export default function InventoryPage() {
 
   // Bulk operations
   const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) return;
+    if (selectedIds.size === 0 || bulkLoading) return;
 
     const selectedItems = filteredItems.filter((item) =>
       selectedIds.has(item.id)
@@ -310,6 +311,7 @@ export default function InventoryPage() {
       return;
     }
 
+    setBulkLoading(true);
     try {
       const deletePromises = Array.from(selectedIds).map((id) =>
         fetch(`/api/items/${id}`, { method: "DELETE" })
@@ -327,12 +329,15 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("Error deleting items:", error);
       alert("Error deleting items");
+    } finally {
+      setBulkLoading(false);
     }
   };
 
   const handleBulkQuantityUpdate = async (newQuantity: number) => {
-    if (selectedIds.size === 0) return;
+    if (selectedIds.size === 0 || bulkLoading) return;
 
+    setBulkLoading(true);
     try {
       const updatePromises = Array.from(selectedIds).map((id) =>
         fetch(`/api/items/${id}`, {
@@ -354,6 +359,8 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("Error updating quantities:", error);
       alert("Error updating quantities");
+    } finally {
+      setBulkLoading(false);
     }
   };
 
@@ -822,27 +829,33 @@ export default function InventoryPage() {
                 variant="destructive"
                 size="sm"
                 onClick={handleBulkDelete}
+                disabled={bulkLoading}
                 className="bg-red-600 hover:bg-red-700"
               >
-                <svg
-                  className="mr-2 h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                Delete Selected
+                {bulkLoading ? (
+                  <InlineLoading size="sm" className="mr-2" />
+                ) : (
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                )}
+                {bulkLoading ? "Deleting..." : "Delete Selected"}
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
+                disabled={bulkLoading}
                 onClick={() => {
                   const newQuantity = prompt(
                     "Enter new quantity for selected items:"
@@ -853,20 +866,24 @@ export default function InventoryPage() {
                 }}
                 className="border-gray-300 hover:bg-gray-50"
               >
-                <svg
-                  className="mr-2 h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Update Quantity
+                {bulkLoading ? (
+                  <InlineLoading size="sm" className="mr-2" />
+                ) : (
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                )}
+                {bulkLoading ? "Updating..." : "Update Quantity"}
               </Button>
             </div>
           </div>

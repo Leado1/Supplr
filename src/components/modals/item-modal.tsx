@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import type { Category } from "@prisma/client";
 import type { ItemWithStatus } from "@/types/inventory";
+import { InlineLoading } from "@/components/ui/loading-spinner";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -348,6 +349,7 @@ export function ItemModal({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
+              {loading && <InlineLoading size="sm" className="mr-2" />}
               {loading ? "Saving..." : editItem ? "Update Item" : "Add Item"}
             </Button>
           </DialogFooter>
