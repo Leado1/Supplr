@@ -128,7 +128,7 @@ export async function createUserWithOrganization(userData: {
       "clinic"
     );
 
-    // Create the user
+    // Create the user as OWNER of their organization
     const user = await prisma.user.create({
       data: {
         clerkId: userData.clerkId,
@@ -136,6 +136,9 @@ export async function createUserWithOrganization(userData: {
         firstName: userData.firstName,
         lastName: userData.lastName,
         organizationId: organization.id,
+        role: "OWNER", // 🎯 KEY: Assign as organization owner
+        status: "ACTIVE",
+        joinedAt: new Date(),
       },
       include: {
         organization: {

@@ -21,6 +21,17 @@ model User {
   lastName       String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // New fields for team management
+  role           OrganizationRole @default(OWNER)
+  status         UserStatus       @default(ACTIVE)
+  invitedBy      String?          // Who invited this user
+  joinedAt       DateTime         @default(now())
+  lastActiveAt   DateTime?
+
+  // Relations for invitations
+  sentInvitations UserInvitation[] @relation("SentInvitations")
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -36,10 +47,29 @@ model Organization {
   items        Item[]
   settings     Settings?
   subscription Subscription?
+  invitations  UserInvitation[] // Team invitations
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
   @@map("organizations")
+}
+
+model UserInvitation {
+  id             String   @id @default(cuid())
+  email          String
+  organizationId String
+  role           OrganizationRole @default(MEMBER)
+  invitedBy      String
+  token          String   @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  inviter        User         @relation("SentInvitations", fields: [invitedBy], references: [id])
+
+  @@unique([email, organizationId])
+  @@map("user_invitations")
 }
 
 model Settings {
@@ -116,4 +146,17 @@ model Subscription {
   updatedAt          DateTime     @updatedAt
 
   @@map("subscriptions")
+}
+
+enum OrganizationRole {
+  OWNER          // Practice owner - full access + billing
+  ADMIN          // Office manager - user management + inventory
+  MANAGER        // Lead medical staff - inventory management
+  MEMBER         // Staff - view + basic updates
+}
+
+enum UserStatus {
+  ACTIVE         // Active team member
+  PENDING        // Invitation sent but not accepted
+  SUSPENDED      // Temporarily disabled
 }
