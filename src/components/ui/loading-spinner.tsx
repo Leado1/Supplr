@@ -27,14 +27,17 @@ export function LoadingSpinner({
     xl: "48px"
   };
 
+  // For now, use a reliable Tailwind spinner while we debug the chaotic orbit
   return (
     <div
-      className={cn("chaotic-orbit", sizeClasses[size], className)}
-      style={{
-        "--uib-size": sizeValues[size],
-        "--uib-speed": "1.5s",
-        "--uib-color": color
-      } as React.CSSProperties}
+      className={cn(
+        "animate-spin rounded-full border-2 border-current border-t-transparent",
+        sizeClasses[size],
+        className
+      )}
+      style={{ color }}
+      role="status"
+      aria-label="Loading"
     />
   );
 }
