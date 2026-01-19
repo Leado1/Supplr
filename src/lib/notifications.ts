@@ -436,3 +436,182 @@ export async function sendInventoryNotifications(
     };
   }
 }
+
+// Team invitation email functionality
+export interface InvitationEmailData {
+  inviterName: string;
+  inviterEmail: string;
+  organizationName: string;
+  inviteeEmail: string;
+  role: string;
+  invitationToken: string;
+  expiresAt: Date;
+}
+
+/**
+ * Send team invitation email
+ */
+export async function sendInvitationEmail(data: InvitationEmailData): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+    const invitationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.invitationToken}`;
+
+    const emailHtml = generateInvitationEmailHTML(data, invitationUrl);
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM_EMAIL || "noreply@supplr.com",
+      to: data.inviteeEmail,
+      subject: `You're invited to join ${data.organizationName} on Supplr`,
+      html: emailHtml,
+      text: generateInvitationEmailText(data, invitationUrl),
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`Invitation email sent to ${data.inviteeEmail}:`, result.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending invitation email:", error);
+    return false;
+  }
+}
+
+/**
+ * Generate HTML email template for invitations
+ */
+function generateInvitationEmailHTML(data: InvitationEmailData, invitationUrl: string): string {
+  const roleDescription = getRoleDescription(data.role);
+  const expiresFormatted = format(data.expiresAt, "MMMM do, yyyy 'at' h:mm a");
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>You're invited to join ${data.organizationName}</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #374151; background-color: #f9fafb; margin: 0; padding: 20px;">
+      <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); padding: 32px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">
+            🎉 You're Invited!
+          </h1>
+          <p style="color: #a7f3d0; margin: 8px 0 0 0; font-size: 16px;">
+            Join ${data.organizationName} on Supplr
+          </p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 32px;">
+          <p style="font-size: 16px; margin-bottom: 24px;">
+            Hello!
+          </p>
+
+          <p style="font-size: 16px; margin-bottom: 24px;">
+            <strong>${data.inviterName}</strong> (${data.inviterEmail}) has invited you to join their organization
+            <strong>${data.organizationName}</strong> on Supplr as a <strong>${data.role}</strong>.
+          </p>
+
+          <!-- Role Information -->
+          <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 24px 0;">
+            <h3 style="margin: 0 0 12px 0; font-size: 18px; color: #1f2937;">Your Role: ${data.role}</h3>
+            <p style="margin: 0; color: #6b7280; font-size: 14px;">
+              ${roleDescription}
+            </p>
+          </div>
+
+          <p style="font-size: 16px; margin-bottom: 32px;">
+            Supplr is a medical practice inventory management system that helps teams track supplies,
+            monitor expiration dates, and maintain optimal stock levels.
+          </p>
+
+          <!-- Action Button -->
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${invitationUrl}"
+               style="display: inline-block; background: #10b981; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+              Accept Invitation
+            </a>
+          </div>
+
+          <!-- Expiration Notice -->
+          <div style="background: #fef3cd; border: 1px solid #fbbf24; border-radius: 8px; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0; color: #92400e; font-size: 14px;">
+              ⏰ <strong>This invitation expires on ${expiresFormatted}</strong>
+            </p>
+          </div>
+
+          <!-- Alternative Link -->
+          <p style="font-size: 14px; color: #6b7280; margin: 24px 0;">
+            If the button above doesn't work, copy and paste this link into your browser:
+          </p>
+          <p style="font-size: 14px; color: #3b82f6; word-break: break-all; background: #f9fafb; padding: 12px; border-radius: 4px; border: 1px solid #e5e7eb;">
+            ${invitationUrl}
+          </p>
+
+          <!-- Footer -->
+          <div style="border-top: 1px solid #e5e7eb; margin-top: 32px; padding-top: 24px;">
+            <p style="margin: 0; font-size: 14px; color: #6b7280; text-align: center;">
+              If you didn't expect this invitation, you can safely ignore this email.
+            </p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; text-align: center;">
+              This email was sent by Supplr. © 2026 Supplr. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * Generate plain text email for invitations
+ */
+function generateInvitationEmailText(data: InvitationEmailData, invitationUrl: string): string {
+  const roleDescription = getRoleDescription(data.role);
+  const expiresFormatted = format(data.expiresAt, "MMMM do, yyyy 'at' h:mm a");
+
+  return `
+You're invited to join ${data.organizationName} on Supplr!
+
+Hello!
+
+${data.inviterName} (${data.inviterEmail}) has invited you to join their organization "${data.organizationName}" on Supplr as a ${data.role}.
+
+Your Role: ${data.role}
+${roleDescription}
+
+Supplr is a medical practice inventory management system that helps teams track supplies, monitor expiration dates, and maintain optimal stock levels.
+
+To accept this invitation, click the link below or copy and paste it into your browser:
+${invitationUrl}
+
+Important: This invitation expires on ${expiresFormatted}
+
+If you didn't expect this invitation, you can safely ignore this email.
+
+---
+This email was sent by Supplr.
+© 2026 Supplr. All rights reserved.
+  `.trim();
+}
+
+/**
+ * Get role description for emails
+ */
+function getRoleDescription(role: string): string {
+  switch (role.toUpperCase()) {
+    case "OWNER":
+      return "Full access to all organization features including team management, billing, and system settings.";
+    case "ADMIN":
+      return "Can invite team members, manage inventory, view reports, and access most organization features.";
+    case "MANAGER":
+      return "Can manage inventory, update stock levels, view reports, and oversee daily operations.";
+    case "MEMBER":
+      return "Can view inventory, update stock levels, and assist with inventory management tasks.";
+    default:
+      return "Basic access to organization features.";
+  }
+}

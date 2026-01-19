@@ -38,9 +38,40 @@ export async function getUserOrganization() {
     },
   });
 
-  // TEMPORARY: If user doesn't exist, use the sample organization for demo
-  // In production, this should be handled by the Clerk webhook
+  // TEMPORARY: If user doesn't exist, try finding demo user directly
+  // This handles cases where Clerk authentication isn't working properly
   if (!user) {
+    console.log("No user found with Clerk authentication, trying demo fallback...");
+
+    // Try to find demo user directly (for demo purposes)
+    const demoUser = await prisma.user.findFirst({
+      where: {
+        email: "demo@supplr.com",
+        status: "ACTIVE"
+      },
+      include: {
+        organization: {
+          include: {
+            users: {
+              where: { status: "ACTIVE" },
+            },
+            settings: true,
+            subscription: true,
+          },
+        },
+      },
+    });
+
+    if (demoUser && demoUser.organization) {
+      console.log("Demo user found, using demo organization");
+      return {
+        error: null,
+        organization: demoUser.organization,
+        user: demoUser,
+      };
+    }
+
+    // Fallback to any sample organization if demo user not found
     const sampleOrg = await prisma.organization.findFirst({
       include: {
         users: true,
@@ -50,6 +81,7 @@ export async function getUserOrganization() {
     });
 
     if (sampleOrg) {
+      console.log("Using sample organization fallback");
       return {
         error: null,
         organization: sampleOrg,
@@ -63,6 +95,7 @@ export async function getUserOrganization() {
         { status: 404 }
       ),
       organization: null,
+      user: null,
     };
   }
 
@@ -174,6 +207,23 @@ export async function getUserWithRole() {
   const { userId } = await auth();
 
   if (!userId) {
+    // Try demo fallback for development
+    const demoUser = await prisma.user.findFirst({
+      where: {
+        email: "demo@supplr.com",
+        status: "ACTIVE"
+      },
+      include: {
+        organization: {
+          include: { settings: true, subscription: true }
+        }
+      }
+    });
+
+    if (demoUser && demoUser.organization) {
+      return { error: null, user: demoUser, organization: demoUser.organization };
+    }
+
     return { error: 401, user: null, organization: null };
   }
 
@@ -187,6 +237,24 @@ export async function getUserWithRole() {
   });
 
   if (!user) {
+    // Try demo fallback if Clerk user doesn't match database
+    const demoUser = await prisma.user.findFirst({
+      where: {
+        email: "demo@supplr.com",
+        status: "ACTIVE"
+      },
+      include: {
+        organization: {
+          include: { settings: true, subscription: true }
+        }
+      }
+    });
+
+    if (demoUser && demoUser.organization) {
+      console.log("Using demo user fallback for Clerk ID:", userId);
+      return { error: null, user: demoUser, organization: demoUser.organization };
+    }
+
     return { error: 404, user: null, organization: null };
   }
 

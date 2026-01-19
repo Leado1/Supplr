@@ -4,6 +4,8 @@ import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getUserWithRole } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +17,10 @@ export default async function DashboardLayout({
   if (!userId) {
     redirect("/sign-in");
   }
+
+  // Get user permissions for navigation
+  const { error, user } = await getUserWithRole();
+  const canManageTeam = user && hasPermission(user.role, Permission.MANAGE_TEAM);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -46,6 +52,13 @@ export default async function DashboardLayout({
                   Inventory
                 </Button>
               </Link>
+              {canManageTeam && (
+                <Link href="/team">
+                  <Button variant="ghost" className="text-sm">
+                    Team
+                  </Button>
+                </Link>
+              )}
               <Link href="/reports">
                 <Button variant="ghost" className="text-sm">
                   Reports

@@ -106,15 +106,39 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send invitation email here
-    // For now, we'll return the invitation token for testing
+    // Send invitation email
+    try {
+      const { sendInvitationEmail } = await import("@/lib/notifications");
+
+      const inviterName = invitation.inviter.firstName && invitation.inviter.lastName
+        ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
+        : invitation.inviter.email;
+
+      const emailSent = await sendInvitationEmail({
+        inviterName,
+        inviterEmail: invitation.inviter.email,
+        organizationName: invitation.organization?.name || "Unknown Organization",
+        inviteeEmail: validatedData.email,
+        role: validatedData.role,
+        invitationToken,
+        expiresAt: invitation.expiresAt,
+      });
+
+      if (emailSent) {
+        console.log(`Invitation email sent successfully to ${validatedData.email}`);
+      } else {
+        console.error(`Failed to send invitation email to ${validatedData.email}`);
+      }
+    } catch (emailError) {
+      console.error("Error sending invitation email:", emailError);
+      // Don't fail the invitation creation if email fails
+    }
 
     return NextResponse.json({
       success: true,
       message: `Invitation sent to ${validatedData.email}`,
       data: {
         invitationId: invitation.id,
-        token: invitationToken, // Remove this in production
         expiresAt: invitation.expiresAt,
       },
     });
