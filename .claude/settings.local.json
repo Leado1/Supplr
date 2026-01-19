@@ -35,7 +35,8 @@
       "Bash(cmd /c \"taskkill /F /PID 61836\")",
       "Bash(npm run build:local:*)",
       "Bash(npx next build)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(ls:*)"
     ]
   }
 }

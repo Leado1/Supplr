@@ -647,14 +647,14 @@ export default function PrivacyPolicyPage() {
                     </p>
 
                     <div className="text-center">
-                      <div className="inline-block p-6 bg-muted rounded-lg">
-                        <h4 className="font-semibold mb-3 text-lg">
+                      <Link href="/support">
+                        <Button
+                          size="lg"
+                          className="px-8 py-4 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                        >
                           Contact Us
-                        </h4>
-                        <div className="text-muted-foreground">
-                          <p className="text-base">Email: info@supplr.net</p>
-                        </div>
-                      </div>
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -663,38 +663,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
 
-        {/* Bottom CTA */}
-        <section className="py-20 bg-primary/5">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-              Questions About Our Privacy Policy?
-            </h2>
-            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Our privacy team is here to help. Contact us anytime with
-              questions or concerns.
-            </p>
-
-            <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Link href="/support">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="px-10 py-6 text-lg border-2"
-                >
-                  Contact Privacy Team
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button
-                  size="lg"
-                  className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                >
-                  Start Free Trial
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}

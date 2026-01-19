@@ -12,22 +12,28 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/logo.png",
-        sizes: "32x32",
-        type: "image/png",
+        url: "/favicon.ico?v=2",
+        sizes: "any",
       },
       {
-        url: "/images/logo.png",
-        sizes: "16x16",
+        url: "/icon.png?v=2",
+        type: "image/png",
+        sizes: "32x32",
+      },
+      {
+        url: "/images/logo.png?v=2",
+        type: "image/png",
+        sizes: "192x192",
+      },
+    ],
+    apple: [
+      {
+        url: "/apple-icon.png?v=2",
+        sizes: "180x180",
         type: "image/png",
       },
     ],
-    apple: {
-      url: "/images/logo.png",
-      sizes: "180x180",
-      type: "image/png",
-    },
-    shortcut: "/images/logo.png",
+    shortcut: "/favicon.ico?v=2",
   },
   description:
     "Professional inventory management platform for medical spas and aesthetic clinics. Track supplies, expiration dates, and stock levels with automated alerts and team collaboration.",
@@ -148,6 +154,12 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <head>
+          {/* Explicit favicon meta tags to override browser cache */}
+          <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+          <link rel="icon" type="image/png" href="/icon.png?v=2" sizes="32x32" />
+          <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
+          <link rel="shortcut icon" href="/favicon.ico?v=2" />
+
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

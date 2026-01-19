@@ -12,7 +12,6 @@ export function PublicNavigation() {
     { href: "/", label: "Home" },
     { href: "/use-cases", label: "Use Cases" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/blog", label: "Blog" },
     { href: "/support", label: "Support" },
     { href: "/dashboard", label: "Dashboard" },
   ];

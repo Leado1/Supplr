@@ -32,7 +32,7 @@ export default async function HomePage() {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16 md:pt-20">
           {/* Particles Background */}
           <Particles
             className="absolute inset-0"
@@ -58,22 +58,13 @@ export default async function HomePage() {
               that keep your practice profitable.
             </p>
 
-            <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-16">
+            <div className="flex justify-center mb-16">
               <Link href="/sign-up">
                 <Button
                   size="lg"
                   className="px-10 py-6 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
                   Start Free Trial
-                </Button>
-              </Link>
-              <Link href="/sign-in">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="px-10 py-6 text-lg border-2 hover:bg-muted/50 transition-all duration-300"
-                >
-                  Sign In
                 </Button>
               </Link>
             </div>
@@ -129,6 +120,112 @@ export default async function HomePage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Scanner Support Section */}
+        <section className="py-20 bg-muted/50">
+          <div className="container mx-auto max-w-4xl px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Add Inventory in Seconds with Professional Scanners
+            </h2>
+            <p className="text-xl text-muted-foreground mb-16 max-w-2xl mx-auto">
+              Skip the tedious manual entry. Scan barcodes instantly with any professional barcode scanner.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              {/* Handheld Scanner */}
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/barcode-scanner.gif"
+                    alt="Handheld Scanner Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-4">
+                  Handheld Scanners
+                </h3>
+                <p className="text-muted-foreground">
+                  Compatible with Zebra, Honeywell, and all major handheld barcode scanners.
+                </p>
+              </div>
+
+              {/* Wireless Scanner */}
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/barcode.gif"
+                    alt="Wireless Scanner Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-4">
+                  Wireless Scanners
+                </h3>
+                <p className="text-muted-foreground">
+                  Bluetooth and WiFi-enabled scanners for flexible inventory management.
+                </p>
+              </div>
+
+              {/* Fixed Mount Scanner */}
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-2xl overflow-hidden mb-6">
+                  <Image
+                    src="/images/barcode-scanner2.gif"
+                    alt="Fixed Mount Scanner Icon"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-4">
+                  Fixed Mount Scanners
+                </h3>
+                <p className="text-muted-foreground">
+                  Integrated scanners for high-volume inventory processing stations.
+                </p>
+              </div>
+            </div>
+
+            {/* Scanner Types Supported */}
+            <div className="bg-background rounded-xl p-8 shadow-lg">
+              <h3 className="text-2xl font-semibold mb-6">
+                All Scanner Types Supported
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="text-center">
+                  <Badge variant="outline" className="w-full py-2">
+                    📊 UPC/EAN
+                  </Badge>
+                </div>
+                <div className="text-center">
+                  <Badge variant="outline" className="w-full py-2">
+                    🔢 Code 128
+                  </Badge>
+                </div>
+                <div className="text-center">
+                  <Badge variant="outline" className="w-full py-2">
+                    ⚕️ NDC Codes
+                  </Badge>
+                </div>
+                <div className="text-center">
+                  <Badge variant="outline" className="w-full py-2">
+                    📦 QR Codes
+                  </Badge>
+                </div>
+              </div>
+              <p className="text-muted-foreground mt-6">
+                Instantly capture lot numbers, expiration dates, and product details from any medical supply barcode.
+              </p>
             </div>
           </div>
         </section>
