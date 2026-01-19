@@ -160,9 +160,9 @@ export function DashboardContent({
         </div>
 
         {items.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+          <div className="text-center py-12 border border-dashed border-border rounded-lg bg-muted/50">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400 mb-4"
+              className="mx-auto h-12 w-12 text-muted-foreground mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -174,10 +174,10 @@ export function DashboardContent({
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
               />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No inventory items yet
             </h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-muted-foreground mb-4">
               Get started by adding your first inventory item
             </p>
             <div className="flex gap-2 justify-center">
@@ -287,16 +287,16 @@ export function DashboardContent({
             </div>
 
             {/* Recently Added Items Preview */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
+            <div className="bg-card border border-border rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-border">
+                <h3 className="text-lg font-medium text-card-foreground">
                   Recently Added Items
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Latest {Math.min(items.length, 5)} inventory items
                 </p>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-border">
                 {items.slice(0, 5).map((item) => (
                   <div
                     key={item.id}
@@ -304,20 +304,20 @@ export function DashboardContent({
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-card-foreground">
                           {item.name}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {item.category.name}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-card-foreground">
                           Qty: {item.quantity}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           ${item.unitCost.toString()}
                         </p>
                       </div>

@@ -33,8 +33,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-50 dark:bg-blue-950/50",
     },
     {
       title: "Total Value",
@@ -54,8 +54,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-green-600 dark:text-green-400",
+      bgColor: "bg-green-50 dark:bg-green-950/50",
     },
     {
       title: "Expiring Soon",
@@ -75,8 +75,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
+      color: "text-yellow-600 dark:text-yellow-400",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950/50",
       badge: summary.expiringSoon > 0 ? "warning" : undefined,
     },
     {
@@ -97,8 +97,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-red-600",
-      bgColor: "bg-red-50",
+      color: "text-red-600 dark:text-red-400",
+      bgColor: "bg-red-50 dark:bg-red-950/50",
       badge: summary.expired > 0 ? "destructive" : undefined,
     },
     {
@@ -119,8 +119,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: "text-orange-600 dark:text-orange-400",
+      bgColor: "bg-orange-50 dark:bg-orange-950/50",
       badge: summary.lowStock > 0 ? "warning" : undefined,
     },
   ];
@@ -153,13 +153,13 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
               </p>
             )}
             {card.title === "Expiring Soon" && summary.expiringSoon > 0 && (
-              <p className="text-xs text-yellow-600">Action needed</p>
+              <p className="text-xs text-yellow-600 dark:text-yellow-400">Action needed</p>
             )}
             {card.title === "Expired Items" && summary.expired > 0 && (
-              <p className="text-xs text-red-600">Remove from inventory</p>
+              <p className="text-xs text-red-600 dark:text-red-400">Remove from inventory</p>
             )}
             {card.title === "Low Stock" && summary.lowStock > 0 && (
-              <p className="text-xs text-orange-600">Reorder recommended</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400">Reorder recommended</p>
             )}
           </CardContent>
         </Card>

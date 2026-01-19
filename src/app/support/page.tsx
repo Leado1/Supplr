@@ -35,16 +35,16 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <PublicHeader showThemeToggle={false} />
+      <PublicHeader showThemeToggle={true} />
 
-      <main className="flex-1 bg-gradient-to-b from-gray-50 to-white">
+      <main className="flex-1 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4 py-12">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-bold text-foreground mb-4">
               Support Center
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We're here to help you get the most out of Supplr. Get quick
               answers or reach out to our support team.
             </p>
@@ -81,7 +81,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                     <MessageSquareIcon className="h-5 w-5" />
                     Send us a message
                   </CardTitle>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Can't find what you're looking for? Send us a detailed
                     message and we'll get back to you quickly.
                   </p>
@@ -128,7 +128,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       <select
                         id="category"
                         name="category"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                         required
                       >
                         <option value="">Select category</option>
@@ -168,7 +168,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       <select
                         id="urgency"
                         name="urgency"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         <option value="low">Low - General question</option>
                         <option value="normal">Normal - Standard issue</option>
@@ -198,18 +198,18 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <MailIcon className="h-5 w-5 text-gray-600 mt-0.5" />
+                    <MailIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">Email Support</p>
-                      <p className="text-gray-600">support@supplr.net</p>
+                      <p className="text-muted-foreground">support@supplr.net</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <ClockIcon className="h-5 w-5 text-gray-600 mt-0.5" />
+                    <ClockIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">Response Time</p>
-                      <p className="text-gray-600">Usually within 24 hours</p>
+                      <p className="text-muted-foreground">Usually within 24 hours</p>
                     </div>
                   </div>
                 </CardContent>
@@ -226,7 +226,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       <HelpCircleIcon className="h-4 w-4" />
                       Common Questions
                     </h4>
-                    <ul className="text-sm text-gray-600 space-y-1 ml-6">
+                    <ul className="text-sm text-muted-foreground space-y-1 ml-6">
                       <li>• How do I add new inventory items?</li>
                       <li>• Setting up expiration alerts</li>
                       <li>• Managing user permissions</li>
@@ -239,7 +239,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       <BugIcon className="h-4 w-4" />
                       Technical Issues
                     </h4>
-                    <ul className="text-sm text-gray-600 space-y-1 ml-6">
+                    <ul className="text-sm text-muted-foreground space-y-1 ml-6">
                       <li>• Login or access problems</li>
                       <li>• Data sync issues</li>
                       <li>• Performance problems</li>
@@ -252,7 +252,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       <LightbulbIcon className="h-4 w-4" />
                       Feature Requests
                     </h4>
-                    <ul className="text-sm text-gray-600 space-y-1 ml-6">
+                    <ul className="text-sm text-muted-foreground space-y-1 ml-6">
                       <li>• New integrations</li>
                       <li>• Report customization</li>
                       <li>• Workflow improvements</li>
@@ -274,7 +274,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                       All Systems Operational
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600 mt-2">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Last updated: {new Date().toLocaleString()}
                   </p>
                 </CardContent>
