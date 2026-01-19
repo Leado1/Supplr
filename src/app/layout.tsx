@@ -9,6 +9,26 @@ export const metadata: Metadata = {
     default: "Supplr - Medical Inventory Management for Aesthetic Clinics",
     template: "%s | Supplr",
   },
+  icons: {
+    icon: [
+      {
+        url: "/images/logo.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "/images/logo.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+    ],
+    apple: {
+      url: "/images/logo.png",
+      sizes: "180x180",
+      type: "image/png",
+    },
+    shortcut: "/images/logo.png",
+  },
   description:
     "Professional inventory management platform for medical spas and aesthetic clinics. Track supplies, expiration dates, and stock levels with automated alerts and team collaboration.",
   keywords: [
