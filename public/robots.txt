@@ -1,0 +1,21 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /sign-in/
+Disallow: /sign-up/
+Disallow: /api/
+Disallow: /invite/
+Disallow: /team/
+Disallow: /billing/
+Disallow: /settings/
+Disallow: /inventory/
+Disallow: /reports/
+Disallow: /import/
+Disallow: /*?*
+
+# Host
+Host: https://www.supplr.net
+
+# Sitemaps
+Sitemap: https://www.supplr.net/sitemap.xml

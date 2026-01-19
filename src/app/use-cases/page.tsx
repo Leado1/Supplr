@@ -1,9 +1,48 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
 import { PublicHeader } from "@/components/navigation/public-nav";
+
+// Page-specific metadata
+export const metadata: Metadata = {
+  title: "Use Cases - Medical Inventory Management Solutions",
+  description:
+    "Discover how Supplr helps medical spas, aesthetic clinics, dental practices, and plastic surgery clinics streamline inventory management, reduce waste, and improve operational efficiency.",
+  keywords: [
+    "medical spa inventory",
+    "aesthetic clinic management",
+    "dental practice software",
+    "plastic surgery inventory",
+    "medical inventory use cases",
+    "clinic efficiency solutions",
+  ],
+  openGraph: {
+    title: "Use Cases - Medical Inventory Management Solutions | Supplr",
+    description:
+      "See how medical practices use Supplr to manage inventory, track expiration dates, and reduce waste across different practice types.",
+    url: "https://www.supplr.net/use-cases",
+    images: [
+      {
+        url: "/images/use-cases-og.png",
+        width: 1200,
+        height: 630,
+        alt: "Supplr Use Cases for Medical Practices",
+      },
+    ],
+  },
+  twitter: {
+    title: "Use Cases - Medical Inventory Management Solutions | Supplr",
+    description:
+      "See how medical practices use Supplr to manage inventory, track expiration dates, and reduce waste.",
+    images: ["/images/use-cases-twitter.png"],
+  },
+  alternates: {
+    canonical: "/use-cases",
+  },
+};
 
 export default function UseCasesPage() {
   return (
