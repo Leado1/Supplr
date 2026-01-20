@@ -46,7 +46,7 @@ export async function getUserOrganization() {
     // Try to find demo user directly (for demo purposes)
     const demoUser = await prisma.user.findFirst({
       where: {
-        email: "demo@supplr.com",
+        email: "demo@supplr.net",
         status: "ACTIVE"
       },
       include: {
@@ -210,7 +210,7 @@ export async function getUserWithRole() {
     // Try demo fallback for development
     const demoUser = await prisma.user.findFirst({
       where: {
-        email: "demo@supplr.com",
+        email: "demo@supplr.net",
         status: "ACTIVE"
       },
       include: {
@@ -240,7 +240,7 @@ export async function getUserWithRole() {
     // Try demo fallback if Clerk user doesn't match database
     const demoUser = await prisma.user.findFirst({
       where: {
-        email: "demo@supplr.com",
+        email: "demo@supplr.net",
         status: "ACTIVE"
       },
       include: {

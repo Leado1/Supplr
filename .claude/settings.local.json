@@ -36,7 +36,8 @@
       "Bash(npm run build:local:*)",
       "Bash(npx next build)",
       "Bash(del nul)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }

@@ -82,7 +82,7 @@ export default async function HomePage() {
               <div className="grid md:grid-cols-3 gap-12">
                 {/* Step 1 */}
                 <div className="text-center">
-                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-6">
+                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xl font-bold mb-6">
                     1
                   </div>
                   <h3 className="text-xl font-semibold mb-4">
@@ -96,7 +96,7 @@ export default async function HomePage() {
 
                 {/* Step 2 */}
                 <div className="text-center">
-                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-6">
+                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xl font-bold mb-6">
                     2
                   </div>
                   <h3 className="text-xl font-semibold mb-4">
@@ -110,7 +110,7 @@ export default async function HomePage() {
 
                 {/* Step 3 */}
                 <div className="text-center">
-                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-xl font-bold mb-6">
+                  <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xl font-bold mb-6">
                     3
                   </div>
                   <h3 className="text-xl font-semibold mb-4">Save Money</h3>
@@ -125,8 +125,17 @@ export default async function HomePage() {
         </section>
 
         {/* Scanner Support Section */}
-        <section className="py-20 bg-muted/50">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
+        <section className="relative py-20 overflow-hidden">
+          {/* Particles Background */}
+          <Particles
+            className="absolute inset-0"
+            quantity={50}
+            ease={80}
+            staticity={50}
+            color="#6366f1"
+            size={0.8}
+          />
+          <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Add Inventory in Seconds with Professional Scanners
             </h2>
@@ -292,8 +301,8 @@ export default async function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-4">Stay Compliant</h3>
                 <p className="text-muted-foreground">
-                  HIPAA-secure platform with FDA lot tracking and temperature
-                  monitoring capabilities.
+                  HIPAA-secure platform with FDA lot tracking and comprehensive
+                  audit trails for regulatory compliance.
                 </p>
               </div>
             </div>
@@ -469,14 +478,6 @@ export default async function HomePage() {
                 </li>
                 <li>
                   <Link
-                    href="/blog"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/dashboard"
                     className="hover:text-foreground transition-colors"
                   >
@@ -496,14 +497,6 @@ export default async function HomePage() {
                     className="hover:text-foreground transition-colors"
                   >
                     Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Terms of Service
                   </Link>
                 </li>
                 <li>

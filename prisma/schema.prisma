@@ -32,6 +32,9 @@ model User {
   // Relations for invitations
   sentInvitations UserInvitation[] @relation("SentInvitations")
 
+  // Multi-location support
+  userLocations  UserLocation[]   // Locations this user has access to
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -48,10 +51,54 @@ model Organization {
   settings     Settings?
   subscription Subscription?
   invitations  UserInvitation[] // Team invitations
+  locations    Location[]    // Multi-location support for Enterprise
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
   @@map("organizations")
+}
+
+model Location {
+  id             String       @id @default(cuid())
+  name           String       // "Main Clinic", "Downtown Branch", etc.
+  address        String?      // Physical address
+  phone          String?      // Location-specific phone
+  email          String?      // Location-specific email
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Location-specific settings
+  timezone       String       @default("UTC")
+  currency       String       @default("USD")
+  isActive       Boolean      @default(true)
+
+  // Relations
+  items          Item[]       // Items specific to this location
+  categories     Category[]   // Categories specific to this location
+  userLocations  UserLocation[] // Users assigned to this location
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, name]) // Unique location names within organization
+  @@map("locations")
+}
+
+model UserLocation {
+  id         String   @id @default(cuid())
+  userId     String
+  locationId String
+  role       LocationRole @default(MEMBER) // Location-specific role
+  isDefault  Boolean  @default(false) // Default location for this user
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, locationId]) // User can only be assigned once per location
+  @@map("user_locations")
 }
 
 model UserInvitation {
@@ -91,10 +138,16 @@ model Category {
   name           String
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Multi-location support - nullable for backward compatibility
+  locationId     String?
+  location       Location?    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
   items          Item[]
   createdAt      DateTime     @default(now())
 
-  @@unique([organizationId, name])
+  @@unique([organizationId, name]) // Unique category names per organization (legacy)
+  @@index([organizationId, locationId]) // Index for location-based queries
   @@map("categories")
 }
 
@@ -110,6 +163,11 @@ model Item {
   reorderThreshold Int
   organizationId   String
   organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Multi-location support - nullable for backward compatibility
+  locationId       String?
+  location         Location?    @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
@@ -159,4 +217,10 @@ enum UserStatus {
   ACTIVE         // Active team member
   PENDING        // Invitation sent but not accepted
   SUSPENDED      // Temporarily disabled
+}
+
+enum LocationRole {
+  MANAGER        // Can manage inventory at this location
+  MEMBER         // Can view and update inventory at this location
+  VIEWER         // Can only view inventory at this location
 }

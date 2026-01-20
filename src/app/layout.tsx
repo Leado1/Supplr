@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RouteLoading } from "@/components/providers/route-loading";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -176,6 +177,7 @@ export default function RootLayout({
           >
             <RouteLoading />
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

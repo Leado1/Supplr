@@ -3,6 +3,7 @@ import type {
   Organization,
   Category,
   Item,
+  Location,
   Settings,
 } from "@prisma/client";
 
@@ -21,6 +22,7 @@ export type OrganizationWithRelations = Organization & {
 export type ItemWithRelations = Item & {
   category: Category;
   organization: Organization;
+  location?: Location | null;
 };
 
 export type CategoryWithItems = Category & {

@@ -157,7 +157,7 @@ export default function PricingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <PublicHeader showThemeToggle={false} />
+      <PublicHeader showThemeToggle={true} />
 
       {/* Main Content */}
       <main className="flex-1">
