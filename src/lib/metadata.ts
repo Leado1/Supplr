@@ -5,7 +5,8 @@ const baseMetadata = {
   siteName: "Supplr",
   siteUrl: "https://www.supplr.net",
   title: "Supplr - Medical Inventory Management for Aesthetic Clinics",
-  description: "Professional inventory management platform for medical spas and aesthetic clinics. Track supplies, expiration dates, and stock levels with automated alerts.",
+  description:
+    "Professional inventory management platform for medical spas and aesthetic clinics. Track supplies, expiration dates, and stock levels with automated alerts.",
   keywords: [
     "medical inventory",
     "aesthetic clinic software",
@@ -48,7 +49,9 @@ export function createMetadata({
   noIndex = false,
   type = "website",
 }: CreateMetadataProps = {}): Metadata {
-  const fullTitle = title ? `${title} | ${baseMetadata.siteName}` : baseMetadata.title;
+  const fullTitle = title
+    ? `${title} | ${baseMetadata.siteName}`
+    : baseMetadata.title;
   const fullDescription = description || baseMetadata.description;
   const fullKeywords = [...baseMetadata.keywords, ...keywords];
   const canonicalUrl = `${baseMetadata.siteUrl}${path}`;

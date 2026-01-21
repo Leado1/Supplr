@@ -1,7 +1,14 @@
+import 'server-only';
+
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { hasPermission, requirePermission, Permission, type OrganizationRole } from "@/lib/permissions";
+import {
+  hasPermission,
+  requirePermission,
+  Permission,
+  type OrganizationRole,
+} from "@/lib/permissions";
 
 /**
  * Get the authenticated user's organization with proper security checks and role information
@@ -23,7 +30,7 @@ export async function getUserOrganization() {
     where: {
       clerkId: userId,
       // Only allow active users to access the system
-      status: "ACTIVE"
+      status: "ACTIVE",
     },
     include: {
       organization: {
@@ -41,13 +48,15 @@ export async function getUserOrganization() {
   // TEMPORARY: If user doesn't exist, try finding demo user directly
   // This handles cases where Clerk authentication isn't working properly
   if (!user) {
-    console.log("No user found with Clerk authentication, trying demo fallback...");
+    console.log(
+      "No user found with Clerk authentication, trying demo fallback..."
+    );
 
     // Try to find demo user directly (for demo purposes)
     const demoUser = await prisma.user.findFirst({
       where: {
         email: "demo@supplr.net",
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       include: {
         organization: {
@@ -211,17 +220,21 @@ export async function getUserWithRole() {
     const demoUser = await prisma.user.findFirst({
       where: {
         email: "demo@supplr.net",
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       include: {
         organization: {
-          include: { settings: true, subscription: true }
-        }
-      }
+          include: { settings: true, subscription: true },
+        },
+      },
     });
 
     if (demoUser && demoUser.organization) {
-      return { error: null, user: demoUser, organization: demoUser.organization };
+      return {
+        error: null,
+        user: demoUser,
+        organization: demoUser.organization,
+      };
     }
 
     return { error: 401, user: null, organization: null };
@@ -231,9 +244,9 @@ export async function getUserWithRole() {
     where: { clerkId: userId, status: "ACTIVE" },
     include: {
       organization: {
-        include: { settings: true, subscription: true }
-      }
-    }
+        include: { settings: true, subscription: true },
+      },
+    },
   });
 
   if (!user) {
@@ -241,18 +254,22 @@ export async function getUserWithRole() {
     const demoUser = await prisma.user.findFirst({
       where: {
         email: "demo@supplr.net",
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       include: {
         organization: {
-          include: { settings: true, subscription: true }
-        }
-      }
+          include: { settings: true, subscription: true },
+        },
+      },
     });
 
     if (demoUser && demoUser.organization) {
       console.log("Using demo user fallback for Clerk ID:", userId);
-      return { error: null, user: demoUser, organization: demoUser.organization };
+      return {
+        error: null,
+        user: demoUser,
+        organization: demoUser.organization,
+      };
     }
 
     return { error: 404, user: null, organization: null };
@@ -295,12 +312,14 @@ export async function requireUserPermission(requiredPermission: Permission) {
  * Only accessible to users with MANAGE_TEAM permission
  */
 export async function getTeamMembers() {
-  const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+  const { user, organization } = await requireUserPermission(
+    Permission.MANAGE_TEAM
+  );
 
   const teamMembers = await prisma.user.findMany({
     where: {
       organizationId: organization.id,
-      status: "ACTIVE"
+      status: "ACTIVE",
     },
     select: {
       id: true,
@@ -311,7 +330,7 @@ export async function getTeamMembers() {
       joinedAt: true,
       lastActiveAt: true,
     },
-    orderBy: { joinedAt: "asc" }
+    orderBy: { joinedAt: "asc" },
   });
 
   return teamMembers;

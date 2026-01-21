@@ -48,7 +48,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     // Check permissions
-    const { user, organization } = await requireUserPermission(Permission.INVITE_USERS);
+    const { user, organization } = await requireUserPermission(
+      Permission.INVITE_USERS
+    );
 
     // Parse and validate request body
     const body = await request.json();
@@ -64,7 +66,10 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { success: false, error: "User is already a member of this organization" },
+        {
+          success: false,
+          error: "User is already a member of this organization",
+        },
         { status: 400 }
       );
     }
@@ -110,14 +115,16 @@ export async function POST(request: NextRequest) {
     try {
       const { sendInvitationEmail } = await import("@/lib/notifications");
 
-      const inviterName = invitation.inviter.firstName && invitation.inviter.lastName
-        ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
-        : invitation.inviter.email;
+      const inviterName =
+        invitation.inviter.firstName && invitation.inviter.lastName
+          ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
+          : invitation.inviter.email;
 
       const emailSent = await sendInvitationEmail({
         inviterName,
         inviterEmail: invitation.inviter.email,
-        organizationName: invitation.organization?.name || "Unknown Organization",
+        organizationName:
+          invitation.organization?.name || "Unknown Organization",
         inviteeEmail: validatedData.email,
         role: validatedData.role,
         invitationToken,
@@ -125,9 +132,13 @@ export async function POST(request: NextRequest) {
       });
 
       if (emailSent) {
-        console.log(`Invitation email sent successfully to ${validatedData.email}`);
+        console.log(
+          `Invitation email sent successfully to ${validatedData.email}`
+        );
       } else {
-        console.error(`Failed to send invitation email to ${validatedData.email}`);
+        console.error(
+          `Failed to send invitation email to ${validatedData.email}`
+        );
       }
     } catch (emailError) {
       console.error("Error sending invitation email:", emailError);
@@ -142,7 +153,6 @@ export async function POST(request: NextRequest) {
         expiresAt: invitation.expiresAt,
       },
     });
-
   } catch (error) {
     console.error("Error creating team invitation:", error);
 

@@ -6,15 +6,17 @@ async function seedDemoLocations() {
     const demoUser = await prisma.user.findFirst({
       where: {
         email: "demo@supplr.net",
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       include: {
-        organization: true
-      }
+        organization: true,
+      },
     });
 
     if (!demoUser || !demoUser.organization) {
-      console.error("Demo user or organization not found. Please ensure the demo user exists.");
+      console.error(
+        "Demo user or organization not found. Please ensure the demo user exists."
+      );
       return;
     }
 
@@ -23,12 +25,14 @@ async function seedDemoLocations() {
     // Check if locations already exist
     const existingLocations = await prisma.location.findMany({
       where: {
-        organizationId: demoUser.organization.id
-      }
+        organizationId: demoUser.organization.id,
+      },
     });
 
     if (existingLocations.length > 0) {
-      console.log(`Found ${existingLocations.length} existing locations. Skipping seed.`);
+      console.log(
+        `Found ${existingLocations.length} existing locations. Skipping seed.`
+      );
       return;
     }
 
@@ -81,25 +85,28 @@ async function seedDemoLocations() {
       data: locations,
     });
 
-    console.log(`Successfully created ${createdLocations.count} demo locations`);
+    console.log(
+      `Successfully created ${createdLocations.count} demo locations`
+    );
 
     // List created locations
     const allLocations = await prisma.location.findMany({
       where: {
-        organizationId: demoUser.organization.id
-      }
+        organizationId: demoUser.organization.id,
+      },
     });
 
     console.log("\nCreated locations:");
     allLocations.forEach((loc, i) => {
-      console.log(`${i + 1}. ${loc.name} (${loc.isActive ? 'Active' : 'Inactive'})`);
-      console.log(`   Address: ${loc.address || 'N/A'}`);
-      console.log(`   Phone: ${loc.phone || 'N/A'}`);
-      console.log(`   Email: ${loc.email || 'N/A'}`);
+      console.log(
+        `${i + 1}. ${loc.name} (${loc.isActive ? "Active" : "Inactive"})`
+      );
+      console.log(`   Address: ${loc.address || "N/A"}`);
+      console.log(`   Phone: ${loc.phone || "N/A"}`);
+      console.log(`   Email: ${loc.email || "N/A"}`);
       console.log(`   Timezone: ${loc.timezone}, Currency: ${loc.currency}`);
       console.log("");
     });
-
   } catch (error) {
     console.error("Error seeding demo locations:", error);
   } finally {

@@ -1,9 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, MapPin, Edit, Trash2, Building2, Phone, Mail, Globe } from "lucide-react";
+import {
+  Plus,
+  MapPin,
+  Edit,
+  Trash2,
+  Building2,
+  Phone,
+  Mail,
+  Globe,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AddLocationModal } from "./add-location-modal";
@@ -32,12 +47,14 @@ export function LocationManagement() {
     refreshLocations,
     hasMultiLocationAccess,
     isLoading,
-    error
+    error,
   } = useLocationContext();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [deletingLocation, setDeletingLocation] = useState<Location | null>(null);
+  const [deletingLocation, setDeletingLocation] = useState<Location | null>(
+    null
+  );
 
   // Refresh locations on component mount
   useEffect(() => {
@@ -84,7 +101,9 @@ export function LocationManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Location Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Location Management
+          </h1>
           <p className="text-muted-foreground">
             Manage your organization's locations and inventory distribution
           </p>
@@ -125,7 +144,8 @@ export function LocationManagement() {
           <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">No Locations Yet</h3>
           <p className="text-muted-foreground mb-4">
-            Get started by adding your first location to organize your inventory.
+            Get started by adding your first location to organize your
+            inventory.
           </p>
           <Button onClick={() => setIsAddModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -135,7 +155,10 @@ export function LocationManagement() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {locations.map((location) => (
-            <Card key={location.id} className={`relative ${!location.isActive ? 'opacity-75' : ''}`}>
+            <Card
+              key={location.id}
+              className={`relative ${!location.isActive ? "opacity-75" : ""}`}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-2">
@@ -143,7 +166,9 @@ export function LocationManagement() {
                     <div>
                       <CardTitle className="text-lg">{location.name}</CardTitle>
                       <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant={location.isActive ? "default" : "secondary"}>
+                        <Badge
+                          variant={location.isActive ? "default" : "secondary"}
+                        >
                           {location.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
@@ -172,21 +197,27 @@ export function LocationManagement() {
                 {location.address && (
                   <div className="flex items-start space-x-2 text-sm">
                     <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <span className="text-muted-foreground">{location.address}</span>
+                    <span className="text-muted-foreground">
+                      {location.address}
+                    </span>
                   </div>
                 )}
 
                 {location.phone && (
                   <div className="flex items-center space-x-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{location.phone}</span>
+                    <span className="text-muted-foreground">
+                      {location.phone}
+                    </span>
                   </div>
                 )}
 
                 {location.email && (
                   <div className="flex items-center space-x-2 text-sm">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{location.email}</span>
+                    <span className="text-muted-foreground">
+                      {location.email}
+                    </span>
                   </div>
                 )}
 

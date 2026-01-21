@@ -35,6 +35,9 @@ model User {
   // Multi-location support
   userLocations  UserLocation[]   // Locations this user has access to
 
+  // Supplier tracking
+  supplierInteractions SupplierInteraction[] // User's supplier interactions
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -52,6 +55,16 @@ model Organization {
   subscription Subscription?
   invitations  UserInvitation[] // Team invitations
   locations    Location[]    // Multi-location support for Enterprise
+
+  // AI Relations
+  aiPredictions     AIPrediction[]    // AI predictions for this organization
+  inventoryChanges  InventoryChange[] // Historical changes for AI learning
+  aiFeatureUsage    AIFeatureUsage[]  // AI feature usage tracking
+
+  // Supplier Relations
+  supplierPreferences SupplierPreference[] // Preferred suppliers and contract terms
+  supplierInteractions SupplierInteraction[] // Tracking of supplier clicks and orders
+
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -76,6 +89,9 @@ model Location {
   items          Item[]       // Items specific to this location
   categories     Category[]   // Categories specific to this location
   userLocations  UserLocation[] // Users assigned to this location
+
+  // AI Relations
+  inventoryChanges InventoryChange[] // Historical changes at this location
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -168,6 +184,13 @@ model Item {
   locationId       String?
   location         Location?    @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
+  // AI Relations
+  aiPredictions    AIPrediction[]    // AI predictions for this item
+  inventoryChanges InventoryChange[] // Historical changes for this item
+
+  // Supplier Relations
+  supplierInteractions SupplierInteraction[] // Supplier interactions for this item
+
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
@@ -223,4 +246,123 @@ enum LocationRole {
   MANAGER        // Can manage inventory at this location
   MEMBER         // Can view and update inventory at this location
   VIEWER         // Can only view inventory at this location
+}
+
+// AI Prediction Models
+model AIPrediction {
+  id                String       @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  itemId            String?
+  item              Item?        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  predictionType    String       // 'reorder', 'waste_risk', 'threshold_optimization', 'demand_forecast'
+  predictionValue   Json         // Flexible JSON for different prediction types
+  confidenceScore   Decimal      @db.Decimal(3,2) // 0.00 to 1.00
+
+  // Metadata
+  modelVersion      String       @default("1.0")
+  expiresAt         DateTime?    // Cache expiration
+  actioned          Boolean      @default(false) // User acted on this prediction
+  feedbackScore     Int?         // User feedback: -1 (bad), 0 (neutral), 1 (good)
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([organizationId, predictionType])
+  @@index([organizationId, itemId])
+  @@index([expiresAt])
+  @@map("ai_predictions")
+}
+
+// Historical Inventory Change Tracking for AI Learning
+model InventoryChange {
+  id               String       @id @default(cuid())
+  itemId           String
+  item             Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  quantityBefore   Int
+  quantityAfter    Int
+  changeType       String       // 'usage', 'restock', 'waste', 'transfer', 'adjustment', 'audit'
+  changeReason     String?      // Optional context for the change
+
+  // Metadata
+  changedBy        String?      // User ID who made the change
+  locationId       String?      // Which location this change occurred at
+  location         Location?    @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  createdAt        DateTime     @default(now())
+
+  @@index([organizationId, itemId])
+  @@index([organizationId, changeType])
+  @@index([itemId, createdAt])
+  @@map("inventory_changes")
+}
+
+// AI Feature Usage Tracking
+model AIFeatureUsage {
+  id               String       @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  featureType      String       // 'reorder_prediction', 'waste_prevention', 'threshold_optimization'
+  usageCount       Int          @default(0)
+  monthYear        String       // Format: "2025-01" for quota tracking
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([organizationId, featureType, monthYear])
+  @@index([organizationId, monthYear])
+  @@map("ai_feature_usage")
+}
+
+// Supplier Integration Models
+model SupplierPreference {
+  id                String       @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  supplierId        String       // External supplier ID (mckesson, cardinal, etc.)
+  supplierName      String
+  preferenceLevel   String       @default("neutral") // 'preferred', 'neutral', 'excluded'
+  contractTerms     Json?        // Pricing agreements, delivery terms, etc.
+  accountNumber     String?      // Organization's account number with supplier
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([organizationId, supplierId])
+  @@index([organizationId])
+  @@map("supplier_preferences")
+}
+
+model SupplierInteraction {
+  id                String       @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId            String?
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  itemId            String?
+  item              Item?        @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  supplierId        String       // External supplier ID
+  supplierName      String
+  actionType        String       // 'clicked_link', 'placed_order', 'saved_for_later', 'dismissed'
+  estimatedValue    Decimal?     @db.Decimal(10,2)
+  actualOrderValue  Decimal?     @db.Decimal(10,2) // If order was actually placed
+  orderReference    String?      // External order ID if available
+
+  metadata          Json?        // Additional tracking data
+
+  createdAt         DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([supplierId, actionType])
+  @@map("supplier_interactions")
 }

@@ -47,8 +47,9 @@ function RouteLoadingInner() {
             className="h-full bg-gradient-to-r from-primary via-blue-500 to-primary transition-all duration-300 ease-out"
             style={{
               width: `${progress}%`,
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.3)',
-              filter: 'brightness(1.2)'
+              boxShadow:
+                "0 0 20px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.3)",
+              filter: "brightness(1.2)",
             }}
           />
         </div>

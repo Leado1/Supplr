@@ -40,7 +40,9 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md mx-auto p-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-destructive mb-4">Invalid Invitation</h1>
+            <h1 className="text-2xl font-bold text-destructive mb-4">
+              Invalid Invitation
+            </h1>
             <p className="text-muted-foreground mb-6">
               This invitation link is invalid or has been removed.
             </p>
@@ -62,11 +64,15 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md mx-auto p-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-destructive mb-4">Invitation Expired</h1>
+            <h1 className="text-2xl font-bold text-destructive mb-4">
+              Invitation Expired
+            </h1>
             <p className="text-muted-foreground mb-6">
-              This invitation has expired. Please contact {invitation.inviter.firstName && invitation.inviter.lastName
+              This invitation has expired. Please contact{" "}
+              {invitation.inviter.firstName && invitation.inviter.lastName
                 ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
-                : invitation.inviter.email} for a new invitation.
+                : invitation.inviter.email}{" "}
+              for a new invitation.
             </p>
             <a
               href="/sign-in"
@@ -86,9 +92,12 @@ export default async function InvitePage({ params }: InvitePageProps) {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="max-w-md mx-auto p-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-green-600 mb-4">Invitation Already Accepted</h1>
+            <h1 className="text-2xl font-bold text-green-600 mb-4">
+              Invitation Already Accepted
+            </h1>
             <p className="text-muted-foreground mb-6">
-              This invitation has already been accepted. If you're a member of this organization, please sign in to access your dashboard.
+              This invitation has already been accepted. If you're a member of
+              this organization, please sign in to access your dashboard.
             </p>
             <a
               href="/sign-in"
@@ -118,18 +127,23 @@ export default async function InvitePage({ params }: InvitePageProps) {
               id: invitation.organizationId,
             },
             inviter: {
-              name: invitation.inviter.firstName && invitation.inviter.lastName
-                ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
-                : invitation.inviter.email,
+              name:
+                invitation.inviter.firstName && invitation.inviter.lastName
+                  ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
+                  : invitation.inviter.email,
               email: invitation.inviter.email,
             },
             expiresAt: invitation.expiresAt,
             createdAt: invitation.createdAt,
           }}
-          currentUser={userId ? {
-            id: userId,
-            email: "", // Will be validated by API
-          } : null}
+          currentUser={
+            userId
+              ? {
+                  id: userId,
+                  email: "", // Will be validated by API
+                }
+              : null
+          }
         />
       </div>
     </div>

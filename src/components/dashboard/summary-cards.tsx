@@ -153,13 +153,25 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
               </p>
             )}
             {card.title === "Expiring Soon" && summary.expiringSoon > 0 && (
-              <p className="text-xs text-yellow-600 dark:text-yellow-400">Action needed</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                  Action needed
+                </p>
+                <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" title="AI waste prevention active" />
+              </div>
             )}
             {card.title === "Expired Items" && summary.expired > 0 && (
-              <p className="text-xs text-red-600 dark:text-red-400">Remove from inventory</p>
+              <p className="text-xs text-red-600 dark:text-red-400">
+                Remove from inventory
+              </p>
             )}
             {card.title === "Low Stock" && summary.lowStock > 0 && (
-              <p className="text-xs text-orange-600 dark:text-orange-400">Reorder recommended</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-orange-600 dark:text-orange-400">
+                  Reorder recommended
+                </p>
+                <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" title="AI-powered prediction" />
+              </div>
             )}
           </CardContent>
         </Card>

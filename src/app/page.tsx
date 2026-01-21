@@ -140,7 +140,8 @@ export default async function HomePage() {
               Add Inventory in Seconds with Professional Scanners
             </h2>
             <p className="text-xl text-muted-foreground mb-16 max-w-2xl mx-auto">
-              Skip the tedious manual entry. Scan barcodes instantly with any professional barcode scanner.
+              Skip the tedious manual entry. Scan barcodes instantly with any
+              professional barcode scanner.
             </p>
 
             <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -160,7 +161,8 @@ export default async function HomePage() {
                   Handheld Scanners
                 </h3>
                 <p className="text-muted-foreground">
-                  Compatible with Zebra, Honeywell, and all major handheld barcode scanners.
+                  Compatible with Zebra, Honeywell, and all major handheld
+                  barcode scanners.
                 </p>
               </div>
 
@@ -180,7 +182,8 @@ export default async function HomePage() {
                   Wireless Scanners
                 </h3>
                 <p className="text-muted-foreground">
-                  Bluetooth and WiFi-enabled scanners for flexible inventory management.
+                  Bluetooth and WiFi-enabled scanners for flexible inventory
+                  management.
                 </p>
               </div>
 
@@ -200,7 +203,8 @@ export default async function HomePage() {
                   Fixed Mount Scanners
                 </h3>
                 <p className="text-muted-foreground">
-                  Integrated scanners for high-volume inventory processing stations.
+                  Integrated scanners for high-volume inventory processing
+                  stations.
                 </p>
               </div>
             </div>
@@ -233,7 +237,8 @@ export default async function HomePage() {
                 </div>
               </div>
               <p className="text-muted-foreground mt-6">
-                Instantly capture lot numbers, expiration dates, and product details from any medical supply barcode.
+                Instantly capture lot numbers, expiration dates, and product
+                details from any medical supply barcode.
               </p>
             </div>
           </div>

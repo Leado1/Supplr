@@ -4,15 +4,15 @@ async function checkDemoUser() {
   try {
     const demoUser = await prisma.user.findFirst({
       where: {
-        email: "demo@supplr.net"
+        email: "demo@supplr.net",
       },
       include: {
         organization: {
           include: {
-            subscription: true
-          }
-        }
-      }
+            subscription: true,
+          },
+        },
+      },
     });
 
     if (demoUser) {
@@ -21,7 +21,10 @@ async function checkDemoUser() {
       console.log("Role:", demoUser.role);
       console.log("Status:", demoUser.status);
       console.log("Organization:", demoUser.organization.name);
-      console.log("Subscription Plan:", demoUser.organization.subscription?.plan || "No subscription");
+      console.log(
+        "Subscription Plan:",
+        demoUser.organization.subscription?.plan || "No subscription"
+      );
     } else {
       console.log("Demo user not found");
     }

@@ -1,11 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserPlus, Mail, Clock, Shield, User, Crown, Settings, Trash2 } from "lucide-react";
+import {
+  UserPlus,
+  Mail,
+  Clock,
+  Shield,
+  User,
+  Crown,
+  Settings,
+  Trash2,
+} from "lucide-react";
 import { InviteUserModal } from "./invite-user-modal";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -63,20 +78,28 @@ const roleColors = {
   MEMBER: "bg-gray-500",
 };
 
-export function TeamManagement({ currentUser, teamMembers, pendingInvitations }: TeamManagementProps) {
+export function TeamManagement({
+  currentUser,
+  teamMembers,
+  pendingInvitations,
+}: TeamManagementProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const canInviteUsers = currentUser.role === "OWNER" || currentUser.role === "ADMIN";
+  const canInviteUsers =
+    currentUser.role === "OWNER" || currentUser.role === "ADMIN";
   const canManageRoles = currentUser.role === "OWNER";
 
   const handleCancelInvitation = async (invitationId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/organization/invitations?id=${invitationId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/organization/invitations?id=${invitationId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to cancel invitation");
@@ -163,11 +186,13 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <Badge variant="outline" className="text-sm">
-              {teamMembers.length} Team Member{teamMembers.length !== 1 ? "s" : ""}
+              {teamMembers.length} Team Member
+              {teamMembers.length !== 1 ? "s" : ""}
             </Badge>
             {pendingInvitations.length > 0 && (
               <Badge variant="secondary" className="text-sm">
-                {pendingInvitations.length} Pending Invitation{pendingInvitations.length !== 1 ? "s" : ""}
+                {pendingInvitations.length} Pending Invitation
+                {pendingInvitations.length !== 1 ? "s" : ""}
               </Badge>
             )}
           </div>
@@ -210,7 +235,9 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                        {(member.firstName?.[0] || member.email[0]).toUpperCase()}
+                        {(
+                          member.firstName?.[0] || member.email[0]
+                        ).toUpperCase()}
                       </div>
                       <div>
                         <p className="font-medium">
@@ -218,7 +245,9 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
                             ? `${member.firstName} ${member.lastName}`
                             : member.email}
                         </p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.email}
+                        </p>
                         {member.joinedAt && (
                           <p className="text-xs text-muted-foreground">
                             Joined {formatDate(member.joinedAt)}
@@ -228,31 +257,46 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
                     </div>
                     <div className="flex items-center space-x-3">
                       {getRoleBadge(member.role)}
-                      {canManageRoles && member.id !== currentUser.id && member.role !== "OWNER" && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isLoading}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to remove {member.firstName && member.lastName
-                                  ? `${member.firstName} ${member.lastName}`
-                                  : member.email} from your organization? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleRemoveTeamMember(member.id)}>
-                                Remove
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
+                      {canManageRoles &&
+                        member.id !== currentUser.id &&
+                        member.role !== "OWNER" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={isLoading}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Remove Team Member
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove{" "}
+                                  {member.firstName && member.lastName
+                                    ? `${member.firstName} ${member.lastName}`
+                                    : member.email}{" "}
+                                  from your organization? This action cannot be
+                                  undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleRemoveTeamMember(member.id)
+                                  }
+                                >
+                                  Remove
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -274,7 +318,9 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
               {pendingInvitations.length === 0 ? (
                 <div className="text-center py-8">
                   <Mail className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No pending invitations</p>
+                  <p className="text-muted-foreground">
+                    No pending invitations
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -290,13 +336,17 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
                         <div>
                           <p className="font-medium">{invitation.email}</p>
                           <p className="text-sm text-muted-foreground">
-                            Invited by {invitation.inviter.firstName && invitation.inviter.lastName
+                            Invited by{" "}
+                            {invitation.inviter.firstName &&
+                            invitation.inviter.lastName
                               ? `${invitation.inviter.firstName} ${invitation.inviter.lastName}`
                               : invitation.inviter.email}
                           </p>
                           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                             <Clock className="w-3 h-3" />
-                            <span>Expires {formatDate(invitation.expiresAt)}</span>
+                            <span>
+                              Expires {formatDate(invitation.expiresAt)}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -304,20 +354,33 @@ export function TeamManagement({ currentUser, teamMembers, pendingInvitations }:
                         {getRoleBadge(invitation.role)}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isLoading}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={isLoading}
+                            >
                               Cancel
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Cancel Invitation</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Cancel Invitation
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to cancel the invitation to {invitation.email}?
+                                Are you sure you want to cancel the invitation
+                                to {invitation.email}?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Keep Invitation</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleCancelInvitation(invitation.id)}>
+                              <AlertDialogCancel>
+                                Keep Invitation
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleCancelInvitation(invitation.id)
+                                }
+                              >
                                 Cancel Invitation
                               </AlertDialogAction>
                             </AlertDialogFooter>

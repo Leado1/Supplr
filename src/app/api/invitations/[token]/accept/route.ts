@@ -23,7 +23,10 @@ export async function POST(
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "You must be logged in to accept invitations" },
+        {
+          success: false,
+          error: "You must be logged in to accept invitations",
+        },
         { status: 401 }
       );
     }
@@ -69,7 +72,10 @@ export async function POST(
     const userEmail = clerkUser.emailAddresses[0]?.emailAddress;
     if (userEmail !== invitation.email) {
       return NextResponse.json(
-        { success: false, error: "This invitation is not for your email address" },
+        {
+          success: false,
+          error: "This invitation is not for your email address",
+        },
         { status: 400 }
       );
     }
@@ -84,7 +90,10 @@ export async function POST(
 
     if (existingUser) {
       return NextResponse.json(
-        { success: false, error: "You are already a member of this organization" },
+        {
+          success: false,
+          error: "You are already a member of this organization",
+        },
         { status: 400 }
       );
     }
@@ -99,7 +108,8 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "You already belong to an organization. Multiple organization membership is not currently supported."
+          error:
+            "You already belong to an organization. Multiple organization membership is not currently supported.",
         },
         { status: 400 }
       );
@@ -142,7 +152,6 @@ export async function POST(
         organization: invitation.organization,
       },
     });
-
   } catch (error) {
     console.error("Error accepting invitation:", error);
 

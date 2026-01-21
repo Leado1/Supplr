@@ -11,18 +11,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AIStatusBadge } from "@/components/ai";
 import type { ItemWithStatus } from "@/types/inventory";
-import { getStatusBadgeVariant, getStatusLabel } from "@/lib/inventory-status";
+import type { ItemWithAIStatus } from "@/lib/inventory-status";
+import { getStatusBadgeVariant, getStatusLabel } from "@/lib/inventory-utils";
 
 interface InventoryTableProps {
-  items: ItemWithStatus[];
+  items: (ItemWithStatus | ItemWithAIStatus)[];
   selectedIds?: Set<string>;
-  onEditItem?: (item: ItemWithStatus) => void;
-  onDeleteItem?: (item: ItemWithStatus) => void;
-  onQuantityChange?: (item: ItemWithStatus, newQuantity: number) => void;
+  onEditItem?: (item: ItemWithStatus | ItemWithAIStatus) => void;
+  onDeleteItem?: (item: ItemWithStatus | ItemWithAIStatus) => void;
+  onQuantityChange?: (item: ItemWithStatus | ItemWithAIStatus, newQuantity: number) => void;
   onSelectionChange?: (itemId: string, isSelected: boolean) => void;
   onSelectAll?: (isSelected: boolean) => void;
   onAddItem?: () => void;
+  showAIFeatures?: boolean;
 }
 
 export function InventoryTable({
@@ -34,6 +37,7 @@ export function InventoryTable({
   onSelectionChange,
   onSelectAll,
   onAddItem,
+  showAIFeatures = false,
 }: InventoryTableProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -255,9 +259,28 @@ export function InventoryTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusBadgeVariant(item.status)}>
-                    {getStatusLabel(item.status)}
-                  </Badge>
+                  {showAIFeatures && 'aiStatus' in item && item.aiStatus ? (
+                    <div className="flex flex-col gap-1">
+                      <AIStatusBadge
+                        status={item.aiStatus}
+                        confidence={item.aiInsights?.confidence}
+                        aiInsights={item.aiInsights}
+                        showDetails={true}
+                      />
+                      {item.status !== item.aiStatus && (
+                        <Badge
+                          variant={getStatusBadgeVariant(item.status)}
+                          className="text-xs opacity-75"
+                        >
+                          {getStatusLabel(item.status)}
+                        </Badge>
+                      )}
+                    </div>
+                  ) : (
+                    <Badge variant={getStatusBadgeVariant(item.status)}>
+                      {getStatusLabel(item.status)}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">

@@ -15,7 +15,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get subscription features with organization context for demo override
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     return NextResponse.json({
       features,

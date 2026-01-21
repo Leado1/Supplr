@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserOrganization } from "@/lib/auth-helpers";
-import { hasExceededItemLimit, requireActiveSubscription, getSubscriptionFeatures } from "@/lib/subscription-helpers";
+import {
+  hasExceededItemLimit,
+  requireActiveSubscription,
+  getSubscriptionFeatures,
+} from "@/lib/subscription-helpers";
 import { hasPermission, Permission } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
 
@@ -37,12 +41,15 @@ export async function POST(request: NextRequest) {
     // Check item limit
     const exceedsLimit = await hasExceededItemLimit(organization.id);
     if (exceedsLimit) {
-      const features = getSubscriptionFeatures(organization.subscription, organization);
+      const features = getSubscriptionFeatures(
+        organization.subscription,
+        organization
+      );
       return NextResponse.json(
         {
           error: `Item limit reached for ${features.plan} plan (${features.itemLimit} items). Please upgrade your subscription to add more items.`,
           currentPlan: features.plan,
-          itemLimit: features.itemLimit
+          itemLimit: features.itemLimit,
         },
         { status: 402 } // Payment Required
       );
@@ -57,20 +64,26 @@ export async function POST(request: NextRequest) {
       categoryId,
       locationId,
       sku,
-      reorderThreshold
+      reorderThreshold,
     } = body;
 
     // Validate required fields
     if (!name || !quantity || !unitCost || !expirationDate || !categoryId) {
       return NextResponse.json(
-        { error: "Missing required fields: name, quantity, unitCost, expirationDate, categoryId" },
+        {
+          error:
+            "Missing required fields: name, quantity, unitCost, expirationDate, categoryId",
+        },
         { status: 400 }
       );
     }
 
     // Validate location if provided
     if (locationId) {
-      const features = getSubscriptionFeatures(organization.subscription, organization);
+      const features = getSubscriptionFeatures(
+        organization.subscription,
+        organization
+      );
 
       if (!features.multiLocation) {
         return NextResponse.json(
@@ -128,16 +141,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      item: {
-        ...item,
-        unitCost: item.unitCost.toString(),
-        expirationDate: item.expirationDate.toISOString(),
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
+    return NextResponse.json(
+      {
+        item: {
+          ...item,
+          unitCost: item.unitCost.toString(),
+          expirationDate: item.expirationDate.toISOString(),
+          createdAt: item.createdAt.toISOString(),
+          updatedAt: item.updatedAt.toISOString(),
+        },
       },
-    }, { status: 201 });
-
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error adding inventory item:", error);
     return NextResponse.json(

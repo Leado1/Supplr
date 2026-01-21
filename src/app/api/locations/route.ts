@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserOrganization } from "@/lib/auth-helpers";
-import { getSubscriptionFeatures, isSubscriptionActive } from "@/lib/subscription-helpers";
+import {
+  getSubscriptionFeatures,
+  isSubscriptionActive,
+} from "@/lib/subscription-helpers";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
@@ -24,7 +27,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     if (!features.multiLocation) {
       return NextResponse.json(
@@ -77,7 +83,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     if (!features.multiLocation) {
       return NextResponse.json(
@@ -134,9 +143,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      location,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        location,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating location:", error);
     return NextResponse.json(

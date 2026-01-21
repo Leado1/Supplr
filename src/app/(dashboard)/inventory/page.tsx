@@ -16,7 +16,7 @@ import { ItemModal } from "@/components/modals/item-modal";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
 import { ExportDropdown } from "@/components/ui/export-dropdown";
 import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
-import { calculateInventorySummary } from "@/lib/inventory-status";
+import { calculateInventorySummary } from "@/lib/inventory-utils";
 import { LoadingScreen, InlineLoading } from "@/components/ui/loading-spinner";
 import type { ItemWithStatus, InventoryFilters } from "@/types/inventory";
 import type { Category } from "@prisma/client";

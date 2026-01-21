@@ -4,7 +4,7 @@ async function createDemoUser() {
   try {
     // First, check if demo user already exists
     const existingUser = await prisma.user.findFirst({
-      where: { email: "demo@supplr.net" }
+      where: { email: "demo@supplr.net" },
     });
 
     if (existingUser) {
@@ -16,8 +16,8 @@ async function createDemoUser() {
     const organization = await prisma.organization.create({
       data: {
         name: "Demo Medical Spa",
-        type: "medspa"
-      }
+        type: "medspa",
+      },
     });
 
     console.log("Created demo organization:", organization.name);
@@ -31,11 +31,16 @@ async function createDemoUser() {
         lastName: "User",
         organizationId: organization.id,
         role: "OWNER", // This is crucial for multi-location access
-        status: "ACTIVE"
-      }
+        status: "ACTIVE",
+      },
     });
 
-    console.log("Created demo user:", demoUser.email, "with role:", demoUser.role);
+    console.log(
+      "Created demo user:",
+      demoUser.email,
+      "with role:",
+      demoUser.role
+    );
 
     // Create subscription with Enterprise features
     const subscription = await prisma.subscription.create({
@@ -50,8 +55,8 @@ async function createDemoUser() {
         customCategories: true,
         apiAccess: true,
         multiLocation: true,
-        customReports: true
-      }
+        customReports: true,
+      },
     });
 
     console.log("Created Enterprise subscription for demo organization");
@@ -63,8 +68,8 @@ async function createDemoUser() {
         expirationWarningDays: 30,
         lowStockThreshold: 5,
         currency: "USD",
-        timezone: "America/New_York"
-      }
+        timezone: "America/New_York",
+      },
     });
 
     console.log("Created default settings");
@@ -75,11 +80,11 @@ async function createDemoUser() {
       { name: "Skincare", organizationId: organization.id },
       { name: "Equipment", organizationId: organization.id },
       { name: "Consumables", organizationId: organization.id },
-      { name: "Other", organizationId: organization.id }
+      { name: "Other", organizationId: organization.id },
     ];
 
     await prisma.category.createMany({
-      data: categories
+      data: categories,
     });
 
     console.log("Created demo categories");
@@ -89,8 +94,9 @@ async function createDemoUser() {
     console.log("✅ Organization: Demo Medical Spa");
     console.log("✅ Plan: Enterprise (all features enabled)");
     console.log("✅ Categories: 5 demo categories created");
-    console.log("\nYou can now log in with demo@supplr.net to test Enterprise features!");
-
+    console.log(
+      "\nYou can now log in with demo@supplr.net to test Enterprise features!"
+    );
   } catch (error) {
     console.error("Error creating demo user:", error);
   } finally {

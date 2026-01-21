@@ -90,8 +90,10 @@ export function DeleteLocationModal({
             <span>Delete Location</span>
           </DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the location
-            <strong> {location.name}</strong> and remove it from your organization.
+            This action cannot be undone. This will permanently delete the
+            location
+            <strong> {location.name}</strong> and remove it from your
+            organization.
           </DialogDescription>
         </DialogHeader>
 
@@ -124,23 +126,25 @@ export function DeleteLocationModal({
           {location.address && (
             <div className="rounded-lg bg-muted p-3">
               <h4 className="font-medium text-sm mb-1">Location Details:</h4>
-              <p className="text-sm text-muted-foreground">{location.address}</p>
+              <p className="text-sm text-muted-foreground">
+                {location.address}
+              </p>
               {location.phone && (
-                <p className="text-sm text-muted-foreground">Phone: {location.phone}</p>
+                <p className="text-sm text-muted-foreground">
+                  Phone: {location.phone}
+                </p>
               )}
               {location.email && (
-                <p className="text-sm text-muted-foreground">Email: {location.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  Email: {location.email}
+                </p>
               )}
             </div>
           )}
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isDeleting}
-          >
+          <Button variant="outline" onClick={handleClose} disabled={isDeleting}>
             Cancel
           </Button>
           <Button

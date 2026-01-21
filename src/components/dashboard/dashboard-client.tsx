@@ -6,6 +6,7 @@ import { useLocationChangeEffect } from "@/contexts/location-context";
 import Link from "next/link";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
@@ -17,7 +18,10 @@ interface InventoryData {
   categories: Category[];
   summary: InventorySummary;
   organizationName: string;
+  organizationId: string;
   hasMultiLocationAccess: boolean;
+  currentLocationId?: string;
+  hasAIFeatures?: boolean;
 }
 
 export function DashboardClient() {
@@ -64,12 +68,17 @@ export function DashboardClient() {
   }, [fetchInventoryData]);
 
   // Handle location changes
-  useLocationChangeEffect(useCallback((location) => {
-    if (!isLoading) {
-      setIsRefreshing(true);
-      fetchInventoryData(location?.id);
-    }
-  }, [fetchInventoryData, isLoading]));
+  useLocationChangeEffect(
+    useCallback(
+      (location) => {
+        if (!isLoading) {
+          setIsRefreshing(true);
+          fetchInventoryData(location?.id);
+        }
+      },
+      [fetchInventoryData, isLoading]
+    )
+  );
 
   // Handle checkout success
   useEffect(() => {
@@ -223,7 +232,9 @@ export function DashboardClient() {
         <Alert className="border-blue-200 bg-blue-50">
           <CheckCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-700">
-            <strong>Multi-Location Enabled:</strong> You can switch between locations using the dropdown above. Inventory data is filtered by your selected location.
+            <strong>Multi-Location Enabled:</strong> You can switch between
+            locations using the dropdown above. Inventory data is filtered by
+            your selected location.
           </AlertDescription>
         </Alert>
       )}
@@ -231,7 +242,8 @@ export function DashboardClient() {
       {/* Summary Cards */}
       <SummaryCards summary={data.summary} />
 
-      {/* Dashboard content continues... */}
+
+      {/* Traditional Dashboard content */}
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-lg border bg-card p-6">
           <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
@@ -240,17 +252,56 @@ export function DashboardClient() {
           ) : (
             <div className="space-y-2">
               {data.items.slice(0, 5).map((item) => (
-                <div key={item.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center py-2 border-b last:border-b-0"
+                >
                   <div>
-                    <p className="font-medium">{item.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{item.name}</p>
+                      {(item.status === "low_stock" || item.status === "expiring_soon") && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" title="AI insights available" />
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {item.category.name} • Qty: {item.quantity}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium">{item.status}</p>
+                    <Badge
+                      variant={
+                        item.status === "ok"
+                          ? "default"
+                          : item.status === "low_stock"
+                          ? "destructive"
+                          : item.status === "expiring_soon"
+                          ? "secondary"
+                          : item.status === "expired"
+                          ? "destructive"
+                          : "outline"
+                      }
+                      className={
+                        item.status === "ok"
+                          ? "bg-green-500 hover:bg-green-600"
+                          : item.status === "low_stock"
+                          ? "bg-orange-500 hover:bg-orange-600"
+                          : item.status === "expiring_soon"
+                          ? "bg-yellow-500 hover:bg-yellow-600 text-black"
+                          : item.status === "expired"
+                          ? "bg-red-500 hover:bg-red-600"
+                          : ""
+                      }
+                    >
+                      {item.status === "low_stock"
+                        ? "low stock"
+                        : item.status === "expiring_soon"
+                        ? "expiring soon"
+                        : item.status}
+                    </Badge>
                     {item.location && (
-                      <p className="text-xs text-muted-foreground">{item.location.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {item.location.name}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -266,10 +317,18 @@ export function DashboardClient() {
           ) : (
             <div className="space-y-2">
               {data.categories.map((category) => (
-                <div key={category.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                <div
+                  key={category.id}
+                  className="flex justify-between items-center py-2 border-b last:border-b-0"
+                >
                   <p className="font-medium">{category.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {data.items.filter(item => item.category.id === category.id).length} items
+                    {
+                      data.items.filter(
+                        (item) => item.category.id === category.id
+                      ).length
+                    }{" "}
+                    items
                   </p>
                 </div>
               ))}

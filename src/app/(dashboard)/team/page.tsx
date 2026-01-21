@@ -13,7 +13,9 @@ export default async function TeamPage() {
   }
 
   // Check if user has permission to manage team and get user data
-  const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+  const { user, organization } = await requireUserPermission(
+    Permission.MANAGE_TEAM
+  );
   if (!user || !organization) {
     redirect("/dashboard");
   }
@@ -73,7 +75,8 @@ export default async function TeamPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Team Management</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your organization's team members and send invitations to new users.
+            Manage your organization's team members and send invitations to new
+            users.
           </p>
         </div>
 

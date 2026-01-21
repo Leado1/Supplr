@@ -19,8 +19,8 @@ export async function POST() {
     // Check if demo user exists
     const demoUser = await prisma.user.findFirst({
       where: {
-        email: "demo@supplr.net"
-      }
+        email: "demo@supplr.net",
+      },
     });
 
     if (!demoUser) {
@@ -33,18 +33,18 @@ export async function POST() {
     // Update demo user with current Clerk ID
     const updatedUser = await prisma.user.update({
       where: {
-        email: "demo@supplr.net"
+        email: "demo@supplr.net",
       },
       data: {
-        clerkId: userId
+        clerkId: userId,
       },
       include: {
         organization: {
           include: {
-            subscription: true
-          }
-        }
-      }
+            subscription: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -55,10 +55,9 @@ export async function POST() {
         clerkId: updatedUser.clerkId,
         role: updatedUser.role,
         organization: updatedUser.organization.name,
-        plan: updatedUser.organization.subscription?.plan
-      }
+        plan: updatedUser.organization.subscription?.plan,
+      },
     });
-
   } catch (error) {
     console.error("Error syncing demo user:", error);
     return NextResponse.json(

@@ -10,7 +10,9 @@ import { prisma } from "@/lib/db";
  */
 export async function GET() {
   try {
-    const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+    const { user, organization } = await requireUserPermission(
+      Permission.MANAGE_TEAM
+    );
 
     const pendingInvitations = await prisma.userInvitation.findMany({
       where: {
@@ -39,7 +41,6 @@ export async function GET() {
       success: true,
       data: pendingInvitations,
     });
-
   } catch (error) {
     console.error("Error fetching pending invitations:", error);
 
@@ -64,10 +65,12 @@ export async function GET() {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+    const { user, organization } = await requireUserPermission(
+      Permission.MANAGE_TEAM
+    );
 
     const url = new URL(request.url);
-    const invitationId = url.pathname.split('/').pop();
+    const invitationId = url.pathname.split("/").pop();
 
     if (!invitationId) {
       return NextResponse.json(
@@ -101,7 +104,6 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: "Invitation cancelled successfully",
     });
-
   } catch (error) {
     console.error("Error cancelling invitation:", error);
 

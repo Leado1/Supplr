@@ -1,6 +1,10 @@
+import 'server-only';
+
 import { prisma } from "@/lib/db";
 import nodemailer from "nodemailer";
 import { addDays, format, isAfter, isBefore } from "date-fns";
+import { PredictionEngine } from "@/lib/ai";
+import { getSubscriptionFeatures } from "@/lib/subscription-helpers";
 
 // Email transporter using existing configuration
 const createTransporter = () => {
@@ -21,7 +25,13 @@ const createTransporter = () => {
 
 // Types for notifications
 export interface InventoryAlert {
-  type: "expiring" | "expired" | "low_stock";
+  type:
+    | "expiring"
+    | "expired"
+    | "low_stock"
+    | "ai_waste_risk"
+    | "ai_reorder_soon"
+    | "ai_threshold_optimization";
   items: Array<{
     id: string;
     name: string;
@@ -31,6 +41,13 @@ export interface InventoryAlert {
     expirationDate: Date;
     reorderThreshold: number;
     daysUntilExpiration?: number;
+    aiPrediction?: {
+      type: string;
+      priority: "low" | "medium" | "high";
+      confidence: number;
+      recommendation: string;
+      potentialSavings?: number;
+    };
   }>;
 }
 
@@ -45,7 +62,198 @@ export interface NotificationSettings {
   notificationFrequency: "daily" | "weekly" | "immediate";
 }
 
-// Get inventory alerts for an organization
+// Get enhanced inventory alerts with AI predictions for an organization
+export async function getAIEnhancedInventoryAlerts(
+  organizationId: string
+): Promise<InventoryAlert[]> {
+  try {
+    // Get organization settings and subscription
+    const [settings, organization] = await Promise.all([
+      prisma.settings.findUnique({ where: { organizationId } }),
+      prisma.organization.findUnique({
+        where: { id: organizationId },
+        include: { subscription: true, users: true },
+      }),
+    ]);
+
+    if (!organization) {
+      return [];
+    }
+
+    const features = getSubscriptionFeatures(organization.subscription, {
+      users: organization.users
+        ? organization.users.map((u: { email: string }) => ({ email: u.email }))
+        : [],
+    });
+    const warningDays = settings?.expirationWarningDays || 30;
+    const lowStockThreshold = settings?.lowStockThreshold || 5;
+
+    const today = new Date();
+    const warningDate = addDays(today, warningDays);
+
+    // Get all items for the organization
+    const items = await prisma.item.findMany({
+      where: { organizationId },
+      include: { category: true },
+    });
+
+    const alerts: InventoryAlert[] = [];
+
+    // Traditional alert groups
+    const expiringItems: InventoryAlert["items"] = [];
+    const expiredItems: InventoryAlert["items"] = [];
+    const lowStockItems: InventoryAlert["items"] = [];
+
+    // AI alert groups (only for subscribers with AI features)
+    const aiWasteRiskItems: InventoryAlert["items"] = [];
+    const aiReorderSoonItems: InventoryAlert["items"] = [];
+    const aiThresholdOptimizationItems: InventoryAlert["items"] = [];
+
+    // Process each item
+    for (const item of items) {
+      const daysUntilExpiration = Math.floor(
+        (item.expirationDate.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      const baseItemData = {
+        id: item.id,
+        name: item.name,
+        sku: item.sku || undefined,
+        category: item.category.name,
+        quantity: item.quantity,
+        expirationDate: item.expirationDate,
+        reorderThreshold: item.reorderThreshold,
+        daysUntilExpiration,
+      };
+
+      // Traditional alerts
+      if (isBefore(item.expirationDate, today)) {
+        expiredItems.push(baseItemData);
+      } else if (
+        isAfter(item.expirationDate, today) &&
+        isBefore(item.expirationDate, warningDate)
+      ) {
+        expiringItems.push(baseItemData);
+      }
+
+      if (item.quantity <= item.reorderThreshold) {
+        lowStockItems.push(baseItemData);
+      }
+
+      // AI predictions (for Starter+ plans)
+      try {
+        // Waste risk predictions
+        const wasteRiskPrediction =
+          await PredictionEngine.generateWasteRiskPrediction(item);
+        if (
+          wasteRiskPrediction.value.riskLevel === "high" &&
+          wasteRiskPrediction.confidenceScore > 0.6
+        ) {
+          aiWasteRiskItems.push({
+            ...baseItemData,
+            aiPrediction: {
+              type: "waste_risk",
+              priority: wasteRiskPrediction.value.riskLevel,
+              confidence: Math.round(wasteRiskPrediction.confidenceScore * 100),
+              recommendation: wasteRiskPrediction.value.recommendation,
+              potentialSavings: wasteRiskPrediction.value.estimatedWasteValue,
+            },
+          });
+        }
+
+        // Reorder predictions (for Professional+ plans)
+        if (features.advancedAnalytics) {
+          const reorderPrediction =
+            await PredictionEngine.generateReorderPrediction(item);
+          if (
+            reorderPrediction.value.daysUntilReorder !== null &&
+            reorderPrediction.value.daysUntilReorder <= 14 &&
+            reorderPrediction.value.priority !== "low"
+          ) {
+            aiReorderSoonItems.push({
+              ...baseItemData,
+              aiPrediction: {
+                type: "reorder",
+                priority: reorderPrediction.value.priority,
+                confidence: Math.round(reorderPrediction.confidenceScore * 100),
+                recommendation: `Reorder ${reorderPrediction.value.recommendedQuantity} units in ${reorderPrediction.value.daysUntilReorder} days`,
+                potentialSavings:
+                  reorderPrediction.value.priority === "high"
+                    ? reorderPrediction.value.recommendedQuantity *
+                      Number(item.unitCost) *
+                      0.15
+                    : 0, // Emergency order markup savings
+              },
+            });
+          }
+
+          // Threshold optimization suggestions
+          const thresholdPrediction =
+            await PredictionEngine.generateThresholdOptimization(item);
+          if (
+            thresholdPrediction.confidenceScore > 0.7 &&
+            Math.abs(
+              thresholdPrediction.value.recommendedThreshold -
+                thresholdPrediction.value.currentThreshold
+            ) >= 5
+          ) {
+            aiThresholdOptimizationItems.push({
+              ...baseItemData,
+              aiPrediction: {
+                type: "threshold_optimization",
+                priority:
+                  thresholdPrediction.value.potentialSavings > 50
+                    ? "high"
+                    : "medium",
+                confidence: Math.round(
+                  thresholdPrediction.confidenceScore * 100
+                ),
+                recommendation: thresholdPrediction.reasoning,
+                potentialSavings: thresholdPrediction.value.potentialSavings,
+              },
+            });
+          }
+        }
+      } catch (error) {
+        // Log error but don't fail the whole alert process
+        console.error(`AI prediction error for item ${item.id}:`, error);
+      }
+    }
+
+    // Create alerts for each type (prioritize AI alerts first)
+    if (aiWasteRiskItems.length > 0) {
+      alerts.push({ type: "ai_waste_risk", items: aiWasteRiskItems });
+    }
+    if (aiReorderSoonItems.length > 0) {
+      alerts.push({ type: "ai_reorder_soon", items: aiReorderSoonItems });
+    }
+    if (aiThresholdOptimizationItems.length > 0) {
+      alerts.push({
+        type: "ai_threshold_optimization",
+        items: aiThresholdOptimizationItems,
+      });
+    }
+
+    // Traditional alerts
+    if (expiredItems.length > 0) {
+      alerts.push({ type: "expired", items: expiredItems });
+    }
+    if (expiringItems.length > 0) {
+      alerts.push({ type: "expiring", items: expiringItems });
+    }
+    if (lowStockItems.length > 0) {
+      alerts.push({ type: "low_stock", items: lowStockItems });
+    }
+
+    return alerts;
+  } catch (error) {
+    console.error("Error getting AI enhanced inventory alerts:", error);
+    return getInventoryAlerts(organizationId); // Fallback to basic alerts
+  }
+}
+
+// Get inventory alerts for an organization (basic version for compatibility)
 export async function getInventoryAlerts(
   organizationId: string
 ): Promise<InventoryAlert[]> {
@@ -154,6 +362,9 @@ function generateEmailHTML(
         expired: "🚨 Expired Items",
         expiring: "⚠️ Items Expiring Soon",
         low_stock: "📦 Low Stock Items",
+        ai_waste_risk: "🤖 AI Waste Risk Alert",
+        ai_reorder_soon: "🤖 AI Reorder Recommendations",
+        ai_threshold_optimization: "🤖 AI Threshold Optimization",
       };
 
       const itemRows = alert.items
@@ -270,12 +481,18 @@ function generateSMSText(
       expired: "🚨",
       expiring: "⚠️",
       low_stock: "📦",
+      ai_waste_risk: "🤖",
+      ai_reorder_soon: "🤖",
+      ai_threshold_optimization: "🤖",
     };
 
     const alertTitle = {
       expired: "EXPIRED",
       expiring: "EXPIRING SOON",
       low_stock: "LOW STOCK",
+      ai_waste_risk: "AI WASTE RISK",
+      ai_reorder_soon: "AI REORDER",
+      ai_threshold_optimization: "AI OPTIMIZE",
     };
 
     message += `${alertEmoji[alert.type]} ${alertTitle[alert.type]} (${alert.items.length} items)\n`;
@@ -287,6 +504,16 @@ function generateSMSText(
         message += `• ${item.name} - EXPIRED\n`;
       } else if (alert.type === "expiring") {
         message += `• ${item.name} - ${item.daysUntilExpiration}d left\n`;
+      } else if (alert.type === "low_stock") {
+        message += `• ${item.name} - ${item.quantity} left\n`;
+      } else if (alert.type.startsWith("ai_")) {
+        // AI-powered alerts
+        const aiInfo = item.aiPrediction;
+        if (aiInfo) {
+          message += `• ${item.name} - ${aiInfo.recommendation}\n`;
+        } else {
+          message += `• ${item.name} - AI Alert\n`;
+        }
       } else {
         message += `• ${item.name} - ${item.quantity} left\n`;
       }
@@ -451,7 +678,9 @@ export interface InvitationEmailData {
 /**
  * Send team invitation email
  */
-export async function sendInvitationEmail(data: InvitationEmailData): Promise<boolean> {
+export async function sendInvitationEmail(
+  data: InvitationEmailData
+): Promise<boolean> {
   try {
     const transporter = createTransporter();
     const invitationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.invitationToken}`;
@@ -467,7 +696,10 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
     };
 
     const result = await transporter.sendMail(mailOptions);
-    console.log(`Invitation email sent to ${data.inviteeEmail}:`, result.messageId);
+    console.log(
+      `Invitation email sent to ${data.inviteeEmail}:`,
+      result.messageId
+    );
     return true;
   } catch (error) {
     console.error("Error sending invitation email:", error);
@@ -478,7 +710,10 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<bo
 /**
  * Generate HTML email template for invitations
  */
-function generateInvitationEmailHTML(data: InvitationEmailData, invitationUrl: string): string {
+function generateInvitationEmailHTML(
+  data: InvitationEmailData,
+  invitationUrl: string
+): string {
   const roleDescription = getRoleDescription(data.role);
   const expiresFormatted = format(data.expiresAt, "MMMM do, yyyy 'at' h:mm a");
 
@@ -569,7 +804,10 @@ function generateInvitationEmailHTML(data: InvitationEmailData, invitationUrl: s
 /**
  * Generate plain text email for invitations
  */
-function generateInvitationEmailText(data: InvitationEmailData, invitationUrl: string): string {
+function generateInvitationEmailText(
+  data: InvitationEmailData,
+  invitationUrl: string
+): string {
   const roleDescription = getRoleDescription(data.role);
   const expiresFormatted = format(data.expiresAt, "MMMM do, yyyy 'at' h:mm a");
 

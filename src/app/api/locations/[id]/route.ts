@@ -20,7 +20,10 @@ export async function GET(
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     if (!features.multiLocation) {
       return NextResponse.json(
@@ -73,7 +76,10 @@ export async function PUT(
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     if (!features.multiLocation) {
       return NextResponse.json(
@@ -177,7 +183,10 @@ export async function DELETE(
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
     if (!features.multiLocation) {
       return NextResponse.json(
@@ -232,7 +241,10 @@ export async function DELETE(
 
     if (locationCount <= 1) {
       return NextResponse.json(
-        { error: "Cannot delete the only location. Organizations must have at least one location." },
+        {
+          error:
+            "Cannot delete the only location. Organizations must have at least one location.",
+        },
         { status: 409 }
       );
     }

@@ -1,12 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Mail, User, Calendar, Clock, Loader2, CheckCircle } from "lucide-react";
+import {
+  Building2,
+  Mail,
+  User,
+  Calendar,
+  Clock,
+  Loader2,
+  CheckCircle,
+} from "lucide-react";
 
 interface InvitationData {
   id: string;
@@ -35,7 +49,10 @@ interface InvitationAcceptanceProps {
   currentUser: CurrentUser | null;
 }
 
-export function InvitationAcceptance({ invitation, currentUser }: InvitationAcceptanceProps) {
+export function InvitationAcceptance({
+  invitation,
+  currentUser,
+}: InvitationAcceptanceProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -83,12 +100,15 @@ export function InvitationAcceptance({ invitation, currentUser }: InvitationAcce
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/invitations/${invitation.token}/accept`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `/api/invitations/${invitation.token}/accept`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await response.json();
 
@@ -103,7 +123,6 @@ export function InvitationAcceptance({ invitation, currentUser }: InvitationAcce
 
       // Redirect to dashboard
       window.location.href = "/dashboard";
-
     } catch (error: any) {
       console.error("Error accepting invitation:", error);
       toast({
@@ -155,7 +174,9 @@ export function InvitationAcceptance({ invitation, currentUser }: InvitationAcce
             <User className="w-5 h-5 text-muted-foreground" />
             <div>
               <p className="font-medium">{invitation.inviter.name}</p>
-              <p className="text-sm text-muted-foreground">{invitation.inviter.email}</p>
+              <p className="text-sm text-muted-foreground">
+                {invitation.inviter.email}
+              </p>
             </div>
           </div>
 
@@ -232,7 +253,11 @@ export function InvitationAcceptance({ invitation, currentUser }: InvitationAcce
               <Button onClick={handleSignUp} className="w-full">
                 Create Account & Accept
               </Button>
-              <Button onClick={handleSignIn} variant="outline" className="w-full">
+              <Button
+                onClick={handleSignIn}
+                variant="outline"
+                className="w-full"
+              >
                 Sign In to Accept
               </Button>
             </div>
@@ -242,8 +267,9 @@ export function InvitationAcceptance({ invitation, currentUser }: InvitationAcce
         {/* Help Text */}
         <div className="text-center">
           <p className="text-xs text-muted-foreground">
-            By accepting this invitation, you agree to join {invitation.organization.name} and
-            will have access to their inventory management system.
+            By accepting this invitation, you agree to join{" "}
+            {invitation.organization.name} and will have access to their
+            inventory management system.
           </p>
         </div>
       </CardContent>

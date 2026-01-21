@@ -16,18 +16,17 @@ async function syncDemoUserClerk() {
     // Update demo user with current Clerk ID
     const updatedUser = await prisma.user.update({
       where: {
-        email: "demo@supplr.net"
+        email: "demo@supplr.net",
       },
       data: {
-        clerkId: userId
-      }
+        clerkId: userId,
+      },
     });
 
     console.log("✅ Updated demo user Clerk ID");
     console.log("Email:", updatedUser.email);
     console.log("Clerk ID:", updatedUser.clerkId);
     console.log("Role:", updatedUser.role);
-
   } catch (error) {
     console.error("Error syncing Clerk ID:", error);
   } finally {

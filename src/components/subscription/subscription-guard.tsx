@@ -32,7 +32,7 @@ export function SubscriptionGuard({
   features,
   fallback,
   showUpgradePrompt = true,
-  requiredPlan = "Enterprise"
+  requiredPlan = "Enterprise",
 }: SubscriptionGuardProps) {
   // If no features data, show loading state
   if (!features) {
@@ -82,17 +82,18 @@ function SubscriptionRestriction({
   feature,
   currentPlan,
   requiredPlan,
-  showUpgradePrompt
+  showUpgradePrompt,
 }: SubscriptionRestrictionProps) {
   const featureLabels = {
     advancedAnalytics: "Advanced Analytics",
     customCategories: "Custom Categories",
     apiAccess: "API Access",
     multiLocation: "Multi-Location Management",
-    customReports: "Custom Reports"
+    customReports: "Custom Reports",
   };
 
-  const featureLabel = featureLabels[feature as keyof typeof featureLabels] || feature;
+  const featureLabel =
+    featureLabels[feature as keyof typeof featureLabels] || feature;
 
   return (
     <div className="border border-dashed border-muted-foreground/50 rounded-lg p-8 text-center bg-muted/20">
@@ -143,7 +144,7 @@ export function ItemLimitGuard({
   children,
   currentCount,
   itemLimit,
-  plan
+  plan,
 }: ItemLimitGuardProps) {
   const isNearLimit = currentCount >= itemLimit * 0.8;
   const isOverLimit = currentCount >= itemLimit;
@@ -155,7 +156,8 @@ export function ItemLimitGuard({
         <AlertDescription>
           <div className="flex items-center justify-between">
             <div>
-              <strong>Item Limit Reached:</strong> You've reached your limit of {itemLimit} items for the {plan} plan.
+              <strong>Item Limit Reached:</strong> You've reached your limit of{" "}
+              {itemLimit} items for the {plan} plan.
             </div>
             <Link href="/billing">
               <Button size="sm" variant="outline">
@@ -177,10 +179,15 @@ export function ItemLimitGuard({
           <AlertDescription className="text-amber-800">
             <div className="flex items-center justify-between">
               <span>
-                <strong>Approaching limit:</strong> {remaining} items remaining on your {plan} plan
+                <strong>Approaching limit:</strong> {remaining} items remaining
+                on your {plan} plan
               </span>
               <Link href="/billing">
-                <Button size="sm" variant="outline" className="border-amber-300 text-amber-700">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-amber-300 text-amber-700"
+                >
                   Upgrade
                 </Button>
               </Link>
@@ -210,7 +217,11 @@ export function PaymentRequired({ message, plan }: PaymentRequiredProps) {
             <strong>Payment Required:</strong> {message}
           </div>
           <Link href="/billing">
-            <Button size="sm" variant="outline" className="border-red-300 text-red-700">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-red-300 text-red-700"
+            >
               Update Billing
             </Button>
           </Link>

@@ -662,7 +662,6 @@ export default function PrivacyPolicyPage() {
             </div>
           </div>
         </section>
-
       </main>
 
       {/* Footer */}

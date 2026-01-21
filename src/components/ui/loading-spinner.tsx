@@ -11,20 +11,20 @@ interface LoadingSpinnerProps {
 export function LoadingSpinner({
   size = "md",
   color = "hsl(var(--foreground))",
-  className
+  className,
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: "h-4 w-4",
     md: "h-6 w-6",
     lg: "h-8 w-8",
-    xl: "h-12 w-12"
+    xl: "h-12 w-12",
   };
 
   const sizeValues = {
     sm: "16px",
     md: "25px",
     lg: "32px",
-    xl: "48px"
+    xl: "48px",
   };
 
   // For now, use a reliable Tailwind spinner while we debug the chaotic orbit
@@ -46,14 +46,19 @@ export function LoadingSpinner({
 export function LoadingScreen({
   message = "Loading...",
   size = "lg",
-  className
+  className,
 }: {
   message?: string;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center min-h-[200px] space-y-4", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-[200px] space-y-4",
+        className
+      )}
+    >
       <LoadingSpinner size={size} />
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
@@ -63,15 +68,12 @@ export function LoadingScreen({
 // Inline loading for buttons and smaller components
 export function InlineLoading({
   size = "sm",
-  className
+  className,
 }: {
   size?: "sm" | "md";
   className?: string;
 }) {
   return (
-    <LoadingSpinner
-      size={size}
-      className={cn("inline-block", className)}
-    />
+    <LoadingSpinner size={size} className={cn("inline-block", className)} />
   );
 }

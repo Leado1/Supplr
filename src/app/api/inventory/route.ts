@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserOrganization } from "@/lib/auth-helpers";
-import { getSubscriptionFeatures, hasExceededItemLimit, isSubscriptionActive } from "@/lib/subscription-helpers";
+import {
+  getSubscriptionFeatures,
+  hasExceededItemLimit,
+  isSubscriptionActive,
+} from "@/lib/subscription-helpers";
 import { prisma } from "@/lib/db";
-import { addStatusToItems, calculateInventorySummary } from "@/lib/inventory-status";
+import {
+  addStatusToItems,
+  calculateInventorySummary,
+} from "@/lib/inventory-status";
+import { DemoSeeder } from "@/lib/demo-seeder";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,14 +36,18 @@ export async function GET(request: NextRequest) {
         summary: { total: 0, lowStock: 0, expired: 0, expiringSoon: 0 },
         organizationName: organization.name,
         hasMultiLocationAccess: false,
-        error: "Subscription inactive - please update billing to restore full access"
+        error:
+          "Subscription inactive - please update billing to restore full access",
       });
     }
 
     // Check if user has multi-location access
-    const features = getSubscriptionFeatures(organization.subscription, organization);
+    const features = getSubscriptionFeatures(
+      organization.subscription,
+      organization
+    );
 
-    let whereClause: any = {
+    const whereClause: any = {
       organizationId: organization.id,
     };
 
@@ -62,6 +74,9 @@ export async function GET(request: NextRequest) {
       whereClause.locationId = null;
     }
 
+    // Auto-seed demo data if organization has no items
+    await DemoSeeder.seedIfEmpty(organization.id);
+
     // Fetch items
     const items = await prisma.item.findMany({
       where: whereClause,
@@ -74,7 +89,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Fetch categories (also filter by location if applicable)
-    let categoryWhereClause: any = {
+    const categoryWhereClause: any = {
       organizationId: organization.id,
     };
 
@@ -108,11 +123,13 @@ export async function GET(request: NextRequest) {
         organizationId: item.category.organizationId,
         locationId: item.category.locationId,
       },
-      location: item.location ? {
-        id: item.location.id,
-        name: item.location.name,
-        organizationId: item.location.organizationId,
-      } : null,
+      location: item.location
+        ? {
+            id: item.location.id,
+            name: item.location.name,
+            organizationId: item.location.organizationId,
+          }
+        : null,
     }));
 
     const serializedCategories = categories.map((cat) => ({
@@ -127,8 +144,11 @@ export async function GET(request: NextRequest) {
       items: serializedItems,
       categories: serializedCategories,
       summary,
+      organizationId: organization.id,
       organizationName: organization.name,
       hasMultiLocationAccess: features.multiLocation,
+      currentLocationId: locationId,
+      hasAIFeatures: features.aiPredictions || features.advancedAnalytics,
     });
   } catch (error) {
     console.error("Error fetching inventory:", error);

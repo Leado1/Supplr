@@ -54,6 +54,8 @@ export default function ReportsPage() {
           customReports: data.subscription.customReports,
           itemLimit: data.subscription.itemLimit,
           plan: data.subscription.plan,
+          aiPredictions: data.subscription.aiPredictions || false,
+          aiAutomation: data.subscription.aiAutomation || false,
         });
       }
     } catch (error) {

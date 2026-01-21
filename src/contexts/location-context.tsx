@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { toast } from "sonner";
 
 interface Location {
@@ -25,7 +31,9 @@ interface LocationContextValue {
   error: string | null;
 }
 
-const LocationContext = createContext<LocationContextValue | undefined>(undefined);
+const LocationContext = createContext<LocationContextValue | undefined>(
+  undefined
+);
 
 interface LocationProviderProps {
   children: React.ReactNode;
@@ -33,7 +41,8 @@ interface LocationProviderProps {
 
 export function LocationProvider({ children }: LocationProviderProps) {
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocationState] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocationState] =
+    useState<Location | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMultiLocationAccess, setHasMultiLocationAccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,9 +110,11 @@ export function LocationProvider({ children }: LocationProviderProps) {
     localStorage.setItem("selectedLocationId", location.id);
 
     // Trigger a custom event for other components to listen to
-    window.dispatchEvent(new CustomEvent("locationChanged", {
-      detail: { location }
-    }));
+    window.dispatchEvent(
+      new CustomEvent("locationChanged", {
+        detail: { location },
+      })
+    );
   }, []);
 
   // Initialize on mount
@@ -131,12 +142,14 @@ export function LocationProvider({ children }: LocationProviderProps) {
       let locationToSelect: Location | null = null;
 
       if (savedLocationId) {
-        locationToSelect = locations.find(loc => loc.id === savedLocationId) || null;
+        locationToSelect =
+          locations.find((loc) => loc.id === savedLocationId) || null;
       }
 
       // If no saved location or saved location not found, use first active location
       if (!locationToSelect) {
-        locationToSelect = locations.find(loc => loc.isActive) || locations[0] || null;
+        locationToSelect =
+          locations.find((loc) => loc.isActive) || locations[0] || null;
       }
 
       if (locationToSelect) {
@@ -164,7 +177,10 @@ export function LocationProvider({ children }: LocationProviderProps) {
     window.addEventListener("subscriptionUpdated", handleSubscriptionChange);
 
     return () => {
-      window.removeEventListener("subscriptionUpdated", handleSubscriptionChange);
+      window.removeEventListener(
+        "subscriptionUpdated",
+        handleSubscriptionChange
+      );
     };
   }, []); // Empty dependency array since functions are stable
 
@@ -188,13 +204,17 @@ export function LocationProvider({ children }: LocationProviderProps) {
 export function useLocationContext() {
   const context = useContext(LocationContext);
   if (context === undefined) {
-    throw new Error("useLocationContext must be used within a LocationProvider");
+    throw new Error(
+      "useLocationContext must be used within a LocationProvider"
+    );
   }
   return context;
 }
 
 // Hook for components that need to react to location changes
-export function useLocationChangeEffect(callback: (location: Location | null) => void) {
+export function useLocationChangeEffect(
+  callback: (location: Location | null) => void
+) {
   const { selectedLocation } = useLocationContext();
 
   useEffect(() => {
@@ -206,10 +226,16 @@ export function useLocationChangeEffect(callback: (location: Location | null) =>
       callback(event.detail.location);
     };
 
-    window.addEventListener("locationChanged", handleLocationChanged as EventListener);
+    window.addEventListener(
+      "locationChanged",
+      handleLocationChanged as EventListener
+    );
 
     return () => {
-      window.removeEventListener("locationChanged", handleLocationChanged as EventListener);
+      window.removeEventListener(
+        "locationChanged",
+        handleLocationChanged as EventListener
+      );
     };
   }, [callback]);
 }

@@ -27,7 +27,9 @@ export async function PUT(
     const { userId } = resolvedParams;
 
     // Check permissions
-    const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+    const { user, organization } = await requireUserPermission(
+      Permission.MANAGE_TEAM
+    );
 
     // Parse and validate request body
     const body = await request.json();
@@ -60,7 +62,10 @@ export async function PUT(
     // Prevent changing the role of another OWNER (only one owner per organization)
     if (targetUser.role === "OWNER") {
       return NextResponse.json(
-        { success: false, error: "Cannot change the organization owner's role" },
+        {
+          success: false,
+          error: "Cannot change the organization owner's role",
+        },
         { status: 400 }
       );
     }
@@ -84,7 +89,6 @@ export async function PUT(
       message: `Role updated to ${validatedData.role}`,
       data: updatedUser,
     });
-
   } catch (error) {
     console.error("Error updating team member role:", error);
 
@@ -123,12 +127,17 @@ export async function DELETE(
     const { userId } = resolvedParams;
 
     // Check permissions
-    const { user, organization } = await requireUserPermission(Permission.MANAGE_TEAM);
+    const { user, organization } = await requireUserPermission(
+      Permission.MANAGE_TEAM
+    );
 
     // Prevent user from removing themselves
     if (userId === user.id) {
       return NextResponse.json(
-        { success: false, error: "You cannot remove yourself from the organization" },
+        {
+          success: false,
+          error: "You cannot remove yourself from the organization",
+        },
         { status: 400 }
       );
     }
@@ -165,7 +174,6 @@ export async function DELETE(
       success: true,
       message: "Team member removed successfully",
     });
-
   } catch (error) {
     console.error("Error removing team member:", error);
 

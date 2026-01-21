@@ -25,7 +25,9 @@ interface UseSubscriptionReturn {
   isLoading: boolean;
   error: string | null;
   refreshSubscription: () => Promise<void>;
-  hasFeature: (feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">) => boolean;
+  hasFeature: (
+    feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">
+  ) => boolean;
   isActive: boolean;
   isNearItemLimit: (currentCount: number) => boolean;
   isOverItemLimit: (currentCount: number) => boolean;
@@ -62,21 +64,32 @@ export function useSubscription(): UseSubscriptionReturn {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  const hasFeature = useCallback((feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">): boolean => {
-    return data?.features?.[feature] || false;
-  }, [data]);
+  const hasFeature = useCallback(
+    (
+      feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">
+    ): boolean => {
+      return data?.features?.[feature] || false;
+    },
+    [data]
+  );
 
   const isActive = data?.status === "active" && data?.features !== null;
 
-  const isNearItemLimit = useCallback((currentCount: number): boolean => {
-    if (!data?.features) return false;
-    return currentCount >= data.features.itemLimit * 0.8;
-  }, [data]);
+  const isNearItemLimit = useCallback(
+    (currentCount: number): boolean => {
+      if (!data?.features) return false;
+      return currentCount >= data.features.itemLimit * 0.8;
+    },
+    [data]
+  );
 
-  const isOverItemLimit = useCallback((currentCount: number): boolean => {
-    if (!data?.features) return true; // Err on the side of caution
-    return currentCount >= data.features.itemLimit;
-  }, [data]);
+  const isOverItemLimit = useCallback(
+    (currentCount: number): boolean => {
+      if (!data?.features) return true; // Err on the side of caution
+      return currentCount >= data.features.itemLimit;
+    },
+    [data]
+  );
 
   return {
     features: data?.features || null,
@@ -88,20 +101,22 @@ export function useSubscription(): UseSubscriptionReturn {
     hasFeature,
     isActive,
     isNearItemLimit,
-    isOverItemLimit
+    isOverItemLimit,
   };
 }
 
 /**
  * Hook specifically for checking feature access
  */
-export function useFeatureAccess(feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">) {
+export function useFeatureAccess(
+  feature: keyof Omit<SubscriptionFeatures, "itemLimit" | "plan">
+) {
   const { features, isLoading, hasFeature } = useSubscription();
 
   return {
     hasAccess: hasFeature(feature),
     isLoading,
-    features
+    features,
   };
 }
 
@@ -109,13 +124,14 @@ export function useFeatureAccess(feature: keyof Omit<SubscriptionFeatures, "item
  * Hook for checking item limits
  */
 export function useItemLimit() {
-  const { features, isLoading, isNearItemLimit, isOverItemLimit } = useSubscription();
+  const { features, isLoading, isNearItemLimit, isOverItemLimit } =
+    useSubscription();
 
   return {
     itemLimit: features?.itemLimit || 0,
     plan: features?.plan || "trial",
     isLoading,
     isNearItemLimit,
-    isOverItemLimit
+    isOverItemLimit,
   };
 }

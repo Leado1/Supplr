@@ -15,9 +15,12 @@ export default function PricingPageClient() {
     <div className="min-h-screen">
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h1>
+          <h1 className="text-4xl font-bold mb-4">
+            Simple, Transparent Pricing
+          </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Choose the plan that fits your practice. All plans include core inventory management features.
+            Choose the plan that fits your practice. All plans include core
+            inventory management features.
           </p>
         </div>
 
@@ -51,7 +54,9 @@ export default function PricingPageClient() {
               <CardTitle>Starter</CardTitle>
               <div className="text-3xl font-bold">
                 ${isAnnual ? "23" : "29"}
-                <span className="text-sm font-normal text-gray-500">/month</span>
+                <span className="text-sm font-normal text-gray-500">
+                  /month
+                </span>
               </div>
               <p className="text-gray-600">Perfect for solo practitioners</p>
             </CardHeader>
@@ -87,7 +92,9 @@ export default function PricingPageClient() {
               <CardTitle>Professional</CardTitle>
               <div className="text-3xl font-bold">
                 ${isAnnual ? "71" : "89"}
-                <span className="text-sm font-normal text-gray-500">/month</span>
+                <span className="text-sm font-normal text-gray-500">
+                  /month
+                </span>
               </div>
               <p className="text-gray-600">For growing practices with teams</p>
             </CardHeader>
@@ -120,9 +127,13 @@ export default function PricingPageClient() {
               <CardTitle>Enterprise</CardTitle>
               <div className="text-3xl font-bold">
                 Custom
-                <span className="text-sm font-normal text-gray-500">/month</span>
+                <span className="text-sm font-normal text-gray-500">
+                  /month
+                </span>
               </div>
-              <p className="text-gray-600">For large multi-location practices</p>
+              <p className="text-gray-600">
+                For large multi-location practices
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <ul className="space-y-3">

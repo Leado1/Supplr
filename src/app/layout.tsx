@@ -104,7 +104,8 @@ const organizationStructuredData = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Supplr",
-  description: "Professional inventory management platform for medical spas and aesthetic clinics",
+  description:
+    "Professional inventory management platform for medical spas and aesthetic clinics",
   url: "https://www.supplr.net",
   logo: "https://www.supplr.net/images/logo.png",
   sameAs: [
@@ -157,7 +158,12 @@ export default function RootLayout({
         <head>
           {/* Explicit favicon meta tags to override browser cache */}
           <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
-          <link rel="icon" type="image/png" href="/icon.png?v=2" sizes="32x32" />
+          <link
+            rel="icon"
+            type="image/png"
+            href="/icon.png?v=2"
+            sizes="32x32"
+          />
           <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
           <link rel="shortcut icon" href="/favicon.ico?v=2" />
 

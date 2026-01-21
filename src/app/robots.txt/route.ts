@@ -36,8 +36,8 @@ Crawl-delay: 1
 
   return new Response(robotsTxt, {
     headers: {
-      'Content-Type': 'text/plain',
-      'Cache-Control': 'public, max-age=86400, must-revalidate', // Cache for 1 day
+      "Content-Type": "text/plain",
+      "Cache-Control": "public, max-age=86400, must-revalidate", // Cache for 1 day
     },
   });
 }

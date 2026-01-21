@@ -11,30 +11,40 @@ export default function CSSTestPage() {
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium mb-4">Current LoadingSpinner (Tailwind fallback):</h3>
+          <h3 className="text-lg font-medium mb-4">
+            Current LoadingSpinner (Tailwind fallback):
+          </h3>
           <LoadingSpinner size="lg" />
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">ChaoticSpinner Test (Global CSS):</h3>
+          <h3 className="text-lg font-medium mb-4">
+            ChaoticSpinner Test (Global CSS):
+          </h3>
           <ChaoticSpinner size="lg" />
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">WorkingChaoticSpinner (Inline CSS):</h3>
+          <h3 className="text-lg font-medium mb-4">
+            WorkingChaoticSpinner (Inline CSS):
+          </h3>
           <WorkingChaoticSpinner size="lg" />
-          <p className="text-xs text-muted-foreground mt-2">This should definitely work - uses inline CSS with styled-jsx</p>
+          <p className="text-xs text-muted-foreground mt-2">
+            This should definitely work - uses inline CSS with styled-jsx
+          </p>
         </div>
 
         <div>
           <h3 className="text-lg font-medium mb-4">Manual CSS Test:</h3>
           <div
             className="chaotic-orbit"
-            style={{
-              "--uib-size": "32px",
-              "--uib-speed": "1.5s",
-              "--uib-color": "black"
-            } as React.CSSProperties}
+            style={
+              {
+                "--uib-size": "32px",
+                "--uib-speed": "1.5s",
+                "--uib-color": "black",
+              } as React.CSSProperties
+            }
           />
         </div>
 
@@ -53,9 +63,13 @@ export default function CSSTestPage() {
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">Alternative Fallback Spinner:</h3>
+          <h3 className="text-lg font-medium mb-4">
+            Alternative Fallback Spinner:
+          </h3>
           <div className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground mt-2">This should always work (CSS spinner)</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            This should always work (CSS spinner)
+          </p>
         </div>
       </div>
     </div>

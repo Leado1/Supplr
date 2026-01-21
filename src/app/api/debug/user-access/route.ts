@@ -11,11 +11,12 @@ export async function GET() {
     if (error || !user || !organization) {
       return NextResponse.json({
         error: "User or organization not found",
-        details: { error: !!error, user: !!user, organization: !!organization }
+        details: { error: !!error, user: !!user, organization: !!organization },
       });
     }
 
-    const canManageTeam = user && hasPermission(user.role, Permission.MANAGE_TEAM);
+    const canManageTeam =
+      user && hasPermission(user.role, Permission.MANAGE_TEAM);
 
     // Check if user has multi-location access
     const isDemoUser = user.email === "demo@supplr.net";
@@ -24,7 +25,10 @@ export async function GET() {
       : undefined;
 
     const features = organization?.subscription
-      ? getSubscriptionFeatures(organization.subscription, organizationForFeatures)
+      ? getSubscriptionFeatures(
+          organization.subscription,
+          organizationForFeatures
+        )
       : null;
     const hasMultiLocationAccess = features?.multiLocation && canManageTeam;
 
@@ -32,20 +36,20 @@ export async function GET() {
       user: {
         email: user.email,
         role: user.role,
-        status: user.status
+        status: user.status,
       },
       organization: {
         name: organization.name,
-        type: organization.type
+        type: organization.type,
       },
       subscription: {
         plan: organization.subscription?.plan,
         status: organization.subscription?.status,
-        multiLocation: organization.subscription?.multiLocation
+        multiLocation: organization.subscription?.multiLocation,
       },
       permissions: {
         canManageTeam,
-        hasMultiLocationAccess
+        hasMultiLocationAccess,
       },
       features,
       debug: {
@@ -56,16 +60,15 @@ export async function GET() {
         calculation: {
           multiLocationFeature: features?.multiLocation,
           canManageTeamPermission: canManageTeam,
-          finalAccess: hasMultiLocationAccess
-        }
-      }
+          finalAccess: hasMultiLocationAccess,
+        },
+      },
     });
-
   } catch (error) {
     console.error("Debug error:", error);
     return NextResponse.json({
       error: "Debug failed",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }

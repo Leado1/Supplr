@@ -36,7 +36,10 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Location name is required").max(100, "Name too long"),
+  name: z
+    .string()
+    .min(1, "Location name is required")
+    .max(100, "Name too long"),
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email("Invalid email format").optional().or(z.literal("")),
@@ -207,10 +210,7 @@ export function EditLocationModal({
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="(555) 123-4567"
-                        {...field}
-                      />
+                      <Input placeholder="(555) 123-4567" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,7 +319,9 @@ export function EditLocationModal({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Update Location
               </Button>
             </DialogFooter>

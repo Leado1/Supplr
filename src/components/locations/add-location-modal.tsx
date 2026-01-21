@@ -35,7 +35,10 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Location name is required").max(100, "Name too long"),
+  name: z
+    .string()
+    .min(1, "Location name is required")
+    .max(100, "Name too long"),
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email("Invalid email format").optional().or(z.literal("")),
@@ -127,7 +130,8 @@ export function AddLocationModal({
         <DialogHeader>
           <DialogTitle>Add New Location</DialogTitle>
           <DialogDescription>
-            Create a new location to organize your inventory across multiple sites.
+            Create a new location to organize your inventory across multiple
+            sites.
           </DialogDescription>
         </DialogHeader>
 
@@ -179,10 +183,7 @@ export function AddLocationModal({
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="(555) 123-4567"
-                        {...field}
-                      />
+                      <Input placeholder="(555) 123-4567" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -215,7 +216,10 @@ export function AddLocationModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Timezone *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select timezone" />
@@ -240,7 +244,10 @@ export function AddLocationModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Currency *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select currency" />
@@ -270,7 +277,9 @@ export function AddLocationModal({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Add Location
               </Button>
             </DialogFooter>

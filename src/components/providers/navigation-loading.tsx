@@ -17,7 +17,7 @@ export function NavigationLoading() {
 
       // Simulate progress
       const progressInterval = setInterval(() => {
-        setProgress(prev => {
+        setProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -45,14 +45,17 @@ export function NavigationLoading() {
     // Intercept all link clicks in the app
     const handleLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const link = target.closest('a[href]') as HTMLAnchorElement;
+      const link = target.closest("a[href]") as HTMLAnchorElement;
 
       if (link && link.href) {
         const url = new URL(link.href);
         const currentUrl = new URL(window.location.href);
 
         // Only show loading for internal navigation
-        if (url.origin === currentUrl.origin && url.pathname !== currentUrl.pathname) {
+        if (
+          url.origin === currentUrl.origin &&
+          url.pathname !== currentUrl.pathname
+        ) {
           handleStart();
         }
       }
@@ -62,23 +65,23 @@ export function NavigationLoading() {
     const originalPush = window.history.pushState;
     const originalReplace = window.history.replaceState;
 
-    window.history.pushState = function(...args) {
+    window.history.pushState = function (...args) {
       handleStart();
       return originalPush.apply(this, args);
     };
 
-    window.history.replaceState = function(...args) {
+    window.history.replaceState = function (...args) {
       handleStart();
       return originalReplace.apply(this, args);
     };
 
     // Add event listeners
-    document.addEventListener('click', handleLinkClick);
-    window.addEventListener('popstate', handleNavigation);
+    document.addEventListener("click", handleLinkClick);
+    window.addEventListener("popstate", handleNavigation);
 
     return () => {
-      document.removeEventListener('click', handleLinkClick);
-      window.removeEventListener('popstate', handleNavigation);
+      document.removeEventListener("click", handleLinkClick);
+      window.removeEventListener("popstate", handleNavigation);
       window.history.pushState = originalPush;
       window.history.replaceState = originalReplace;
     };

@@ -17,10 +17,7 @@ export function useLoading() {
   }, []);
 
   const withLoading = useCallback(
-    async <T>(
-      asyncFn: () => Promise<T>,
-      message?: string
-    ): Promise<T> => {
+    async <T>(asyncFn: () => Promise<T>, message?: string): Promise<T> => {
       try {
         startLoading(message);
         const result = await asyncFn();

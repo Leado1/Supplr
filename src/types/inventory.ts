@@ -77,3 +77,30 @@ export interface UpdateOrganizationSettingsData {
   currency?: string;
   timezone?: string;
 }
+
+// AI-enhanced inventory types
+export type InventoryStatusWithAI =
+  | InventoryStatus
+  | "ai_waste_risk"
+  | "ai_reorder_soon";
+
+export interface AIInsights {
+  wasteRisk?: "low" | "medium" | "high";
+  reorderSuggestion?: {
+    daysUntilReorder: number;
+    recommendedQuantity: number;
+    priority: "low" | "medium" | "high";
+  };
+  confidence?: number;
+}
+
+export interface ItemWithAIStatus extends ItemWithStatus {
+  aiStatus?: InventoryStatusWithAI;
+  aiInsights?: AIInsights;
+}
+
+export interface AIInventorySummary extends InventorySummary {
+  aiWasteRiskItems: number;
+  aiReorderSoonItems: number;
+  totalAIPotentialSavings: number;
+}

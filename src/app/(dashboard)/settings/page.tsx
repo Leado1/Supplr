@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { SupplierPreferences } from "@/components/settings/supplier-preferences";
 import type { Organization, Settings, Category } from "@prisma/client";
 
 interface SettingsData {
@@ -681,6 +682,9 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Supplier Preferences */}
+      <SupplierPreferences organizationId={settingsData.organization.id} />
+
       {/* System Information */}
       <Card>
         <CardHeader>
@@ -697,22 +701,8 @@ export default function SettingsPage() {
               </p>
             </div>
             <div>
-              <Label className="text-sm font-medium text-muted-foreground">
-                Created
-              </Label>
-              <p className="text-sm">
-                {new Date(
-                  settingsData.organization.createdAt
-                ).toLocaleDateString()}
-              </p>
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground">
-                Last Updated
-              </Label>
-              <p className="text-sm">
-                {new Date(settingsData.settings.updatedAt).toLocaleDateString()}
-              </p>
+              <Label className="text-sm font-medium text-muted-foreground">Created</Label>
+              <p className="text-sm">{new Date(settingsData.organization.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </CardContent>

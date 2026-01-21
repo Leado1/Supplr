@@ -1,11 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, UserPlus } from "lucide-react";
 
@@ -15,23 +28,48 @@ interface InviteUserModalProps {
   currentUserRole: string;
 }
 
-export function InviteUserModal({ isOpen, onClose, currentUserRole }: InviteUserModalProps) {
+export function InviteUserModal({
+  isOpen,
+  onClose,
+  currentUserRole,
+}: InviteUserModalProps) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("MEMBER");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   // Define available roles based on current user's role
-  const availableRoles = currentUserRole === "OWNER"
-    ? [
-        { value: "ADMIN", label: "Admin", description: "Can invite users and manage inventory" },
-        { value: "MANAGER", label: "Manager", description: "Can manage inventory and view reports" },
-        { value: "MEMBER", label: "Member", description: "Can view and update inventory" },
-      ]
-    : [
-        { value: "MANAGER", label: "Manager", description: "Can manage inventory and view reports" },
-        { value: "MEMBER", label: "Member", description: "Can view and update inventory" },
-      ];
+  const availableRoles =
+    currentUserRole === "OWNER"
+      ? [
+          {
+            value: "ADMIN",
+            label: "Admin",
+            description: "Can invite users and manage inventory",
+          },
+          {
+            value: "MANAGER",
+            label: "Manager",
+            description: "Can manage inventory and view reports",
+          },
+          {
+            value: "MEMBER",
+            label: "Member",
+            description: "Can view and update inventory",
+          },
+        ]
+      : [
+          {
+            value: "MANAGER",
+            label: "Manager",
+            description: "Can manage inventory and view reports",
+          },
+          {
+            value: "MEMBER",
+            label: "Member",
+            description: "Can view and update inventory",
+          },
+        ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +126,6 @@ export function InviteUserModal({ isOpen, onClose, currentUserRole }: InviteUser
 
       // Refresh the page to update the lists
       window.location.reload();
-
     } catch (error: any) {
       console.error("Error sending invitation:", error);
       toast({
@@ -152,7 +189,9 @@ export function InviteUserModal({ isOpen, onClose, currentUserRole }: InviteUser
                   <SelectItem key={roleOption.value} value={roleOption.value}>
                     <div>
                       <p className="font-medium">{roleOption.label}</p>
-                      <p className="text-sm text-muted-foreground">{roleOption.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {roleOption.description}
+                      </p>
                     </div>
                   </SelectItem>
                 ))}

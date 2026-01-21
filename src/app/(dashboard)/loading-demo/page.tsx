@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoadingSpinner, LoadingScreen, InlineLoading } from "@/components/ui/loading-spinner";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  LoadingSpinner,
+  LoadingScreen,
+  InlineLoading,
+} from "@/components/ui/loading-spinner";
 import Link from "next/link";
 
 export default function LoadingDemoPage() {
@@ -17,7 +27,9 @@ export default function LoadingDemoPage() {
   return (
     <div className="container mx-auto space-y-8 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Loading Spinner Demo</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Loading Spinner Demo
+        </h1>
         <p className="text-muted-foreground">
           Showcase of the chaotic orbit loading spinner in different contexts
         </p>
@@ -28,7 +40,8 @@ export default function LoadingDemoPage() {
         <CardHeader>
           <CardTitle>Navigation Loading Test</CardTitle>
           <CardDescription>
-            Test the loading spinner during page navigation. Click these links to see the loading bar at the top.
+            Test the loading spinner during page navigation. Click these links
+            to see the loading bar at the top.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -49,15 +62,19 @@ export default function LoadingDemoPage() {
               <Button variant="outline">Billing</Button>
             </Link>
             <Link href="/slow-page">
-              <Button variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+              <Button
+                variant="outline"
+                className="bg-yellow-50 text-yellow-700 border-yellow-300"
+              >
                 Slow Page (2s delay)
               </Button>
             </Link>
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            💡 Look for the loading bar at the very top of the page and the spinner in the top-right corner during navigation.
-            <br />
-            ⚡ The "Slow Page" button demonstrates longer loading with Suspense boundaries.
+            💡 Look for the loading bar at the very top of the page and the
+            spinner in the top-right corner during navigation.
+            <br />⚡ The "Slow Page" button demonstrates longer loading with
+            Suspense boundaries.
           </p>
         </CardContent>
       </Card>
@@ -67,7 +84,9 @@ export default function LoadingDemoPage() {
         <Card>
           <CardHeader>
             <CardTitle>Basic Spinners</CardTitle>
-            <CardDescription>Different sizes of the loading spinner</CardDescription>
+            <CardDescription>
+              Different sizes of the loading spinner
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
@@ -119,10 +138,16 @@ export default function LoadingDemoPage() {
         <Card>
           <CardHeader>
             <CardTitle>Button Loading States</CardTitle>
-            <CardDescription>Inline loading in buttons and interactive elements</CardDescription>
+            <CardDescription>
+              Inline loading in buttons and interactive elements
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={simulateLoading} disabled={isLoading} className="w-full">
+            <Button
+              onClick={simulateLoading}
+              disabled={isLoading}
+              className="w-full"
+            >
               {isLoading ? (
                 <>
                   <InlineLoading size="sm" className="mr-2" />
@@ -149,7 +174,9 @@ export default function LoadingDemoPage() {
         <Card>
           <CardHeader>
             <CardTitle>Full Screen Loading</CardTitle>
-            <CardDescription>Loading screen component for page-level loading</CardDescription>
+            <CardDescription>
+              Loading screen component for page-level loading
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
@@ -167,7 +194,9 @@ export default function LoadingDemoPage() {
       <Card>
         <CardHeader>
           <CardTitle>Dark Mode Compatibility</CardTitle>
-          <CardDescription>How the spinner looks in dark contexts</CardDescription>
+          <CardDescription>
+            How the spinner looks in dark contexts
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -175,13 +204,17 @@ export default function LoadingDemoPage() {
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="lg" color="black" />
               </div>
-              <p className="text-center text-sm text-gray-600 mt-2">Light Theme</p>
+              <p className="text-center text-sm text-gray-600 mt-2">
+                Light Theme
+              </p>
             </div>
             <div className="p-4 bg-gray-900 border rounded-lg">
               <div className="flex items-center justify-center">
                 <LoadingSpinner size="lg" color="white" />
               </div>
-              <p className="text-center text-sm text-gray-300 mt-2">Dark Theme</p>
+              <p className="text-center text-sm text-gray-300 mt-2">
+                Dark Theme
+              </p>
             </div>
           </div>
         </CardContent>
@@ -191,7 +224,9 @@ export default function LoadingDemoPage() {
       <Card>
         <CardHeader>
           <CardTitle>Usage Examples</CardTitle>
-          <CardDescription>Common patterns for using the loading spinner</CardDescription>
+          <CardDescription>
+            Common patterns for using the loading spinner
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "./db";
 import type { Subscription } from "@prisma/client";
@@ -10,19 +12,30 @@ export interface SubscriptionFeatures {
   customReports: boolean;
   itemLimit: number;
   plan: string;
+  // AI Features
+  aiPredictions: boolean;
+  aiAutomation: boolean;
 }
 
 /**
  * Get features from a subscription object
  */
-export function getSubscriptionFeatures(subscription: Subscription | null): SubscriptionFeatures;
+export function getSubscriptionFeatures(
+  subscription: Subscription | null
+): SubscriptionFeatures;
 /**
  * Get features from a subscription object with organization context for demo override
  */
-export function getSubscriptionFeatures(subscription: Subscription | null, organization?: { users?: { email: string }[] }): SubscriptionFeatures;
-export function getSubscriptionFeatures(subscription: Subscription | null, organization?: { users?: { email: string }[] }): SubscriptionFeatures {
+export function getSubscriptionFeatures(
+  subscription: Subscription | null,
+  organization?: { users?: { email: string }[] }
+): SubscriptionFeatures;
+export function getSubscriptionFeatures(
+  subscription: Subscription | null,
+  organization?: { users?: { email: string }[] }
+): SubscriptionFeatures {
   // Check for demo override
-  if (organization?.users?.some(user => user.email === "demo@supplr.net")) {
+  if (organization?.users?.some((user) => user.email === "demo@supplr.net")) {
     return {
       advancedAnalytics: true,
       customCategories: true,
@@ -31,6 +44,8 @@ export function getSubscriptionFeatures(subscription: Subscription | null, organ
       customReports: true,
       itemLimit: 999999, // Unlimited for demo
       plan: "enterprise",
+      aiPredictions: true,
+      aiAutomation: true,
     };
   }
 
@@ -41,7 +56,9 @@ export function getSubscriptionFeatures(subscription: Subscription | null, organ
 
   // Check subscription status - inactive subscriptions get trial features
   if (!subscription.isActive || subscription.status !== "active") {
-    console.warn(`Subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`);
+    console.warn(
+      `Subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`
+    );
     return getTrialFeatures();
   }
 
@@ -61,13 +78,18 @@ function getTrialFeatures(): SubscriptionFeatures {
     customReports: false,
     itemLimit: 5, // Very limited for trial
     plan: "trial",
+    aiPredictions: false,
+    aiAutomation: false,
   };
 }
 
 /**
  * Get features based on plan tier with database validation
  */
-function getPlanFeatures(plan: string, subscription: Subscription): SubscriptionFeatures {
+function getPlanFeatures(
+  plan: string,
+  subscription: Subscription
+): SubscriptionFeatures {
   const baseFeatures = {
     itemLimit: subscription.itemLimit,
     plan: subscription.plan,
@@ -82,6 +104,8 @@ function getPlanFeatures(plan: string, subscription: Subscription): Subscription
         apiAccess: subscription.apiAccess,
         multiLocation: subscription.multiLocation,
         customReports: subscription.customReports,
+        aiPredictions: true,
+        aiAutomation: true,
       };
 
     case "professional":
@@ -93,6 +117,8 @@ function getPlanFeatures(plan: string, subscription: Subscription): Subscription
         apiAccess: false, // API access only for enterprise
         multiLocation: false, // Multi-location only for enterprise
         customReports: subscription.customReports,
+        aiPredictions: true,
+        aiAutomation: false, // Automation only for enterprise
       };
 
     case "basic":
@@ -104,6 +130,8 @@ function getPlanFeatures(plan: string, subscription: Subscription): Subscription
         apiAccess: false,
         multiLocation: false,
         customReports: false,
+        aiPredictions: true, // Basic AI features for Starter
+        aiAutomation: false,
       };
 
     case "trial":
@@ -158,6 +186,8 @@ export async function getCurrentUserSubscriptionFeatures(): Promise<Subscription
         customReports: true,
         itemLimit: 999999, // Unlimited for demo
         plan: "enterprise",
+        aiPredictions: true,
+        aiAutomation: true,
       };
     }
 
@@ -172,7 +202,9 @@ export async function getCurrentUserSubscriptionFeatures(): Promise<Subscription
 
     // Check subscription and payment status
     if (!subscription.isActive || subscription.status !== "active") {
-      console.warn(`User ${userEmail} subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`);
+      console.warn(
+        `User ${userEmail} subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`
+      );
       return getTrialFeatures();
     }
 
@@ -258,7 +290,9 @@ export function planHasMultiLocation(plan: string): boolean {
 /**
  * Check if subscription is active and paid
  */
-export function isSubscriptionActive(subscription: Subscription | null): boolean {
+export function isSubscriptionActive(
+  subscription: Subscription | null
+): boolean {
   if (!subscription) {
     return false;
   }
@@ -268,7 +302,9 @@ export function isSubscriptionActive(subscription: Subscription | null): boolean
 /**
  * Check if user has exceeded their item limit
  */
-export async function hasExceededItemLimit(organizationId: string): Promise<boolean> {
+export async function hasExceededItemLimit(
+  organizationId: string
+): Promise<boolean> {
   try {
     const subscription = await prisma.subscription.findUnique({
       where: { organizationId },
@@ -292,7 +328,9 @@ export async function hasExceededItemLimit(organizationId: string): Promise<bool
 /**
  * Require active subscription for feature access
  */
-export async function requireActiveSubscription(organizationId: string): Promise<Subscription> {
+export async function requireActiveSubscription(
+  organizationId: string
+): Promise<Subscription> {
   const subscription = await prisma.subscription.findUnique({
     where: { organizationId },
   });
@@ -302,7 +340,9 @@ export async function requireActiveSubscription(organizationId: string): Promise
   }
 
   if (!isSubscriptionActive(subscription)) {
-    throw new Error(`Subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`);
+    throw new Error(
+      `Subscription inactive: status=${subscription.status}, isActive=${subscription.isActive}`
+    );
   }
 
   return subscription;
@@ -311,7 +351,10 @@ export async function requireActiveSubscription(organizationId: string): Promise
 /**
  * Require specific plan tier
  */
-export async function requirePlanTier(organizationId: string, requiredPlan: string): Promise<Subscription> {
+export async function requirePlanTier(
+  organizationId: string,
+  requiredPlan: string
+): Promise<Subscription> {
   const subscription = await requireActiveSubscription(organizationId);
 
   const planHierarchy = ["trial", "starter", "professional", "enterprise"];
@@ -319,7 +362,9 @@ export async function requirePlanTier(organizationId: string, requiredPlan: stri
   const currentIndex = planHierarchy.indexOf(subscription.plan.toLowerCase());
 
   if (currentIndex < requiredIndex) {
-    throw new Error(`Feature requires ${requiredPlan} plan or higher. Current plan: ${subscription.plan}`);
+    throw new Error(
+      `Feature requires ${requiredPlan} plan or higher. Current plan: ${subscription.plan}`
+    );
   }
 
   return subscription;

@@ -37,7 +37,10 @@
       "Bash(npx next build)",
       "Bash(del nul)",
       "Bash(ls:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint:*)",
+      "Bash(tail:*)"
     ]
   }
 }

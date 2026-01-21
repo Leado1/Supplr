@@ -30,7 +30,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     title: "Pricing - Medical Inventory Management Software | Supplr",
-    description: "Transparent pricing for medical inventory management. Start free, scale as you grow.",
+    description:
+      "Transparent pricing for medical inventory management. Start free, scale as you grow.",
     images: ["/images/pricing-twitter.png"],
   },
   alternates: {
@@ -43,7 +44,8 @@ const pricingStructuredData = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: "Supplr Medical Inventory Management",
-  description: "Professional inventory management platform for medical practices",
+  description:
+    "Professional inventory management platform for medical practices",
   url: "https://www.supplr.net",
   offers: [
     {

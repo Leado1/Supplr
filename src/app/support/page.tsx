@@ -201,7 +201,9 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                     <MailIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">Email Support</p>
-                      <p className="text-muted-foreground">support@supplr.net</p>
+                      <p className="text-muted-foreground">
+                        support@supplr.net
+                      </p>
                     </div>
                   </div>
 
@@ -209,7 +211,9 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                     <ClockIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">Response Time</p>
-                      <p className="text-muted-foreground">Usually within 24 hours</p>
+                      <p className="text-muted-foreground">
+                        Usually within 24 hours
+                      </p>
                     </div>
                   </div>
                 </CardContent>

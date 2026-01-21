@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // Simulate slow component loading
 async function SlowContent() {
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   return (
     <Card>
@@ -13,7 +13,10 @@ async function SlowContent() {
         <CardTitle>Slow Loading Content</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>This content took 2 seconds to load, demonstrating the loading spinner in action!</p>
+        <p>
+          This content took 2 seconds to load, demonstrating the loading spinner
+          in action!
+        </p>
         <p className="mt-4 text-muted-foreground">
           Navigate away and back to this page to see the loading effects.
         </p>
@@ -32,7 +35,9 @@ export default function SlowPage() {
         </p>
       </div>
 
-      <Suspense fallback={<LoadingScreen message="Loading content..." size="lg" />}>
+      <Suspense
+        fallback={<LoadingScreen message="Loading content..." size="lg" />}
+      >
         <SlowContent />
       </Suspense>
     </div>
