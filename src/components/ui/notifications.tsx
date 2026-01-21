@@ -61,10 +61,18 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         ) : [];
 
         const updatedNotifications = fetchedNotifications
-          .filter((notif: Notification) => !deletedNotifications.includes(notif.id))
+          .filter((notif: Notification) => {
+            return notif && notif.id && !deletedNotifications.includes(notif.id);
+          })
           .map((notif: Notification) => ({
             ...notif,
-            read: notif.read || readNotifications.includes(notif.id)
+            id: notif.id || '',
+            title: notif.title || 'Unknown notification',
+            message: notif.message || 'No message',
+            type: notif.type || 'info',
+            timestamp: notif.timestamp || new Date(),
+            read: notif.read || readNotifications.includes(notif.id || ''),
+            actionUrl: notif.actionUrl || undefined
           }));
 
         setNotifications(updatedNotifications);
@@ -179,9 +187,17 @@ export function Notifications({ organizationId, className }: NotificationsProps)
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const sortedNotifications = [...notifications].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  const unreadCount = notifications?.filter(n => n && !n.read)?.length || 0;
+  const sortedNotifications = [...(notifications || [])].sort(
+    (a, b) => {
+      try {
+        const timeA = new Date(a?.timestamp || 0).getTime();
+        const timeB = new Date(b?.timestamp || 0).getTime();
+        return timeB - timeA;
+      } catch (error) {
+        return 0;
+      }
+    }
   );
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -198,17 +214,28 @@ export function Notifications({ organizationId, className }: NotificationsProps)
   };
 
   const formatTime = (timestamp: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - new Date(timestamp).getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    try {
+      if (!timestamp) return "Unknown time";
 
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return new Date(timestamp).toLocaleDateString();
+      const now = new Date();
+      const timestampDate = new Date(timestamp);
+
+      if (isNaN(timestampDate.getTime())) return "Invalid date";
+
+      const diff = now.getTime() - timestampDate.getTime();
+      const minutes = Math.floor(diff / (1000 * 60));
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      if (minutes < 1) return "Just now";
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      return timestampDate.toLocaleDateString();
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Unknown time";
+    }
   };
 
   return (
