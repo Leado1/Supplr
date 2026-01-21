@@ -63,19 +63,22 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         ) : [];
 
         const updatedNotifications = fetchedNotifications
-          .filter((notif: Notification) => {
-            return notif && notif.id && !deletedNotifications.includes(notif.id);
+          .filter((notif: any) => {
+            return notif && typeof notif === 'object' && notif.id && !deletedNotifications.includes(notif.id);
           })
-          .map((notif: Notification) => ({
-            ...notif,
-            id: notif.id || '',
-            title: notif.title || 'Unknown notification',
-            message: notif.message || 'No message',
-            type: notif.type || 'info',
-            timestamp: notif.timestamp || new Date(),
-            read: notif.read || readNotifications.includes(notif.id || ''),
-            actionUrl: notif.actionUrl || undefined
-          }));
+          .map((notif: any) => {
+            // Ensure safe property access
+            const safeNotification: Notification = {
+              id: String(notif.id || ''),
+              title: String(notif.title || 'Unknown notification'),
+              message: String(notif.message || 'No message'),
+              type: (notif.type && ['info', 'success', 'warning', 'error'].includes(notif.type)) ? notif.type : 'info',
+              timestamp: notif.timestamp ? new Date(notif.timestamp) : new Date(),
+              read: Boolean(notif.read || readNotifications.includes(String(notif.id || ''))),
+              actionUrl: notif.actionUrl ? String(notif.actionUrl) : undefined
+            };
+            return safeNotification;
+          });
 
         setNotifications(updatedNotifications);
       }
@@ -215,12 +218,21 @@ export function Notifications({ organizationId, className }: NotificationsProps)
     }
   };
 
-  const formatTime = (timestamp: Date) => {
+  const formatTime = (timestamp: Date | string | undefined | null) => {
     try {
       if (!timestamp) return "Unknown time";
 
       const now = new Date();
-      const timestampDate = new Date(timestamp);
+      let timestampDate: Date;
+
+      // Handle different timestamp formats
+      if (timestamp instanceof Date) {
+        timestampDate = timestamp;
+      } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+        timestampDate = new Date(timestamp);
+      } else {
+        return "Invalid date";
+      }
 
       if (isNaN(timestampDate.getTime())) return "Invalid date";
 
@@ -235,7 +247,7 @@ export function Notifications({ organizationId, className }: NotificationsProps)
       if (days < 7) return `${days}d ago`;
       return timestampDate.toLocaleDateString();
     } catch (error) {
-      console.error("Error formatting time:", error);
+      console.error("Error formatting time:", error, "timestamp:", timestamp);
       return "Unknown time";
     }
   };
