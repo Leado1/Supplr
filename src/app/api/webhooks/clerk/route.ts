@@ -4,6 +4,11 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { createUserWithOrganization } from "@/lib/organization-setup";
 import { prisma } from "@/lib/db";
 
+// Add GET method for testing webhook accessibility
+export async function GET() {
+  return new Response("Clerk webhook endpoint is accessible", { status: 200 });
+}
+
 export async function POST(req: Request) {
   // Get the webhook secret from environment variables
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
