@@ -49,7 +49,9 @@ export default async function DashboardLayout({
     hasError: !!error,
     hasUser: !!user,
     hasOrg: !!organization,
-    userEmail: user?.email
+    userEmail: user?.email,
+    organizationId: organization?.id,
+    errorDetails: error
   });
 
   const canManageTeam =
