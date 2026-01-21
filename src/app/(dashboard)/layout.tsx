@@ -51,7 +51,9 @@ export default async function DashboardLayout({
     hasOrg: !!organization,
     userEmail: user?.email,
     organizationId: organization?.id,
-    errorDetails: error
+    errorDetails: error,
+    userRole: user?.role,
+    isDemoFallback: user?.email === "demo@supplr.net"
   });
 
   const canManageTeam =
