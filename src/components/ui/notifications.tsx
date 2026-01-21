@@ -53,12 +53,12 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         const fetchedNotifications = data.notifications || [];
 
         // Apply read status and filter deleted notifications from sessionStorage
-        const readNotifications = JSON.parse(
+        const readNotifications = typeof window !== 'undefined' ? JSON.parse(
           sessionStorage.getItem('readNotifications') || '[]'
-        );
-        const deletedNotifications = JSON.parse(
+        ) : [];
+        const deletedNotifications = typeof window !== 'undefined' ? JSON.parse(
           sessionStorage.getItem('deletedNotifications') || '[]'
-        );
+        ) : [];
 
         const updatedNotifications = fetchedNotifications
           .filter((notif: Notification) => !deletedNotifications.includes(notif.id))
@@ -79,8 +79,10 @@ export function Notifications({ organizationId, className }: NotificationsProps)
   useEffect(() => {
     // Clear notification state when organizationId changes (login/logout)
     if (!organizationId) {
-      sessionStorage.removeItem('readNotifications');
-      sessionStorage.removeItem('deletedNotifications');
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('readNotifications');
+        sessionStorage.removeItem('deletedNotifications');
+      }
       setNotifications([]);
       return;
     }
@@ -109,11 +111,13 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         );
 
         // Store in sessionStorage for persistence across navigation
-        const readNotifications = JSON.parse(
-          sessionStorage.getItem('readNotifications') || '[]'
-        );
-        readNotifications.push(notificationId);
-        sessionStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+        if (typeof window !== 'undefined') {
+          const readNotifications = JSON.parse(
+            sessionStorage.getItem('readNotifications') || '[]'
+          );
+          readNotifications.push(notificationId);
+          sessionStorage.setItem('readNotifications', JSON.stringify(readNotifications));
+        }
       }
     } catch (error) {
       console.error("Error marking notification as read:", error);
@@ -138,8 +142,10 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         );
 
         // Store all notification IDs as read in sessionStorage
-        const allNotificationIds = notifications.map(notif => notif.id);
-        sessionStorage.setItem('readNotifications', JSON.stringify(allNotificationIds));
+        if (typeof window !== 'undefined') {
+          const allNotificationIds = notifications.map(notif => notif.id);
+          sessionStorage.setItem('readNotifications', JSON.stringify(allNotificationIds));
+        }
       }
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
@@ -160,11 +166,13 @@ export function Notifications({ organizationId, className }: NotificationsProps)
         );
 
         // Store in sessionStorage for persistence across navigation
-        const deletedNotifications = JSON.parse(
-          sessionStorage.getItem('deletedNotifications') || '[]'
-        );
-        deletedNotifications.push(notificationId);
-        sessionStorage.setItem('deletedNotifications', JSON.stringify(deletedNotifications));
+        if (typeof window !== 'undefined') {
+          const deletedNotifications = JSON.parse(
+            sessionStorage.getItem('deletedNotifications') || '[]'
+          );
+          deletedNotifications.push(notificationId);
+          sessionStorage.setItem('deletedNotifications', JSON.stringify(deletedNotifications));
+        }
       }
     } catch (error) {
       console.error("Error deleting notification:", error);
