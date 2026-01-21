@@ -41,6 +41,8 @@ export function Notifications({ organizationId, className }: NotificationsProps)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  console.log("🔔 Notifications: Component rendered with organizationId:", organizationId);
+
   // Fetch notifications from API
   const fetchNotifications = async () => {
     if (!organizationId) return;

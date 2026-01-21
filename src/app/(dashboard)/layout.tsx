@@ -27,14 +27,31 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
+  console.log("🔍 Dashboard Layout: Starting auth check");
 
-  if (!userId) {
+  try {
+    const { userId } = await auth();
+    console.log("🔍 Dashboard Layout: userId =", userId ? "found" : "not found");
+
+    if (!userId) {
+      console.log("🔍 Dashboard Layout: No userId, redirecting to sign-in");
+      redirect("/sign-in");
+    }
+  } catch (error) {
+    console.error("🔍 Dashboard Layout: Auth error:", error);
     redirect("/sign-in");
   }
 
   // Get user permissions for navigation
+  console.log("🔍 Dashboard Layout: Getting user role");
   const { error, user, organization } = await getUserWithRole();
+  console.log("🔍 Dashboard Layout: User role result:", {
+    hasError: !!error,
+    hasUser: !!user,
+    hasOrg: !!organization,
+    userEmail: user?.email
+  });
+
   const canManageTeam =
     user && hasPermission(user.role, Permission.MANAGE_TEAM);
 
