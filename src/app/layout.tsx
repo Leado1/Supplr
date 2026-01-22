@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RouteLoading } from "@/components/providers/route-loading";
 import { Toaster } from "sonner";
+import { GlobalParticles } from "@/components/ui/global-particles";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -180,6 +181,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <RouteLoading />
+            <GlobalParticles />
             {children}
             <Toaster />
           </ThemeProvider>

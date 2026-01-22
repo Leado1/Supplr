@@ -31,10 +31,10 @@ export default async function AIPage() {
           />
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              AI-Powered Inventory Intelligence
+              Smart Inventory Insights
             </h1>
             <p className="text-sm text-muted-foreground">
-              Advanced AI recommendations to optimize your medical inventory management
+              Clear recommendations to help you reorder on time and avoid waste
             </p>
           </div>
         </div>
@@ -43,15 +43,15 @@ export default async function AIPage() {
         <div className="flex flex-wrap gap-2">
           <Badge variant={features.aiPredictions ? "default" : "secondary"} className="flex items-center gap-1">
             {features.aiPredictions ? <TrendingUp className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-            Basic AI Features {!features.aiPredictions && "(Starter+ Required)"}
+            Smart insights {!features.aiPredictions && "(Starter+ Required)"}
           </Badge>
           <Badge variant={features.advancedAnalytics ? "default" : "secondary"} className="flex items-center gap-1">
             {features.advancedAnalytics ? <Brain className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-            Advanced AI Analytics {!features.advancedAnalytics && "(Professional+ Required)"}
+            Deeper insights {!features.advancedAnalytics && "(Professional+ Required)"}
           </Badge>
           <Badge variant={features.aiAutomation ? "default" : "secondary"} className="flex items-center gap-1">
             {features.aiAutomation ? <Sparkles className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-            AI Automation {!features.aiAutomation && "(Enterprise Required)"}
+            Auto-ordering {!features.aiAutomation && "(Enterprise Required)"}
           </Badge>
         </div>
       </div>
@@ -62,10 +62,10 @@ export default async function AIPage() {
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
             <div className="space-y-2">
-              <p><strong>AI Features Available with Subscription:</strong></p>
+              <p><strong>Unlock smart insights:</strong></p>
               <p>
-                Unlock powerful AI-driven insights for waste prevention, reorder predictions,
-                and cost optimization. Upgrade to Starter ($19/month) to enable AI features.
+                Get reorder reminders and waste alerts. Upgrade to Starter ($29/month)
+                to turn this on.
               </p>
             </div>
           </AlertDescription>
@@ -76,13 +76,13 @@ export default async function AIPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className={!features.aiPredictions ? "opacity-50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Waste Prevention</CardTitle>
+            <CardTitle className="text-sm font-medium">Avoid waste</CardTitle>
             <AlertTriangle className="w-4 h-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">AI Alerts</div>
+            <div className="text-2xl font-bold text-red-600">Alerts</div>
             <p className="text-xs text-muted-foreground">
-              Predict which items will expire unused
+              See items likely to expire before use
             </p>
             <div className="mt-2">
               <Badge variant="outline" className="text-xs">
@@ -94,13 +94,13 @@ export default async function AIPage() {
 
         <Card className={!features.advancedAnalytics ? "opacity-50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Smart Reordering</CardTitle>
+            <CardTitle className="text-sm font-medium">Restock reminders</CardTitle>
             <Package className="w-4 h-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">Predictions</div>
+            <div className="text-2xl font-bold text-blue-600">Reminders</div>
             <p className="text-xs text-muted-foreground">
-              Optimal reorder timing and quantities
+              When to reorder and how much
             </p>
             <div className="mt-2">
               <Badge variant="outline" className="text-xs">
@@ -112,13 +112,13 @@ export default async function AIPage() {
 
         <Card className={!features.advancedAnalytics ? "opacity-50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cost Optimization</CardTitle>
+            <CardTitle className="text-sm font-medium">Save on costs</CardTitle>
             <DollarSign className="w-4 h-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">Savings</div>
+            <div className="text-2xl font-bold text-green-600">Savings tips</div>
             <p className="text-xs text-muted-foreground">
-              Threshold optimization and bulk ordering
+              Simple ways to reduce spend
             </p>
             <div className="mt-2">
               <Badge variant="outline" className="text-xs">
@@ -130,13 +130,13 @@ export default async function AIPage() {
 
         <Card className={!features.aiAutomation ? "opacity-50" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Auto-Ordering</CardTitle>
+            <CardTitle className="text-sm font-medium">Auto-ordering</CardTitle>
             <Clock className="w-4 h-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">Automation</div>
+            <div className="text-2xl font-bold text-purple-600">Auto mode</div>
             <p className="text-xs text-muted-foreground">
-              Automated reordering with approval workflows
+              Automatic reorders with approval
             </p>
             <div className="mt-2">
               <Badge variant="outline" className="text-xs">
@@ -152,10 +152,10 @@ export default async function AIPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5" />
-            How Supplr AI Works
+            How it works
           </CardTitle>
           <CardDescription>
-            Our machine learning algorithms analyze your inventory patterns to provide intelligent recommendations
+            We look at your inventory activity and give clear next steps
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -163,28 +163,28 @@ export default async function AIPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                <h4 className="font-semibold">Data Analysis</h4>
+                <h4 className="font-semibold">We look at your usage</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                AI continuously analyzes your usage patterns, expiration dates, and ordering history
+                We review what you use, what expires, and what you order
               </p>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <h4 className="font-semibold">Smart Predictions</h4>
+                <h4 className="font-semibold">We spot what is coming</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                Machine learning models predict optimal reorder points, waste risks, and cost optimization opportunities
+                We estimate when you may run low or risk waste
               </p>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                <h4 className="font-semibold">Actionable Insights</h4>
+                <h4 className="font-semibold">We give clear next steps</h4>
               </div>
               <p className="text-sm text-muted-foreground">
-                Receive prioritized recommendations with confidence scores and direct supplier integration
+                Simple suggestions you can act on right away
               </p>
             </div>
           </div>
@@ -205,22 +205,21 @@ export default async function AIPage() {
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <Brain className="w-16 h-16 mx-auto text-primary/50" />
-              <h3 className="text-xl font-semibold">Unlock AI-Powered Inventory Intelligence</h3>
+              <h3 className="text-xl font-semibold">Unlock smart insights</h3>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Transform your inventory management with machine learning predictions,
-                waste prevention alerts, and intelligent reorder recommendations.
-                Start saving money and reducing waste today.
+                Get clear recommendations to reorder, avoid waste, and save money.
+                Start improving today.
               </p>
               <div className="flex justify-center gap-4">
                 <div className="text-left space-y-1">
-                  <p className="text-sm font-medium">✓ Waste Risk Predictions</p>
-                  <p className="text-sm font-medium">✓ Smart Reorder Alerts</p>
-                  <p className="text-sm font-medium">✓ Cost Optimization</p>
+                  <p className="text-sm font-medium">Waste risk alerts</p>
+                  <p className="text-sm font-medium">Restock reminders</p>
+                  <p className="text-sm font-medium">Savings tips</p>
                 </div>
                 <div className="text-left space-y-1">
-                  <p className="text-sm font-medium">✓ Supplier Integration</p>
-                  <p className="text-sm font-medium">✓ Usage Pattern Analysis</p>
-                  <p className="text-sm font-medium">✓ Confidence Scoring</p>
+                  <p className="text-sm font-medium">Supplier links</p>
+                  <p className="text-sm font-medium">Usage trends</p>
+                  <p className="text-sm font-medium">How sure we are</p>
                 </div>
               </div>
             </div>

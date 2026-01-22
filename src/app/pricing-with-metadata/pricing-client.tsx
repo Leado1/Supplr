@@ -41,7 +41,7 @@ export default function PricingPageClient() {
                 isAnnual ? "bg-white shadow-sm" : "text-gray-600"
               }`}
             >
-              Annual <span className="text-green-600 text-sm">(Save 20%)</span>
+              Annual <span className="text-green-600 text-sm">(Save 17%)</span>
             </button>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function PricingPageClient() {
             <CardHeader>
               <CardTitle>Starter</CardTitle>
               <div className="text-3xl font-bold">
-                ${isAnnual ? "23" : "29"}
+                ${isAnnual ? "24" : "29"}
                 <span className="text-sm font-normal text-gray-500">
                   /month
                 </span>
@@ -91,7 +91,7 @@ export default function PricingPageClient() {
             <CardHeader>
               <CardTitle>Professional</CardTitle>
               <div className="text-3xl font-bold">
-                ${isAnnual ? "71" : "89"}
+                ${isAnnual ? "66" : "79"}
                 <span className="text-sm font-normal text-gray-500">
                   /month
                 </span>
@@ -126,7 +126,7 @@ export default function PricingPageClient() {
             <CardHeader>
               <CardTitle>Enterprise</CardTitle>
               <div className="text-3xl font-bold">
-                Custom
+                ${isAnnual ? "166" : "199"}
                 <span className="text-sm font-normal text-gray-500">
                   /month
                 </span>

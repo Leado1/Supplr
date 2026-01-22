@@ -58,13 +58,13 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
         id: `reorder-${pred.item.id}`,
         type: "reorder" as const,
         priority: pred.reorderPrediction.priority,
-        title: `Reorder ${pred.item.name}`,
-        description: `Stock will reach reorder point in ${pred.reorderPrediction.daysUntilReorder} days`,
+        title: `Restock ${pred.item.name}`,
+        description: `You may run low in ${pred.reorderPrediction.daysUntilReorder} days`,
         confidence: pred.confidence,
         potentialSavings: pred.reorderPrediction.priority === 'high' ?
           pred.reorderPrediction.recommendedQuantity * parseFloat(pred.item.unitCost) * 0.15 : 0,
         daysUntilAction: pred.reorderPrediction.daysUntilReorder,
-        reasoning: pred.reasoning,
+        reasoning: "Based on recent usage and current stock.",
         actionable: true,
         supplier: pred.orderingOptions?.[0] ? {
           name: pred.orderingOptions[0].supplier.name,
@@ -74,18 +74,26 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
         } : undefined
       })) || [];
 
-      const wasteInsights: AIInsight[] = wasteData.predictions?.map((pred: any) => ({
-        id: `waste-${pred.item.id}`,
-        type: "waste_risk" as const,
-        priority: pred.wasteRisk.riskLevel === 'high' ? 'high' : 'medium',
-        title: `${pred.wasteRisk.riskLevel.toUpperCase()} waste risk: ${pred.item.name}`,
-        description: `${pred.wasteRisk.estimatedWasteQuantity} units at risk in ${pred.wasteRisk.daysUntilExpiration} days`,
-        confidence: pred.confidence,
-        potentialSavings: pred.wasteRisk.estimatedWasteValue,
-        daysUntilAction: pred.wasteRisk.daysUntilExpiration,
-        reasoning: pred.reasoning,
-        actionable: true
-      })) || [];
+      const wasteInsights: AIInsight[] = wasteData.predictions?.map((pred: any) => {
+        const riskLabel = pred.wasteRisk.riskLevel === "high"
+          ? "High"
+          : pred.wasteRisk.riskLevel === "medium"
+            ? "Medium"
+            : "Low";
+
+        return {
+          id: `waste-${pred.item.id}`,
+          type: "waste_risk" as const,
+          priority: pred.wasteRisk.riskLevel === 'high' ? 'high' : 'medium',
+          title: `${riskLabel} chance of waste: ${pred.item.name}`,
+          description: `About ${pred.wasteRisk.estimatedWasteQuantity} could expire in ${pred.wasteRisk.daysUntilExpiration} days`,
+          confidence: pred.confidence,
+          potentialSavings: pred.wasteRisk.estimatedWasteValue,
+          daysUntilAction: pred.wasteRisk.daysUntilExpiration,
+          reasoning: "Based on expiration dates and current stock.",
+          actionable: true
+        };
+      }) || [];
 
       const allInsights = [...reorderInsights, ...wasteInsights];
       setInsights(allInsights);
@@ -201,7 +209,7 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Predictions</CardTitle>
+              <CardTitle className="text-sm font-medium">Recommendations</CardTitle>
               <Brain className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -214,7 +222,7 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">High Priority</CardTitle>
+              <CardTitle className="text-sm font-medium">Needs attention</CardTitle>
               <AlertCircle className="w-4 h-4 text-orange-500" />
             </CardHeader>
             <CardContent>
@@ -222,14 +230,14 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
                 {summary.highPriorityItems}
               </div>
               <p className="text-xs text-muted-foreground">
-                Require immediate attention
+                Take action soon
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Potential Savings</CardTitle>
+              <CardTitle className="text-sm font-medium">Estimated savings</CardTitle>
               <DollarSign className="w-4 h-4 text-green-600" />
             </CardHeader>
             <CardContent>
@@ -237,14 +245,14 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
                 ${summary.potentialSavings.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Monthly optimization potential
+                Estimated monthly savings
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">AI Accuracy</CardTitle>
+              <CardTitle className="text-sm font-medium">Accuracy</CardTitle>
               <TrendingUp className="w-4 h-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -252,7 +260,7 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
                 {summary.accuracyRate}%
               </div>
               <p className="text-xs text-muted-foreground">
-                Based on historical feedback
+                Based on past results
               </p>
             </CardContent>
           </Card>
@@ -263,8 +271,8 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="reorder">Reorder Predictions</TabsTrigger>
-          <TabsTrigger value="waste">Waste Prevention</TabsTrigger>
+          <TabsTrigger value="reorder">Restock Suggestions</TabsTrigger>
+          <TabsTrigger value="waste">Prevent Waste</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-6">
@@ -279,9 +287,9 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
               <CardContent className="pt-6">
                 <div className="text-center py-12">
                   <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No AI Insights Available</h3>
+                  <h3 className="text-lg font-semibold mb-2">No recommendations yet</h3>
                   <p className="text-muted-foreground mb-4">
-                    Add inventory items and usage data to enable AI predictions.
+                    Add items and usage so we can give suggestions.
                   </p>
                 </div>
               </CardContent>

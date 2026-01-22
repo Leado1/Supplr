@@ -14,8 +14,8 @@ export default function PricingPage() {
 
   const handleCheckout = async (plan: any, index: number) => {
     if (index === 2) {
-      // Enterprise plan - still handle via email
-      window.location.href = "mailto:support@supplr.net";
+      // Enterprise plan - prompt account creation
+      window.location.href = "/sign-up";
       return;
     }
 
@@ -78,9 +78,9 @@ export default function PricingPage() {
   const plans = [
     {
       name: "Starter",
-      monthlyPrice: 19,
-      annualPrice: 190, // ~17% savings
-      monthlyEquivalent: 16,
+      monthlyPrice: 29,
+      annualPrice: 288, // ~17% savings
+      monthlyEquivalent: 24,
       description: "Perfect for small practices",
       features: [
         "Up to 50 items",
@@ -92,9 +92,9 @@ export default function PricingPage() {
     },
     {
       name: "Professional",
-      monthlyPrice: 49,
-      annualPrice: 490, // ~17% savings
-      monthlyEquivalent: 41,
+      monthlyPrice: 79,
+      annualPrice: 792, // ~17% savings
+      monthlyEquivalent: 66,
       description: "For growing medical practices",
       popular: true,
       features: [
@@ -109,9 +109,9 @@ export default function PricingPage() {
     },
     {
       name: "Enterprise",
-      monthlyPrice: 149,
-      annualPrice: 1490, // ~17% savings
-      monthlyEquivalent: 124,
+      monthlyPrice: 199,
+      annualPrice: 1992, // ~17% savings
+      monthlyEquivalent: 166,
       description: "For large practices & chains",
       features: [
         "Unlimited items",
@@ -262,7 +262,7 @@ export default function PricingPage() {
                         {isLoading
                           ? "Processing..."
                           : index === plans.length - 1
-                            ? "Contact Sales"
+                            ? "Choose Plan"
                             : "Start Free Trial"}
                       </Button>
                     </CardContent>

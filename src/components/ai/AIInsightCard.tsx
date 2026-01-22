@@ -64,24 +64,24 @@ const priorityConfig = {
 
 const typeConfig = {
   reorder: {
-    label: "Reorder Prediction",
+    label: "Restock suggestion",
     color: "bg-blue-500",
-    description: "AI suggests optimal reorder timing"
+    description: "We think you will need more soon"
   },
   waste_risk: {
-    label: "Waste Prevention",
+    label: "Avoid waste",
     color: "bg-red-500",
-    description: "AI detects potential waste risk"
+    description: "Items may expire before use"
   },
   threshold_optimization: {
-    label: "Threshold Optimization",
+    label: "Stock level tweak",
     color: "bg-green-500",
-    description: "AI recommends threshold adjustments"
+    description: "Small change to keep stock steady"
   },
   cost_savings: {
-    label: "Cost Optimization",
+    label: "Save on costs",
     color: "bg-purple-500",
-    description: "AI identifies cost-saving opportunities"
+    description: "Simple ways to reduce spend"
   }
 } as const;
 
@@ -140,8 +140,8 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
       <CardContent className="pt-0 space-y-4">
         {/* AI Confidence */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">AI Confidence</span>
+        <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">How sure we are</span>
             <span className="font-medium">{insight.confidence}%</span>
           </div>
           <Progress value={insight.confidence} className="h-2" />
@@ -153,7 +153,7 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-green-600" />
               <div>
-                <p className="text-muted-foreground">Potential Savings</p>
+                <p className="text-muted-foreground">Estimated savings</p>
                 <p className="font-semibold text-green-600">
                   ${insight.potentialSavings.toFixed(2)}
                 </p>
@@ -165,7 +165,7 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-orange-600" />
               <div>
-                <p className="text-muted-foreground">Time to Act</p>
+                <p className="text-muted-foreground">Take action in</p>
                 <p className="font-semibold">
                   {insight.daysUntilAction} days
                 </p>
@@ -199,7 +199,7 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
 
         {/* AI Reasoning */}
         <div className="bg-white/30 rounded-lg p-3">
-          <p className="text-xs text-muted-foreground mb-1">AI Reasoning:</p>
+          <p className="text-xs text-muted-foreground mb-1">Why we suggested this:</p>
           <p className="text-sm">{insight.reasoning}</p>
         </div>
 
@@ -209,10 +209,10 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
             {insight.type === 'reorder' && (
               <>
                 <Button size="sm" onClick={() => onAction('accept_reorder')}>
-                  Accept Recommendation
+                  Order this
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => onAction('snooze')}>
-                  Snooze 7 Days
+                  Remind me in 7 days
                 </Button>
               </>
             )}
@@ -220,10 +220,10 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
             {insight.type === 'waste_risk' && (
               <>
                 <Button size="sm" onClick={() => onAction('prioritize_usage')}>
-                  Mark Priority Use
+                  Use soon
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => onAction('transfer')}>
-                  Transfer Location
+                  Move to another location
                 </Button>
               </>
             )}
@@ -231,10 +231,10 @@ export function AIInsightCard({ insight, onAction, onDismiss, className }: AIIns
             {insight.type === 'threshold_optimization' && (
               <>
                 <Button size="sm" onClick={() => onAction('apply_threshold')}>
-                  Apply Suggestion
+                  Apply change
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => onAction('review_later')}>
-                  Review Later
+                  Review later
                 </Button>
               </>
             )}
