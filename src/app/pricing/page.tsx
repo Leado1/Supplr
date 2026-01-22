@@ -14,50 +14,28 @@ export default function PricingPage() {
 
   const handleCheckout = async (plan: any, index: number) => {
     if (index === 2) {
-      // Enterprise plan
-      // Redirect to contact for enterprise
+      // Enterprise plan - still handle via email
       window.location.href = "mailto:support@supplr.net";
       return;
     }
 
     try {
       setIsLoading(true);
-      const priceId = isAnnual ? plan.annualPriceId : plan.monthlyPriceId;
 
-      // Debug: Log the price ID to see what we're working with
-      console.log(
-        "Plan:",
-        plan.name,
-        "PriceId:",
-        priceId,
-        "IsAnnual:",
+      const planName = plan.name.toLowerCase(); // 'starter' or 'professional'
+      const period = isAnnual ? 'annual' : 'monthly';
+
+      console.log("Creating Polar checkout for:", {
+        plan: planName,
+        period,
+        planObject: plan,
         isAnnual
-      );
-
-      // Debug: Log all environment variables to see what's available
-      console.log("Environment Variables:", {
-        STARTER_MONTHLY:
-          process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID,
-        STARTER_ANNUAL: process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID,
-        PROFESSIONAL_MONTHLY:
-          process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID,
-        PROFESSIONAL_ANNUAL:
-          process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID,
-        ENTERPRISE_MONTHLY:
-          process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID,
-        ENTERPRISE_ANNUAL:
-          process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
       });
 
-      // Check if price ID is empty or undefined
-      if (!priceId || priceId.trim() === "") {
-        console.error(
-          "MISSING PRICE ID for plan:",
-          plan.name,
-          "isAnnual:",
-          isAnnual
-        );
-        alert("Pricing configuration error. Please contact support.");
+      // Debug validation
+      if (!planName || !period) {
+        console.error("Missing plan data:", { planName, period, plan });
+        alert("Invalid plan data. Please try again.");
         return;
       }
 
@@ -67,14 +45,14 @@ export default function PricingPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          priceId,
-          planName: plan.name,
+          plan: planName,
+          period: period,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.url;
+        window.location.href = data.checkout_url;
       } else {
         const errorData = await response.json();
         console.error("Checkout error:", errorData);
@@ -85,7 +63,7 @@ export default function PricingPage() {
           return;
         }
 
-        alert(`Checkout failed: ${errorData.message || "Please try again."}`);
+        alert(`Checkout failed: ${errorData.error || "Please try again."}`);
       }
     } catch (error) {
       console.error("Checkout error:", error);
@@ -96,53 +74,44 @@ export default function PricingPage() {
     }
   };
 
-  // Pricing data - Price IDs should be set in environment variables
+  // Pricing data - Now using Polar.sh product IDs (defined in polar-helpers.ts)
   const plans = [
     {
       name: "Starter",
-      monthlyPrice: 29,
-      annualPrice: 288, // $29 * 12 - $60 savings (2 months free)
-      monthlyEquivalent: 24, // What they pay per month when billed annually
-      monthlyPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_STARTER_MONTHLY_PRICE_ID || "",
-      annualPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_STARTER_ANNUAL_PRICE_ID || "",
+      monthlyPrice: 19,
+      annualPrice: 190, // ~17% savings
+      monthlyEquivalent: 16,
       description: "Perfect for small practices",
       features: [
-        "Up to 100 items",
+        "Up to 50 items",
         "Basic dashboard",
         "Expiration alerts",
         "Email support",
+        "AI-powered insights",
       ],
     },
     {
       name: "Professional",
-      monthlyPrice: 79,
-      annualPrice: 792, // $79 * 12 - $156 savings (2 months free)
-      monthlyEquivalent: 66, // What they pay per month when billed annually
-      monthlyPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || "",
-      annualPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || "",
+      monthlyPrice: 49,
+      annualPrice: 490, // ~17% savings
+      monthlyEquivalent: 41,
       description: "For growing medical practices",
       popular: true,
       features: [
-        "Up to 500 items",
+        "Up to 200 items",
         "Advanced analytics",
         "Custom categories",
         "Priority support",
         "Team collaboration",
+        "Custom reports",
+        "Advanced AI predictions",
       ],
     },
     {
       name: "Enterprise",
-      monthlyPrice: 199,
-      annualPrice: 1992, // $199 * 12 - $396 savings (2 months free)
-      monthlyEquivalent: 166, // What they pay per month when billed annually
-      monthlyPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || "",
-      annualPriceId:
-        process.env.NEXT_PUBLIC_STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || "",
+      monthlyPrice: 149,
+      annualPrice: 1490, // ~17% savings
+      monthlyEquivalent: 124,
       description: "For large practices & chains",
       features: [
         "Unlimited items",

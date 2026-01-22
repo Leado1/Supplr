@@ -3,10 +3,19 @@ import { Badge } from "@/components/ui/badge";
 import type { InventorySummary } from "@/types/inventory";
 
 interface SummaryCardsProps {
-  summary: InventorySummary;
+  summary: InventorySummary | null | undefined;
 }
 
 export function SummaryCards({ summary }: SummaryCardsProps) {
+  // Provide default values if summary is undefined/null with explicit safety
+  const safeSummary = {
+    totalItems: summary?.totalItems ?? 0,
+    totalValue: summary?.totalValue ?? 0,
+    expiringSoon: summary?.expiringSoon ?? 0,
+    expired: summary?.expired ?? 0,
+    lowStock: summary?.lowStock ?? 0
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -17,7 +26,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
   const cards = [
     {
       title: "Total Items",
-      value: summary.totalItems.toString(),
+      value: String(safeSummary.totalItems || 0),
       icon: (
         <svg
           className="h-4 w-4"
@@ -38,7 +47,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
     },
     {
       title: "Total Value",
-      value: formatCurrency(summary.totalValue),
+      value: formatCurrency(safeSummary.totalValue || 0),
       icon: (
         <svg
           className="h-4 w-4"
@@ -59,7 +68,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
     },
     {
       title: "Expiring Soon",
-      value: summary.expiringSoon.toString(),
+      value: String(safeSummary.expiringSoon || 0),
       icon: (
         <svg
           className="h-4 w-4"
@@ -77,11 +86,11 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       ),
       color: "text-yellow-600 dark:text-yellow-400",
       bgColor: "bg-yellow-50 dark:bg-yellow-950/50",
-      badge: summary.expiringSoon > 0 ? "warning" : undefined,
+      badge: safeSummary.expiringSoon > 0 ? "warning" : undefined,
     },
     {
       title: "Expired Items",
-      value: summary.expired.toString(),
+      value: String(safeSummary.expired || 0),
       icon: (
         <svg
           className="h-4 w-4"
@@ -99,11 +108,11 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       ),
       color: "text-red-600 dark:text-red-400",
       bgColor: "bg-red-50 dark:bg-red-950/50",
-      badge: summary.expired > 0 ? "destructive" : undefined,
+      badge: safeSummary.expired > 0 ? "destructive" : undefined,
     },
     {
       title: "Low Stock",
-      value: summary.lowStock.toString(),
+      value: String(safeSummary.lowStock || 0),
       icon: (
         <svg
           className="h-4 w-4"
@@ -121,7 +130,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
       ),
       color: "text-orange-600 dark:text-orange-400",
       bgColor: "bg-orange-50 dark:bg-orange-950/50",
-      badge: summary.lowStock > 0 ? "warning" : undefined,
+      badge: safeSummary.lowStock > 0 ? "warning" : undefined,
     },
   ];
 
@@ -152,7 +161,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
                 Current inventory valuation
               </p>
             )}
-            {card.title === "Expiring Soon" && summary.expiringSoon > 0 && (
+            {card.title === "Expiring Soon" && safeSummary.expiringSoon > 0 && (
               <div className="flex items-center gap-1">
                 <p className="text-xs text-yellow-600 dark:text-yellow-400">
                   Action needed
@@ -160,12 +169,12 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
                 <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" title="AI waste prevention active" />
               </div>
             )}
-            {card.title === "Expired Items" && summary.expired > 0 && (
+            {card.title === "Expired Items" && safeSummary.expired > 0 && (
               <p className="text-xs text-red-600 dark:text-red-400">
                 Remove from inventory
               </p>
             )}
-            {card.title === "Low Stock" && summary.lowStock > 0 && (
+            {card.title === "Low Stock" && safeSummary.lowStock > 0 && (
               <div className="flex items-center gap-1">
                 <p className="text-xs text-orange-600 dark:text-orange-400">
                   Reorder recommended

@@ -202,7 +202,13 @@ model Subscription {
   organizationId     String       @unique
   organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  // Stripe fields
+  // Polar.sh fields
+  polarCustomerId        String?  @unique
+  polarSubscriptionId    String?  @unique
+  polarProductId         String?  // Maps to your Polar product IDs
+  polarCurrentPeriodEnd  DateTime?
+
+  // Legacy Stripe fields (keep for migration)
   stripeCustomerId       String?  @unique
   stripeSubscriptionId   String?  @unique
   stripePriceId          String?

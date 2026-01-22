@@ -289,6 +289,7 @@ export function planHasMultiLocation(plan: string): boolean {
 
 /**
  * Check if subscription is active and paid
+ * Works with both Stripe and Polar subscriptions
  */
 export function isSubscriptionActive(
   subscription: Subscription | null
@@ -297,6 +298,41 @@ export function isSubscriptionActive(
     return false;
   }
   return subscription.isActive && subscription.status === "active";
+}
+
+/**
+ * Get payment provider for a subscription
+ */
+export function getSubscriptionProvider(subscription: Subscription | null): 'polar' | 'stripe' | 'none' {
+  if (!subscription) return 'none';
+
+  if (subscription.polarCustomerId || subscription.polarSubscriptionId) {
+    return 'polar';
+  }
+
+  if (subscription.stripeCustomerId || subscription.stripeSubscriptionId) {
+    return 'stripe';
+  }
+
+  return 'none';
+}
+
+/**
+ * Get the product/price identifier for the current subscription
+ */
+export function getSubscriptionProductId(subscription: Subscription | null): string | null {
+  if (!subscription) return null;
+
+  const provider = getSubscriptionProvider(subscription);
+
+  switch (provider) {
+    case 'polar':
+      return subscription.polarProductId;
+    case 'stripe':
+      return subscription.stripePriceId;
+    default:
+      return null;
+  }
 }
 
 /**

@@ -1,11 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { prisma } from "@/lib/db";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+import { getSubscriptionProvider } from "@/lib/subscription-helpers";
+import { cancelPolarSubscription } from "@/lib/polar-helpers";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,36 +24,46 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!user?.organization.subscription?.stripeSubscriptionId) {
+    const subscription = user?.organization?.subscription;
+    if (!subscription) {
       return NextResponse.json(
         { message: "No active subscription found" },
         { status: 404 }
       );
     }
 
-    // Cancel subscription at period end
-    await stripe.subscriptions.update(
-      user.organization.subscription.stripeSubscriptionId,
-      {
-        cancel_at_period_end: true,
-      }
-    );
+    const provider = getSubscriptionProvider(subscription);
 
-    // Update local subscription record
-    await prisma.subscription.update({
-      where: { id: user.organization.subscription.id },
-      data: {
-        status: "canceling", // Custom status to indicate it will cancel at period end
-      },
-    });
+    if (provider === 'polar' && subscription.polarSubscriptionId) {
+      // Cancel Polar.sh subscription
+      await cancelPolarSubscription(subscription.polarSubscriptionId);
 
-    return NextResponse.json({
-      message: "Subscription will be canceled at the end of the billing period",
-    });
+      // Update local subscription record
+      await prisma.subscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: "canceling", // Will be updated by webhook to "canceled"
+        },
+      });
+
+      return NextResponse.json({
+        message: "Subscription cancellation initiated. You'll retain access until the end of your billing period.",
+      });
+    } else if (provider === 'stripe') {
+      return NextResponse.json(
+        { message: "Stripe subscriptions no longer supported. Please contact support." },
+        { status: 400 }
+      );
+    } else {
+      return NextResponse.json(
+        { message: "No active subscription found" },
+        { status: 404 }
+      );
+    }
   } catch (error) {
     console.error("Error canceling subscription:", error);
     return NextResponse.json(
-      { message: "Failed to cancel subscription" },
+      { message: "Failed to cancel subscription. Please contact support." },
       { status: 500 }
     );
   }

@@ -19,6 +19,7 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { DevActivation } from "@/components/billing/dev-activation";
 
 interface SubscriptionData {
   id: string;
@@ -105,12 +106,18 @@ export default function BillingPage() {
 
       if (response.ok) {
         const data = await response.json();
-        window.open(data.url, "_blank");
+        if (data.provider === 'polar') {
+          // Open Polar's customer portal in a new tab
+          window.open(data.url, "_blank");
+        } else {
+          // For other providers (if any), open external portal
+          window.open(data.url, "_blank");
+        }
       } else {
         const errorData = await response.json();
         alert(
           errorData.message ||
-            "Failed to open billing portal. Please try again."
+            "Failed to access billing portal. Please try again."
         );
       }
     } catch (error) {
@@ -124,13 +131,11 @@ export default function BillingPage() {
   const handleCheckout = async (plan: any, index: number) => {
     try {
       setIsProcessing(true);
-      const priceId = isAnnual ? plan.annualPriceId : plan.monthlyPriceId;
 
-      // Check if price ID exists
-      if (!priceId) {
-        alert("Pricing configuration error. Please contact support.");
-        return;
-      }
+      const planName = plan.name.toLowerCase(); // Convert to lowercase
+      const period = isAnnual ? 'annual' : 'monthly';
+
+      console.log("Creating Polar checkout for:", { plan: planName, period });
 
       const response = await fetch("/api/billing/create-checkout", {
         method: "POST",
@@ -138,14 +143,14 @@ export default function BillingPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          priceId,
-          planName: plan.name,
+          plan: planName,
+          period: period,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.url;
+        window.location.href = data.checkout_url;
       } else {
         const errorData = await response.json();
         console.error("Checkout error:", errorData);
@@ -597,6 +602,9 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Development Tools - only visible in development */}
+      <DevActivation />
     </div>
   );
 }
