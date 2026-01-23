@@ -286,22 +286,22 @@ export function HomepageContent() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-center">
                     <Badge variant="outline" className="w-full py-2">
-                      📊 UPC/EAN
+                      UPC/EAN
                     </Badge>
                   </div>
                   <div className="text-center">
                     <Badge variant="outline" className="w-full py-2">
-                      🔢 Code 128
+                      Code 128
                     </Badge>
                   </div>
                   <div className="text-center">
                     <Badge variant="outline" className="w-full py-2">
-                      ⚕️ NDC Codes
+                      NDC Codes
                     </Badge>
                   </div>
                   <div className="text-center">
                     <Badge variant="outline" className="w-full py-2">
-                      📦 QR Codes
+                      QR Codes
                     </Badge>
                   </div>
                 </div>
