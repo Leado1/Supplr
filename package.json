@@ -21,7 +21,9 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@clerk/elements": "^0.24.5",
     "@clerk/nextjs": "^6.36.6",
+    "@fontsource-variable/inter": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@polar-sh/nextjs": "^0.9.3",
     "@polar-sh/sdk": "^0.42.2",
@@ -37,11 +39,13 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@types/nodemailer": "^7.0.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.29.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.562.0",

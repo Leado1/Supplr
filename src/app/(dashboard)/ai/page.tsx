@@ -21,18 +21,15 @@ export default async function AIPage() {
     <div className="container mx-auto space-y-8 p-6">
       {/* Header */}
       <div className="space-y-4">
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <Image
             src="/images/brain.gif"
             alt="AI Brain"
             width={48}
             height={48}
-            className="w-12 h-12 mt-1"
+            className="w-12 h-12"
           />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Smart Inventory Insights
-            </h1>
             <p className="text-sm text-muted-foreground">
               Clear recommendations to help you reorder on time and avoid waste
             </p>

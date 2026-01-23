@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { FileUpload } from "@/components/ui/file-upload";
 import {
   Upload,
   Download,
-  FileText,
   CheckCircle,
   XCircle,
   AlertTriangle,
   ArrowLeft,
-  Loader2,
   Info,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,48 +33,38 @@ interface ImportResult {
 export default function ImportPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [dragActive, setDragActive] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files[0]) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
+  const isValidFile = (file: File) => {
     const validTypes = [".csv", ".xlsx", ".xls"];
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
     if (!validTypes.includes(fileExtension)) {
       alert("Please upload a CSV or Excel file (.csv, .xlsx, .xls)");
+      return false;
+    }
+    return true;
+  };
+
+  const handleFilesChange = (files: File[]) => {
+    if (!files.length) {
+      setSelectedFiles([]);
       return;
     }
+
+    const nextFile = files[0];
+    if (!isValidFile(nextFile)) {
+      return;
+    }
+
+    setSelectedFiles([nextFile]);
+    void handleFileUpload(nextFile);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+
+    if (!isValidFile(file)) return;
 
     setIsUploading(true);
     setImportResult(null);
@@ -102,10 +90,6 @@ export default function ImportPage() {
       alert("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 
@@ -136,9 +120,6 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Import Inventory
-          </h1>
           <p className="text-muted-foreground">
             Upload a CSV or Excel file to bulk import your inventory data
           </p>
@@ -155,76 +136,18 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* File Upload Area */}
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
-                  ? "border-primary bg-primary/5"
-                  : "border-muted-foreground/25 hover:border-muted-foreground/50"
-              } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              {isUploading ? (
-                <div className="space-y-4">
-                  <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin" />
-                  <div>
-                    <p className="font-medium">Processing your file...</p>
-                    <p className="text-sm text-muted-foreground">
-                      This may take a moment for large files
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">
-                      Drag and drop your file here, or{" "}
-                      <button
-                        type="button"
-                        className="text-primary underline"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        browse
-                      </button>
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Supports CSV, XLSX, and XLS files
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.xlsx,.xls"
-              onChange={handleFileSelect}
-              className="hidden"
+            <FileUpload
+              value={selectedFiles}
+              onValueChange={handleFilesChange}
+              accept={[".csv", ".xlsx", ".xls"]}
+              maxFiles={1}
               disabled={isUploading}
+              loading={isUploading}
+              title="Drag and drop your file here"
+              description="or click to browse"
+              helperText="Supports CSV, XLSX, and XLS files"
+              buttonLabel="Select file"
             />
-
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="w-full"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Select File
-                </>
-              )}
-            </Button>
           </CardContent>
         </Card>
 
@@ -397,7 +320,10 @@ Sample Product B,SKU002,Office Supplies,20,15.50,2025-06-15,10`;
               </Link>
               <Button
                 variant="outline"
-                onClick={() => setImportResult(null)}
+                onClick={() => {
+                  setImportResult(null);
+                  setSelectedFiles([]);
+                }}
                 className="flex-1"
               >
                 Import Another File

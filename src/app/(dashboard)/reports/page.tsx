@@ -236,9 +236,6 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Reports & Analytics
-          </h1>
           <p className="text-muted-foreground">
             Track waste, analyze inventory value, and optimize your medical
             supplies

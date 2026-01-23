@@ -488,15 +488,10 @@ export default function InventoryPage() {
     <div className="container mx-auto space-y-8 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Inventory Management
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your medical supplies, track expiration dates, and monitor
-            stock levels
-          </p>
-        </div>
+        <p className="text-muted-foreground">
+          Manage your medical supplies, track expiration dates, and monitor
+          stock levels
+        </p>
         <div className="flex space-x-3">
           <ExportDropdown
             onExportPDF={handleExportPDF}
@@ -580,196 +575,6 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <Filters
-        categories={categories}
-        onSearchChange={(search) => setFilters({ ...filters, search })}
-        onStatusFilter={(status) => setFilters({ ...filters, status })}
-        onCategoryFilter={(categoryId) =>
-          setFilters({ ...filters, categoryId })
-        }
-        searchValue={filters.search}
-        statusFilter={filters.status}
-        categoryFilter={filters.categoryId}
-      />
-
-      {/* Sort Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-muted-foreground">
-            Sort by:
-          </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <span className="capitalize">
-                  {sortField === "unitCost"
-                    ? "Unit Cost"
-                    : sortField === "expirationDate"
-                      ? "Expiration Date"
-                      : sortField}
-                </span>
-                {sortDirection === "asc" ? (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 15l7-7 7 7"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => handleSort("name")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Name</span>
-                  {sortField === "name" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSort("quantity")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Quantity</span>
-                  {sortField === "quantity" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSort("unitCost")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Unit Cost</span>
-                  {sortField === "unitCost" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSort("expirationDate")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Expiration Date</span>
-                  {sortField === "expirationDate" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSort("status")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Status</span>
-                  {sortField === "status" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSort("category")}>
-                <div className="flex items-center justify-between w-full">
-                  <span>Category</span>
-                  {sortField === "category" && (
-                    <svg
-                      className="h-4 w-4 ml-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  )}
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}{" "}
-          displayed
-        </div>
-      </div>
-
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-lg border bg-card p-4">
@@ -793,6 +598,198 @@ export default function InventoryPage() {
             {items.filter((item) => item.status === "low_stock").length}
           </div>
           <p className="text-sm text-muted-foreground">Low Stock</p>
+        </div>
+      </div>
+
+      {/* Filters + Sort */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex-1">
+          <Filters
+            categories={categories}
+            onSearchChange={(search) => setFilters({ ...filters, search })}
+            onStatusFilter={(status) => setFilters({ ...filters, status })}
+            onCategoryFilter={(categoryId) =>
+              setFilters({ ...filters, categoryId })
+            }
+            searchValue={filters.search}
+            statusFilter={filters.status}
+            categoryFilter={filters.categoryId}
+          />
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-end lg:gap-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-muted-foreground">
+              Sort by:
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center space-x-2">
+                  <span className="capitalize">
+                    {sortField === "unitCost"
+                      ? "Unit Cost"
+                      : sortField === "expirationDate"
+                        ? "Expiration Date"
+                        : sortField}
+                  </span>
+                  {sortDirection === "asc" ? (
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => handleSort("name")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Name</span>
+                    {sortField === "name" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("quantity")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Quantity</span>
+                    {sortField === "quantity" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("unitCost")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Unit Cost</span>
+                    {sortField === "unitCost" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("expirationDate")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Expiration Date</span>
+                    {sortField === "expirationDate" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("status")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Status</span>
+                    {sortField === "status" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("category")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>Category</span>
+                    {sortField === "category" && (
+                      <svg
+                        className="h-4 w-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {filteredItems.length} item{filteredItems.length !== 1 ? "s" : ""}{" "}
+            displayed
+          </div>
         </div>
       </div>
 

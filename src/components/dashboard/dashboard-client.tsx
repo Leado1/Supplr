@@ -8,10 +8,21 @@ import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Loader2, RefreshCw } from "lucide-react";
+import { LocationDropdown } from "@/components/location-dropdown";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CheckCircle, Loader2, RefreshCw, X } from "lucide-react";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
+import { SubscriptionSuccessModal } from "@/components/modals/subscription-success-modal";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
 import type { Category } from "@prisma/client";
+
+const MULTI_LOCATION_NOTICE_KEY = "supplr:hide-multi-location-notice";
 
 interface InventoryData {
   items: ItemWithStatus[];
@@ -27,10 +38,14 @@ interface InventoryData {
 export function DashboardClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [subscribedPlan, setSubscribedPlan] = useState<string>("starter");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hideMultiLocationNotice, setHideMultiLocationNotice] = useState(false);
+  const [multiLocationNoticeReady, setMultiLocationNoticeReady] =
+    useState(false);
   const [data, setData] = useState<InventoryData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,13 +98,35 @@ export function DashboardClient() {
   // Handle checkout success
   useEffect(() => {
     if (searchParams.get("checkout_success") === "true") {
-      setShowSuccessMessage(true);
+      // Fetch the current subscription plan
+      const fetchPlan = async () => {
+        try {
+          const response = await fetch("/api/subscription/features");
+          if (response.ok) {
+            const data = await response.json();
+            setSubscribedPlan(data.plan || "starter");
+          }
+        } catch (error) {
+          console.error("Error fetching subscription plan:", error);
+        }
+        setShowSuccessModal(true);
+      };
+      fetchPlan();
       window.history.replaceState({}, document.title, "/dashboard");
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-      }, 5000);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    try {
+      const dismissed =
+        localStorage.getItem(MULTI_LOCATION_NOTICE_KEY) === "true";
+      setHideMultiLocationNotice(dismissed);
+    } catch {
+      setHideMultiLocationNotice(false);
+    } finally {
+      setMultiLocationNoticeReady(true);
+    }
+  }, []);
 
   const handleAddItem = () => {
     router.push("/inventory?action=add");
@@ -110,14 +147,20 @@ export function DashboardClient() {
     router.push(`/inventory?new_barcode=${encodeURIComponent(barcode)}`);
   };
 
+  const handleDismissMultiLocationNotice = () => {
+    setHideMultiLocationNotice(true);
+    try {
+      localStorage.setItem(MULTI_LOCATION_NOTICE_KEY, "true");
+    } catch {
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading dashboard...</span>
-          </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading dashboard...</span>
         </div>
       </div>
     );
@@ -125,66 +168,117 @@ export function DashboardClient() {
 
   if (error || !data) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <h2 className="mb-4 text-xl font-semibold text-red-800">
-            Error Loading Dashboard
-          </h2>
-          <p className="text-red-600 mb-4">
-            {error || "There was an issue loading your inventory data."}
-          </p>
-          <Button onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retry
-          </Button>
-        </div>
+      <div className="mx-auto max-w-xl rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+        <h2 className="mb-4 text-xl font-semibold text-red-800">
+          Error Loading Dashboard
+        </h2>
+        <p className="mb-4 text-red-600">
+          {error || "There was an issue loading your inventory data."}
+        </p>
+        <Button onClick={handleRefresh}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Retry
+        </Button>
       </div>
     );
   }
 
+  const summary = {
+    totalItems: data.summary?.totalItems ?? 0,
+    totalValue: data.summary?.totalValue ?? 0,
+    expiringSoon: data.summary?.expiringSoon ?? 0,
+    expired: data.summary?.expired ?? 0,
+    lowStock: data.summary?.lowStock ?? 0,
+  };
+
+  const priorityItems = data.items.filter(
+    (item) =>
+      item.status === "low_stock" ||
+      item.status === "expiring_soon" ||
+      item.status === "expired"
+  );
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(value);
+  };
+
+  const getStatusLabel = (status: ItemWithStatus["status"]) => {
+    if (status === "low_stock") {
+      return "low stock";
+    }
+    if (status === "expiring_soon") {
+      return "expiring soon";
+    }
+    return status;
+  };
+
+  const getStatusVariant = (status: ItemWithStatus["status"]) => {
+    if (status === "ok") {
+      return "secondary";
+    }
+    return "outline";
+  };
+
   return (
-    <div className="container mx-auto space-y-8 p-6">
-      {/* Success Message */}
-      {showSuccessMessage && (
-        <Alert className="border-green-200 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">
-            <div className="flex items-center justify-between">
-              <span>
-                🎉 <strong>Welcome to Supplr!</strong> Your subscription has
-                been activated successfully. You now have full access to all
-                features.
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSuccessMessage(false)}
-                className="ml-4 border-green-300 text-green-700 hover:bg-green-100"
-              >
-                Dismiss
-              </Button>
-            </div>
-          </AlertDescription>
+    <div className="space-y-6">
+      {/* Subscription Success Modal */}
+      <SubscriptionSuccessModal
+        open={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        plan={subscribedPlan}
+      />
+
+      {/* Multi-location Notice for Enterprise users */}
+      {data.hasMultiLocationAccess &&
+        multiLocationNoticeReady &&
+        !hideMultiLocationNotice && (
+        <Alert className="border-muted/60 bg-muted/40">
+          <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-start justify-between gap-4">
+            <AlertDescription className="text-muted-foreground">
+              <strong>Multi-Location Enabled:</strong> You can switch between
+              locations using the dropdown on this page. Inventory data is
+              filtered by your selected location.
+            </AlertDescription>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleDismissMultiLocationNotice}
+              className="mt-0.5 text-muted-foreground hover:text-foreground"
+              aria-label="Dismiss multi-location notice"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </Alert>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back to {data.organizationName}
-          </p>
-        </div>
-        <div className="flex space-x-2">
-          {isRefreshing && (
-            <Button variant="ghost" size="sm" disabled>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
-            </Button>
-          )}
+      {/* Hero Section */}
+      <Card>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between pb-4">
+          <div>
+            <CardTitle className="text-xl">Inventory Overview</CardTitle>
+            <CardDescription>
+              Welcome back to {data.organizationName}. Keep supplies
+              stocked, track expiration, and act on low stock.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {isRefreshing && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Refreshing
+              </Badge>
+            )}
+            <LocationDropdown variant="compact" />
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-2 pt-0">
           <Link href="/inventory">
-            <Button>
+            <Button className="bg-foreground text-background hover:bg-foreground/90">
               <svg
                 className="mr-2 h-4 w-4"
                 fill="none"
@@ -204,7 +298,7 @@ export function DashboardClient() {
           <Button
             onClick={() => setIsScannerOpen(true)}
             variant="outline"
-            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            className="border-input text-foreground hover:bg-muted"
           >
             <svg
               className="mr-2 h-4 w-4"
@@ -224,117 +318,140 @@ export function DashboardClient() {
           <Button onClick={handleAddItem} variant="secondary">
             + Add Item
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Multi-location Notice for Enterprise users */}
-      {data.hasMultiLocationAccess && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <CheckCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-700">
-            <strong>Multi-Location Enabled:</strong> You can switch between
-            locations using the dropdown above. Inventory data is filtered by
-            your selected location.
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Summary Stats */}
+      <SummaryCards summary={summary} />
 
-      {/* Summary Cards */}
-      <SummaryCards summary={data.summary} />
-
-
-      {/* Traditional Dashboard content */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border bg-card p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-          {data.items.length === 0 ? (
-            <p className="text-muted-foreground">No inventory items found.</p>
-          ) : (
-            <div className="space-y-2">
-              {data.items.slice(0, 5).map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center py-2 border-b last:border-b-0"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recent Activity - Takes 2 columns */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Latest inventory changes across your locations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {data.items.length === 0 ? (
+              <p className="text-muted-foreground">
+                No inventory items found.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {data.items.slice(0, 8).map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0"
+                  >
+                    <div>
                       <p className="font-medium">{item.name}</p>
-                      {(item.status === "low_stock" || item.status === "expiring_soon") && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" title="AI insights available" />
+                      <p className="text-sm text-muted-foreground">
+                        {item.category.name} - Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={getStatusVariant(item.status)}>
+                        {getStatusLabel(item.status)}
+                      </Badge>
+                      {item.location && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {item.location.name}
+                        </p>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {item.category.name} • Qty: {item.quantity}
-                    </p>
                   </div>
-                  <div className="text-right">
-                    <Badge
-                      variant={
-                        item.status === "ok"
-                          ? "default"
-                          : item.status === "low_stock"
-                          ? "destructive"
-                          : item.status === "expiring_soon"
-                          ? "secondary"
-                          : item.status === "expired"
-                          ? "destructive"
-                          : "outline"
-                      }
-                      className={
-                        item.status === "ok"
-                          ? "bg-green-500 hover:bg-green-600"
-                          : item.status === "low_stock"
-                          ? "bg-orange-500 hover:bg-orange-600"
-                          : item.status === "expiring_soon"
-                          ? "bg-yellow-500 hover:bg-yellow-600 text-black"
-                          : item.status === "expired"
-                          ? "bg-red-500 hover:bg-red-600"
-                          : ""
-                      }
-                    >
-                      {item.status === "low_stock"
-                        ? "low stock"
-                        : item.status === "expiring_soon"
-                        ? "expiring soon"
-                        : item.status}
-                    </Badge>
-                    {item.location && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {item.location.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-        <div className="rounded-lg border bg-card p-6">
-          <h3 className="text-lg font-semibold mb-4">Categories</h3>
-          {data.categories.length === 0 ? (
-            <p className="text-muted-foreground">No categories found.</p>
-          ) : (
-            <div className="space-y-2">
-              {data.categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex justify-between items-center py-2 border-b last:border-b-0"
-                >
-                  <p className="font-medium">{category.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {
-                      data.items.filter(
-                        (item) => item.category.id === category.id
-                      ).length
-                    }{" "}
-                    items
-                  </p>
+        {/* Sidebar - Priority Items & Categories */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Inventory Details</CardTitle>
+            <CardDescription>
+              Items that need attention and category breakdown
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <p className="text-sm font-semibold">Priority Items</p>
+              {priorityItems.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No urgent items right now.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {priorityItems.slice(0, 5).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.category.name} - Qty: {item.quantity}
+                          {item.location ? ` - ${item.location.name}` : ""}
+                        </p>
+                      </div>
+                      <Badge variant={getStatusVariant(item.status)}>
+                        {getStatusLabel(item.status)}
+                      </Badge>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+
+            <div className="h-px bg-border" />
+
+            <div className="space-y-3">
+              <p className="text-sm font-semibold">Categories</p>
+              {data.categories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No categories found.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {data.categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0"
+                    >
+                      <p className="font-medium">{category.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {data.items.filter((item) => item.category.id === category.id).length} items
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="h-px bg-border" />
+
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total items</span>
+                <span className="font-medium">{summary.totalItems}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total value</span>
+                <span className="font-medium">
+                  {formatCurrency(summary.totalValue)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Expiring soon</span>
+                <span className="font-medium">{summary.expiringSoon}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Barcode Scanner Modal */}
@@ -347,3 +464,4 @@ export function DashboardClient() {
     </div>
   );
 }
+

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         sizes: "32x32",
       },
       {
-        url: "/images/logo.png?v=2",
+        url: "/images/LOGOB.png",
         type: "image/png",
         sizes: "192x192",
       },
@@ -108,7 +108,7 @@ const organizationStructuredData = {
   description:
     "Professional inventory management platform for medical spas and aesthetic clinics",
   url: "https://www.supplr.net",
-  logo: "https://www.supplr.net/images/logo.png",
+  logo: "https://www.supplr.net/images/LOGOB.png",
   sameAs: [
     // Add your social media URLs when available
     // "https://twitter.com/supplr",
@@ -152,6 +152,8 @@ export default function RootLayout({
     <ClerkProvider
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
+      signInForceRedirectUrl="/dashboard"
+      signUpForceRedirectUrl="/dashboard"
     >
       <html lang="en" suppressHydrationWarning>
         <head>

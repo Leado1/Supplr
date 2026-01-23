@@ -66,9 +66,6 @@ export default function DeleteAccountPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Billing
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight text-red-600">
-          Delete Account
-        </h1>
         <p className="text-muted-foreground">
           Permanently delete your account and all associated data
         </p>

@@ -256,8 +256,8 @@ export function Notifications({ organizationId, className }: NotificationsProps)
     <div className={cn("relative", className)}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="relative h-9 w-9 text-muted-foreground hover:text-foreground">
+            <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <Badge
                 variant="destructive"

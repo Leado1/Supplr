@@ -166,9 +166,14 @@ export default function ResourcesPage() {
             {/* Logo */}
             <Link href="/" className="flex items-center">
               <img
-                src="/images/supplr123.png"
+                src="/images/LOGOB.png"
                 alt="Supplr"
-                className="h-8 w-auto"
+                className="h-9 w-auto sm:h-10 dark:hidden"
+              />
+              <img
+                src="/images/LOGOW.png"
+                alt="Supplr"
+                className="h-9 w-auto hidden sm:h-10 dark:block"
               />
             </Link>
 

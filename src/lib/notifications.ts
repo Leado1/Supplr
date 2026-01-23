@@ -41,6 +41,7 @@ export interface InventoryAlert {
     expirationDate: Date;
     reorderThreshold: number;
     daysUntilExpiration?: number;
+    updatedAt?: Date;
     aiPrediction?: {
       type: string;
       priority: "low" | "medium" | "high";
@@ -125,6 +126,7 @@ export async function getAIEnhancedInventoryAlerts(
         expirationDate: item.expirationDate,
         reorderThreshold: item.reorderThreshold,
         daysUntilExpiration,
+        updatedAt: item.updatedAt,
       };
 
       // Traditional alerts
@@ -299,6 +301,7 @@ export async function getInventoryAlerts(
           expirationDate: item.expirationDate,
           reorderThreshold: item.reorderThreshold,
           daysUntilExpiration,
+          updatedAt: item.updatedAt,
         });
       }
       // Check if expiring soon
@@ -315,6 +318,7 @@ export async function getInventoryAlerts(
           expirationDate: item.expirationDate,
           reorderThreshold: item.reorderThreshold,
           daysUntilExpiration,
+          updatedAt: item.updatedAt,
         });
       }
 
@@ -329,6 +333,7 @@ export async function getInventoryAlerts(
           expirationDate: item.expirationDate,
           reorderThreshold: item.reorderThreshold,
           daysUntilExpiration,
+          updatedAt: item.updatedAt,
         });
       }
     }

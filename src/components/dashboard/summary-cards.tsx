@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { InventorySummary } from "@/types/inventory";
 
 interface SummaryCardsProps {
@@ -13,7 +12,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
     totalValue: summary?.totalValue ?? 0,
     expiringSoon: summary?.expiringSoon ?? 0,
     expired: summary?.expired ?? 0,
-    lowStock: summary?.lowStock ?? 0
+    lowStock: summary?.lowStock ?? 0,
   };
 
   const formatCurrency = (value: number) => {
@@ -27,6 +26,8 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
     {
       title: "Total Items",
       value: String(safeSummary.totalItems || 0),
+      iconWrapperClass:
+        "bg-blue-100/80 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300",
       icon: (
         <svg
           className="h-4 w-4"
@@ -42,12 +43,12 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-50 dark:bg-blue-950/50",
     },
     {
       title: "Total Value",
       value: formatCurrency(safeSummary.totalValue || 0),
+      iconWrapperClass:
+        "bg-emerald-100/80 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
       icon: (
         <svg
           className="h-4 w-4"
@@ -63,12 +64,12 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-50 dark:bg-green-950/50",
     },
     {
       title: "Expiring Soon",
       value: String(safeSummary.expiringSoon || 0),
+      iconWrapperClass:
+        "bg-amber-100/80 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
       icon: (
         <svg
           className="h-4 w-4"
@@ -84,13 +85,12 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-yellow-600 dark:text-yellow-400",
-      bgColor: "bg-yellow-50 dark:bg-yellow-950/50",
-      badge: safeSummary.expiringSoon > 0 ? "warning" : undefined,
     },
     {
       title: "Expired Items",
       value: String(safeSummary.expired || 0),
+      iconWrapperClass:
+        "bg-red-100/80 text-red-700 dark:bg-red-500/10 dark:text-red-300",
       icon: (
         <svg
           className="h-4 w-4"
@@ -106,13 +106,12 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-red-600 dark:text-red-400",
-      bgColor: "bg-red-50 dark:bg-red-950/50",
-      badge: safeSummary.expired > 0 ? "destructive" : undefined,
     },
     {
       title: "Low Stock",
       value: String(safeSummary.lowStock || 0),
+      iconWrapperClass:
+        "bg-orange-100/80 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300",
       icon: (
         <svg
           className="h-4 w-4"
@@ -128,31 +127,20 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           />
         </svg>
       ),
-      color: "text-orange-600 dark:text-orange-400",
-      bgColor: "bg-orange-50 dark:bg-orange-950/50",
-      badge: safeSummary.lowStock > 0 ? "warning" : undefined,
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {cards.map((card, index) => (
         <Card key={index} className="relative">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               {card.title}
             </CardTitle>
-            <div className={`rounded-lg p-2 ${card.bgColor}`}>
-              <div className={card.color}>{card.icon}</div>
+            <div className={`rounded-lg p-2 ${card.iconWrapperClass}`}>
+              {card.icon}
             </div>
-            {card.badge && (
-              <Badge
-                variant={card.badge as any}
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs"
-              >
-                !
-              </Badge>
-            )}
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{card.value}</div>
@@ -162,25 +150,19 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
               </p>
             )}
             {card.title === "Expiring Soon" && safeSummary.expiringSoon > 0 && (
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                  Action needed
-                </p>
-                <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" title="AI waste prevention active" />
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Action needed
+              </p>
             )}
             {card.title === "Expired Items" && safeSummary.expired > 0 && (
-              <p className="text-xs text-red-600 dark:text-red-400">
+              <p className="text-xs text-muted-foreground">
                 Remove from inventory
               </p>
             )}
             {card.title === "Low Stock" && safeSummary.lowStock > 0 && (
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-orange-600 dark:text-orange-400">
-                  Reorder recommended
-                </p>
-                <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" title="AI-powered prediction" />
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Reorder recommended
+              </p>
             )}
           </CardContent>
         </Card>

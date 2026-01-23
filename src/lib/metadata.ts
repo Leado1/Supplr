@@ -122,7 +122,7 @@ export function createOrganizationStructuredData() {
     name: baseMetadata.siteName,
     description: baseMetadata.description,
     url: baseMetadata.siteUrl,
-    logo: `${baseMetadata.siteUrl}/images/logo.png`,
+    logo: `${baseMetadata.siteUrl}/images/LOGOB.png`,
     sameAs: [
       // Add your social media URLs when available
       // "https://twitter.com/supplr",

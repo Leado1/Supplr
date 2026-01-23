@@ -19,7 +19,6 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
-import { DevActivation } from "@/components/billing/dev-activation";
 
 interface SubscriptionData {
   id: string;
@@ -256,9 +255,6 @@ export default function BillingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Billing & Subscription
-          </h1>
           <p className="text-muted-foreground">
             Manage your subscription, billing, and account settings
           </p>
@@ -602,9 +598,6 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       )}
-
-      {/* Development Tools - only visible in development */}
-      <DevActivation />
     </div>
   );
 }
