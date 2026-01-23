@@ -36,8 +36,8 @@ export function HomepageContent() {
         />
 
         {/* Impact Metrics */}
-        <section className="py-12">
-          <div className="container mx-auto max-w-5xl px-4">
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6">
             <AnimatedSection animation="fade">
               <div className="text-center mb-8">
                 <p className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
@@ -111,15 +111,15 @@ export function HomepageContent() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20 bg-gradient-to-b from-background to-muted/30">
-          <div className="container mx-auto max-w-5xl px-4 text-center">
+        <section className="py-12 md:py-20 bg-gradient-to-b from-background to-muted/30">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6 text-center">
             <AnimatedSection>
-              <h2 className="text-3xl md:text-4xl font-bold mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-16">
                 How Supplr Works
               </h2>
             </AnimatedSection>
 
-            <StaggerContainer className="grid md:grid-cols-3 gap-12">
+            <StaggerContainer className="grid md:grid-cols-3 gap-8 md:gap-12">
               {/* Step 1 */}
               <StaggerItem className="text-center">
                 <motion.div
@@ -174,7 +174,7 @@ export function HomepageContent() {
         </section>
 
         {/* Scanner Support Section */}
-        <section className="relative py-20 overflow-hidden">
+        <section className="relative py-12 md:py-20 overflow-hidden">
           <Particles
             className="absolute inset-0"
             quantity={50}
@@ -183,12 +183,12 @@ export function HomepageContent() {
             color="#6366f1"
             size={0.8}
           />
-          <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center relative z-10">
             <AnimatedSection>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
                 Add Inventory in Seconds with Professional Scanners
               </h2>
-              <p className="text-xl text-muted-foreground mb-16 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto px-2 sm:px-0">
                 Skip the tedious manual entry. Scan barcodes instantly with any
                 professional barcode scanner.
               </p>
@@ -315,10 +315,10 @@ export function HomepageContent() {
         </section>
 
         {/* Key Benefits Section */}
-        <section className="py-20 bg-gradient-to-b from-background to-muted/30">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
+        <section className="py-12 md:py-20 bg-gradient-to-b from-background to-muted/30">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center">
             <AnimatedSection>
-              <h2 className="text-3xl md:text-4xl font-bold mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-16">
                 Why Medical Practices Choose Supplr
               </h2>
             </AnimatedSection>
@@ -410,13 +410,13 @@ export function HomepageContent() {
         </AnimatedSection>
 
         {/* Social Proof Section */}
-        <section className="py-20 bg-gradient-to-b from-background to-primary/5">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
+        <section className="py-12 md:py-20 bg-gradient-to-b from-background to-primary/5">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center">
             <AnimatedSection>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                 Trusted by Leading Medical Practices
               </h2>
-              <p className="text-xl text-muted-foreground mb-16 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto px-2 sm:px-0">
                 See what medical professionals are saying about Supplr
               </p>
             </AnimatedSection>
@@ -514,18 +514,18 @@ export function HomepageContent() {
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-20 bg-primary/5">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
+        <section className="py-12 md:py-20 bg-primary/5">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center">
             <AnimatedSection>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
                 Ready to Stop Losing Money on Expired Supplies?
               </h2>
-              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto px-2 sm:px-0">
                 Join hundreds of medical practices saving thousands annually
                 with Supplr's smart inventory management.
               </p>
 
-              <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-8">
+              <div className="flex flex-col justify-center space-y-3 sm:space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0 mb-6 md:mb-8 px-2 sm:px-0">
                 <Link href="/sign-up">
                   <Button variant="gradient" size="xl" animate>
                     Start Your Free Trial
@@ -548,24 +548,24 @@ export function HomepageContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-4">
+      <footer className="border-t py-8 md:py-12 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 md:grid-cols-4">
             {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center mb-4">
+            <div className="sm:col-span-2 md:col-span-2">
+              <div className="flex items-center mb-3 md:mb-4">
                 <img
                   src="/images/LOGOB.png"
                   alt="Supplr"
-                  className="h-8 w-auto dark:hidden"
+                  className="h-7 md:h-8 w-auto dark:hidden"
                 />
                 <img
                   src="/images/LOGOW.png"
                   alt="Supplr"
-                  className="h-8 w-auto hidden dark:block"
+                  className="h-7 md:h-8 w-auto hidden dark:block"
                 />
               </div>
-              <p className="text-muted-foreground max-w-md">
+              <p className="text-sm md:text-base text-muted-foreground max-w-md">
                 Smart inventory management for medical practices. Stop losing
                 money on expired supplies and never run out during procedures.
               </p>
@@ -573,8 +573,8 @@ export function HomepageContent() {
 
             {/* Product */}
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="text-sm md:text-base font-semibold mb-3 md:mb-4">Product</h3>
+              <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li>
                   <Link
                     href="/use-cases"
@@ -604,8 +604,8 @@ export function HomepageContent() {
 
             {/* Legal */}
             <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="text-sm md:text-base font-semibold mb-3 md:mb-4">Legal</h3>
+              <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li>
                   <Link
                     href="/privacy"
@@ -626,7 +626,7 @@ export function HomepageContent() {
             </div>
           </div>
 
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t mt-6 md:mt-8 pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>
               &copy; 2026 Supplr. Built for medical practices that care about
               efficiency.

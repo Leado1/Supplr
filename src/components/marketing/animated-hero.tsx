@@ -39,7 +39,7 @@ export function AnimatedHero({
   showDashboardPreview = false,
 }: AnimatedHeroProps) {
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16 md:pt-20">
+    <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden pt-12 pb-8 md:pt-20 md:pb-0">
       {/* Particles Background */}
       <Particles
         className="absolute inset-0"
@@ -50,7 +50,7 @@ export function AnimatedHero({
         size={0.8}
       />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className={`grid gap-12 items-center ${showDashboardPreview ? 'lg:grid-cols-2' : 'max-w-5xl mx-auto text-center'}`}>
           {/* Left side - Text Content */}
           <motion.div
@@ -74,7 +74,7 @@ export function AnimatedHero({
             {/* Animated Headline */}
             <motion.h1
               variants={staggerItem}
-              className="mb-8 text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
+              className="mb-6 md:mb-8 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
             >
               <AnimatedWords text={title} />
               <br />
@@ -86,7 +86,7 @@ export function AnimatedHero({
             {/* Animated Description */}
             <motion.p
               variants={staggerItem}
-              className={`mb-10 text-lg md:text-xl text-muted-foreground leading-relaxed ${showDashboardPreview ? 'max-w-lg' : 'mx-auto max-w-2xl'}`}
+              className={`mb-8 md:mb-10 text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed px-2 sm:px-0 ${showDashboardPreview ? 'max-w-lg' : 'mx-auto max-w-2xl'}`}
             >
               {description}
             </motion.p>
@@ -94,7 +94,7 @@ export function AnimatedHero({
             {/* Animated CTA Buttons */}
             <motion.div
               variants={staggerItem}
-              className={`flex flex-col sm:flex-row gap-4 mb-8 ${showDashboardPreview ? '' : 'justify-center'}`}
+              className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 md:mb-8 px-2 sm:px-0 ${showDashboardPreview ? '' : 'justify-center'}`}
             >
               <Link href={primaryCta.href}>
                 <Button
