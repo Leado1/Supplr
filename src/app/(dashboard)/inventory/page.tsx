@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useLocationContext, useLocationChangeEffect } from "@/contexts/location-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import type { Category } from "@prisma/client";
 
 export default function InventoryPage() {
   const searchParams = useSearchParams();
+  const { selectedLocation } = useLocationContext();
   const [items, setItems] = useState<ItemWithStatus[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredItems, setFilteredItems] = useState<ItemWithStatus[]>([]);
@@ -46,8 +48,13 @@ export default function InventoryPage() {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchInventoryData();
-  }, []);
+    fetchInventoryData(selectedLocation?.id);
+  }, [selectedLocation]);
+
+  // Listen for location changes and refresh data
+  useLocationChangeEffect((newLocation) => {
+    fetchInventoryData(newLocation?.id);
+  });
 
   // Check for barcode parameter from scanner or add action from dashboard
   useEffect(() => {
@@ -78,11 +85,15 @@ export default function InventoryPage() {
     setSelectedIds(new Set());
   }, [filteredItems]);
 
-  const fetchInventoryData = async () => {
+  const fetchInventoryData = async (locationId?: string) => {
     try {
       setLoading(true);
+      const itemsUrl = locationId && locationId !== "all"
+        ? `/api/items?locationId=${locationId}`
+        : "/api/items";
+
       const [itemsRes, categoriesRes] = await Promise.all([
-        fetch("/api/items"),
+        fetch(itemsUrl),
         fetch("/api/categories"),
       ]);
 
@@ -221,7 +232,7 @@ export default function InventoryPage() {
       });
 
       if (response.ok) {
-        await fetchInventoryData(); // Refresh the data
+        await fetchInventoryData(selectedLocation?.id); // Refresh the data
       } else {
         alert("Failed to delete item");
       }
@@ -240,7 +251,7 @@ export default function InventoryPage() {
   const handleModalSave = async () => {
     setIsModalOpen(false);
     setEditingItem(null);
-    await fetchInventoryData(); // Refresh the data
+    await fetchInventoryData(selectedLocation?.id); // Refresh the data
   };
 
   const handleQuantityChange = async (
@@ -322,7 +333,7 @@ export default function InventoryPage() {
 
       if (allSuccessful) {
         setSelectedIds(new Set());
-        await fetchInventoryData(); // Refresh the data
+        await fetchInventoryData(selectedLocation?.id); // Refresh the data
       } else {
         alert("Some items could not be deleted");
       }
@@ -352,7 +363,7 @@ export default function InventoryPage() {
 
       if (allSuccessful) {
         setSelectedIds(new Set());
-        await fetchInventoryData(); // Refresh the data
+        await fetchInventoryData(selectedLocation?.id); // Refresh the data
       } else {
         alert("Some items could not be updated");
       }

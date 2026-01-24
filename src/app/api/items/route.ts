@@ -3,19 +3,47 @@ import { prisma } from "@/lib/db";
 import { addStatusToItems } from "@/lib/inventory-status";
 import { createItemSchema } from "@/lib/validations";
 import { getUserOrganization } from "@/lib/auth-helpers";
+import { getSubscriptionFeatures } from "@/lib/subscription-helpers";
 
 // GET /api/items - Get all items for the organization
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // Get user's organization with security checks
     const { error: orgError, organization } = await getUserOrganization();
     if (orgError) return orgError;
 
+    // Check for locationId parameter
+    const { searchParams } = new URL(request.url);
+    const locationId = searchParams.get("locationId");
+
+    // Build where clause
+    const whereClause: any = {
+      organizationId: organization!.id,
+    };
+
+    // Add location filter if specified and multi-location is enabled
+    if (locationId && locationId !== "all") {
+      // Check if user has multi-location access
+      const features = getSubscriptionFeatures(organization!.subscription, organization!);
+
+      if (features.multiLocation) {
+        // Verify the location belongs to this organization
+        const location = await prisma.location.findFirst({
+          where: {
+            id: locationId,
+            organizationId: organization!.id,
+          },
+        });
+
+        if (location) {
+          whereClause.locationId = locationId;
+        }
+      }
+    }
+
     // Fetch all items for the organization
     const items = await prisma.item.findMany({
-      where: {
-        organizationId: organization!.id,
-      },
+      where: whereClause,
       include: {
         category: true,
         organization: true,
