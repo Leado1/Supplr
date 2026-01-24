@@ -151,17 +151,17 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
             )}
             {card.title === "Expiring Soon" && safeSummary.expiringSoon > 0 && (
               <p className="text-xs text-muted-foreground">
-                Action needed
+                Action Needed
               </p>
             )}
             {card.title === "Expired Items" && safeSummary.expired > 0 && (
               <p className="text-xs text-muted-foreground">
-                Remove from inventory
+                Remove From Inventory
               </p>
             )}
             {card.title === "Low Stock" && safeSummary.lowStock > 0 && (
               <p className="text-xs text-muted-foreground">
-                Reorder recommended
+                Reorder Recommended
               </p>
             )}
           </CardContent>

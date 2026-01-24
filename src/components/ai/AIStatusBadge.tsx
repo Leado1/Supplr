@@ -25,7 +25,7 @@ interface AIStatusBadgeProps {
 
 const statusConfig = {
   ok: {
-    variant: "default" as const,
+    variant: "success" as const,
     label: "In Stock",
     icon: null,
     color: "bg-green-100 text-green-800 border-green-200"

@@ -82,7 +82,7 @@ const buildInventoryNotifications = (alerts: Awaited<ReturnType<typeof getInvent
 
     const message =
       item.quantity <= 0
-        ? "Out of stock. Reorder now."
+        ? "Out Of Stock. Reorder now."
         : `Only ${item.quantity} left (reorder at ${item.reorderThreshold}).`;
 
     notifications.push({

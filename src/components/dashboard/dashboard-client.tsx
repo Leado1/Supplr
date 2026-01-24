@@ -77,21 +77,23 @@ export function DashboardClient() {
     }
   }, []);
 
-  // Initial load
+  // Initial load - show all items by default
   useEffect(() => {
-    fetchInventoryData();
+    fetchInventoryData("all");
   }, [fetchInventoryData]);
 
-  // Handle location changes
+  // Handle location changes - but don't auto-filter dashboard data
+  // The dashboard should show all items by default like the inventory page
+  // Users can manually filter using location dropdown if needed
   useLocationChangeEffect(
     useCallback(
       (location) => {
-        if (!isLoading) {
-          setIsRefreshing(true);
-          fetchInventoryData(location?.id);
-        }
+        // Don't automatically filter dashboard data by location
+        // Dashboard should always show all organization items by default
+        // This prevents the "flash" effect where correct data shows then gets filtered
+        console.log("Location changed, but dashboard will continue showing all items");
       },
-      [fetchInventoryData, isLoading]
+      []
     )
   );
 
@@ -134,7 +136,7 @@ export function DashboardClient() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchInventoryData();
+    fetchInventoryData("all");
   };
 
   // Barcode scanner handlers
@@ -206,20 +208,33 @@ export function DashboardClient() {
   };
 
   const getStatusLabel = (status: ItemWithStatus["status"]) => {
-    if (status === "low_stock") {
-      return "low stock";
+    switch (status) {
+      case "ok":
+        return "In Stock";
+      case "low_stock":
+        return "Low Stock";
+      case "expiring_soon":
+        return "Expiring Soon";
+      case "expired":
+        return "Expired";
+      default:
+        return "Unknown";
     }
-    if (status === "expiring_soon") {
-      return "expiring soon";
-    }
-    return status;
   };
 
   const getStatusVariant = (status: ItemWithStatus["status"]) => {
-    if (status === "ok") {
-      return "secondary";
+    switch (status) {
+      case "ok":
+        return "success"; // Green
+      case "low_stock":
+        return "warning"; // Yellow/Orange
+      case "expiring_soon":
+        return "warning"; // Yellow/Orange
+      case "expired":
+        return "destructive"; // Red
+      default:
+        return "outline";
     }
-    return "outline";
   };
 
   return (

@@ -5,10 +5,10 @@ import type { InventoryStatus, ItemWithStatus, InventorySummary } from "@/types/
  */
 export function getStatusBadgeVariant(
   status: InventoryStatus
-): "default" | "secondary" | "destructive" | "warning" {
+): "default" | "secondary" | "destructive" | "warning" | "success" {
   switch (status) {
     case "ok":
-      return "default";
+      return "success";
     case "low_stock":
       return "warning";
     case "expiring_soon":

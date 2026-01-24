@@ -5,3 +5,4 @@ export {
   StaggerItem,
   AnimatedCounter,
 } from "./animated-section";
+export { LayeredDashboard } from "./layered-dashboard";

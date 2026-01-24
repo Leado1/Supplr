@@ -51,8 +51,9 @@ export async function GET(request: NextRequest) {
       organizationId: organization.id,
     };
 
-    // If user has multi-location access and locationId is provided, filter by location
-    if (features.multiLocation && locationId) {
+    // Only filter by location if specifically requested AND the location exists
+    // By default, show all items for the organization (like the inventory page)
+    if (features.multiLocation && locationId && locationId !== "all") {
       // Verify the location belongs to this organization
       const location = await prisma.location.findFirst({
         where: {
@@ -69,10 +70,9 @@ export async function GET(request: NextRequest) {
       }
 
       whereClause.locationId = locationId;
-    } else if (!features.multiLocation) {
-      // For non-enterprise users, only show items without locationId (legacy items)
-      whereClause.locationId = null;
     }
+    // Note: Removed the else clause that filtered out items with locationIds
+    // This allows all users to see all their organization's items regardless of location access
 
     // Auto-seed demo data if organization has no items
     await DemoSeeder.seedIfEmpty(organization.id);
@@ -93,11 +93,12 @@ export async function GET(request: NextRequest) {
       organizationId: organization.id,
     };
 
-    if (features.multiLocation && locationId) {
+    // Only filter categories by location if specifically requested
+    if (features.multiLocation && locationId && locationId !== "all") {
       categoryWhereClause.locationId = locationId;
-    } else if (!features.multiLocation) {
-      categoryWhereClause.locationId = null;
     }
+    // Note: Removed the else clause that filtered out categories with locationIds
+    // This allows all users to see all their organization's categories regardless of location access
 
     const categories = await prisma.category.findMany({
       where: categoryWhereClause,
