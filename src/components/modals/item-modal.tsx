@@ -21,6 +21,7 @@ import {
 import type { Category } from "@prisma/client";
 import type { ItemWithStatus } from "@/types/inventory";
 import { InlineLoading } from "@/components/ui/loading-spinner";
+import { toast } from "sonner";
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -177,12 +178,13 @@ export function ItemModal({
           errorData.error === "SUBSCRIPTION_LIMIT_EXCEEDED" ||
           errorData.error === "SUBSCRIPTION_INACTIVE"
         ) {
-          const userConfirmed = confirm(
-            `${errorData.message}\n\nWould you like to view our pricing plans to upgrade?`
-          );
-          if (userConfirmed) {
-            window.open("/pricing", "_blank");
-          }
+          toast.error(errorData.message, {
+            description: "Click here to view our pricing plans to upgrade",
+            action: {
+              label: "View Pricing",
+              onClick: () => window.open("/pricing", "_blank")
+            }
+          });
         } else {
           // Handle validation errors
           if (errorData.errors && Array.isArray(errorData.errors)) {
@@ -195,13 +197,13 @@ export function ItemModal({
             });
             setErrors(validationErrors);
           } else {
-            alert(errorData.message || "Failed to save item");
+            toast.error(errorData.message || "Failed to save item");
           }
         }
       }
     } catch (error) {
       console.error("Error saving item:", error);
-      alert("Error saving item");
+      toast.error("Error saving item");
     } finally {
       setLoading(false);
     }

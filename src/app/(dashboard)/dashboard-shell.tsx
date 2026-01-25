@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Notifications } from "@/components/ui/notifications";
 import { CommandPalette } from "@/components/ui/command-palette";
+import { LocationDropdown } from "@/components/location-dropdown";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -131,6 +132,7 @@ function DashboardContent({
 
             {/* Right Actions */}
             <div className="ml-auto flex items-center gap-1">
+              <LocationDropdown variant="compact" />
               <Notifications organizationId={organizationId} />
               <ThemeToggle />
               <div className="ml-2">

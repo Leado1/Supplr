@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, Lock, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,10 +39,10 @@ export function HomepageContent() {
         <section className="py-8 md:py-12">
           <div className="container mx-auto max-w-5xl px-4 sm:px-6">
             <AnimatedSection animation="fade">
-              <div className="text-center mb-8">
-                <p className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+              <div className="text-center mb-12">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-foreground uppercase">
                   Proven Impact
-                </p>
+                </h2>
               </div>
             </AnimatedSection>
 
@@ -174,16 +174,8 @@ export function HomepageContent() {
         </section>
 
         {/* Scanner Support Section */}
-        <section className="relative py-12 md:py-20 overflow-hidden">
-          <Particles
-            className="absolute inset-0"
-            quantity={50}
-            ease={80}
-            staticity={50}
-            color="#6366f1"
-            size={0.8}
-          />
-          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center relative z-10">
+        <section className="relative py-12 md:py-20">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 text-center">
             <AnimatedSection>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">
                 Add Inventory in Seconds with Professional Scanners
@@ -499,13 +491,16 @@ export function HomepageContent() {
                 </p>
                 <div className="flex flex-wrap justify-center items-center gap-4">
                   <Badge variant="outline" className="px-4 py-2 text-sm">
-                    🔒 HIPAA Compliant
+                    <Lock className="h-4 w-4 mr-2" />
+                    HIPAA Compliant
                   </Badge>
                   <Badge variant="outline" className="px-4 py-2 text-sm">
-                    🛡️ SOC 2 Type II
+                    <Shield className="h-4 w-4 mr-2" />
+                    SOC 2 Type II
                   </Badge>
                   <Badge variant="outline" className="px-4 py-2 text-sm">
-                    ✅ FDA 21 CFR Part 11
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    FDA 21 CFR Part 11
                   </Badge>
                 </div>
               </div>

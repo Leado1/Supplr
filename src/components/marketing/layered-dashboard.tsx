@@ -72,7 +72,7 @@ export function LayeredDashboard({ className }: LayeredDashboardProps) {
           {/* Dashboard Image */}
           <div className="relative h-full w-full">
             <Image
-              src="/images/dashboard.png?v=3"
+              src="/images/dashboard.png?v=4"
               alt="Supplr dashboard preview"
               width={1803}
               height={894}

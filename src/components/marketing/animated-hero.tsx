@@ -44,16 +44,13 @@ export function AnimatedHero({
       {/* Particles Background */}
       <Particles
         className="absolute inset-0"
-        quantity={50}
-        ease={80}
-        staticity={50}
+        quantity={150}
+        ease={40}
+        staticity={30}
         color="#6366f1"
-        size={0.8}
+        size={2}
       />
 
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_center,rgba(99,102,241,0.1),transparent_50%)]" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10 flex flex-col items-center text-center">
         {/* Text Content */}

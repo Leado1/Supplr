@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLocationChangeEffect } from "@/contexts/location-context";
+import { useLocationContext } from "@/contexts/location-context";
 import Link from "next/link";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CheckCircle, Loader2, RefreshCw, X } from "lucide-react";
+import { toast } from "sonner";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
 import { SubscriptionSuccessModal } from "@/components/modals/subscription-success-modal";
 import type { ItemWithStatus, InventorySummary } from "@/types/inventory";
@@ -38,6 +39,7 @@ interface InventoryData {
 export function DashboardClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { selectedLocation } = useLocationContext();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [subscribedPlan, setSubscribedPlan] = useState<string>("starter");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -55,7 +57,7 @@ export function DashboardClient() {
       setError(null);
 
       const url = new URL("/api/inventory", window.location.origin);
-      if (locationId) {
+      if (locationId && locationId !== "all") {
         url.searchParams.set("locationId", locationId);
       }
 
@@ -77,25 +79,10 @@ export function DashboardClient() {
     }
   }, []);
 
-  // Initial load - show all items by default
+  // Fetch data based on selected location
   useEffect(() => {
-    fetchInventoryData("all");
-  }, [fetchInventoryData]);
-
-  // Handle location changes - but don't auto-filter dashboard data
-  // The dashboard should show all items by default like the inventory page
-  // Users can manually filter using location dropdown if needed
-  useLocationChangeEffect(
-    useCallback(
-      (location) => {
-        // Don't automatically filter dashboard data by location
-        // Dashboard should always show all organization items by default
-        // This prevents the "flash" effect where correct data shows then gets filtered
-        console.log("Location changed, but dashboard will continue showing all items");
-      },
-      []
-    )
-  );
+    fetchInventoryData(selectedLocation?.id);
+  }, [selectedLocation?.id, fetchInventoryData]);
 
   // Handle checkout success
   useEffect(() => {
@@ -136,12 +123,12 @@ export function DashboardClient() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchInventoryData("all");
+    fetchInventoryData(selectedLocation?.id);
   };
 
   // Barcode scanner handlers
   const handleItemScanned = (item: any) => {
-    alert(`Item found: ${item.name}\nQuantity: ${item.quantity}`);
+    toast.success(`Item found: ${item.name} (Quantity: ${item.quantity})`);
     router.push("/inventory");
   };
 
@@ -255,8 +242,8 @@ export function DashboardClient() {
           <div className="flex items-start justify-between gap-4">
             <AlertDescription className="text-muted-foreground">
               <strong>Multi-Location Enabled:</strong> You can switch between
-              locations using the dropdown on this page. Inventory data is
-              filtered by your selected location.
+              locations using the dropdown in the header. Dashboard data updates
+              to show inventory for your selected location.
             </AlertDescription>
             <Button
               variant="ghost"
@@ -288,7 +275,6 @@ export function DashboardClient() {
                 Refreshing
               </Badge>
             )}
-            <LocationDropdown variant="compact" />
           </div>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2 pt-0">

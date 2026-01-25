@@ -129,6 +129,20 @@ async function processImportData(
     existingCategories.map((cat) => [cat.name.toLowerCase(), cat.id])
   );
 
+  // Get or create a default location for imported items
+  let defaultLocation = await prisma.location.findFirst({
+    where: { organizationId },
+  });
+
+  if (!defaultLocation) {
+    defaultLocation = await prisma.location.create({
+      data: {
+        name: "Main Location",
+        organizationId,
+      },
+    });
+  }
+
   // Get existing SKUs to check for duplicates
   const existingSKUs = await prisma.item.findMany({
     where: {
@@ -222,6 +236,7 @@ async function processImportData(
             sku,
             categoryId,
             organizationId,
+            locationId: defaultLocation.id,
             quantity,
             unitCost,
             expirationDate,

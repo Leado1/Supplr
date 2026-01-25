@@ -74,8 +74,8 @@ export async function GET(request: NextRequest) {
     // Note: Removed the else clause that filtered out items with locationIds
     // This allows all users to see all their organization's items regardless of location access
 
-    // Auto-seed demo data if organization has no items
-    await DemoSeeder.seedIfEmpty(organization.id);
+    // Note: Demo seeding moved to organization creation only
+    // Don't auto-seed on every API call as this can cause data corruption
 
     // Fetch items
     const items = await prisma.item.findMany({

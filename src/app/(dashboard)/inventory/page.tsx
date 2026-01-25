@@ -15,7 +15,19 @@ import { InventoryTable } from "@/components/dashboard/inventory-table";
 import { Filters } from "@/components/dashboard/filters";
 import { ItemModal } from "@/components/modals/item-modal";
 import { BarcodeScannerModal } from "@/components/modals/barcode-scanner-modal";
+import { QuantityUpdateModal } from "@/components/modals/quantity-update-modal";
 import { ExportDropdown } from "@/components/ui/export-dropdown";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { generateInventoryPDF, generateCSV } from "@/lib/pdf-generator";
 import { calculateInventorySummary } from "@/lib/inventory-utils";
 import { LoadingScreen, InlineLoading } from "@/components/ui/loading-spinner";
@@ -41,20 +53,20 @@ export default function InventoryPage() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannerMode, setScannerMode] = useState<"add" | "remove">("add");
   const [newBarcode, setNewBarcode] = useState<string | null>(null);
+  const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false);
+  const [quantityModalLoading, setQuantityModalLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<ItemWithStatus | null>(null);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [sortField, setSortField] = useState<
     "name" | "quantity" | "unitCost" | "expirationDate" | "status" | "category"
   >("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Fetch data on component mount
+  // Fetch data on component mount and location changes
   useEffect(() => {
     fetchInventoryData(selectedLocation?.id);
-  }, [selectedLocation]);
-
-  // Listen for location changes and refresh data
-  useLocationChangeEffect((newLocation) => {
-    fetchInventoryData(newLocation?.id);
-  });
+  }, [selectedLocation?.id]); // Only depend on the ID, not the whole object
 
   // Check for barcode parameter from scanner or add action from dashboard
   useEffect(() => {
@@ -221,24 +233,31 @@ export default function InventoryPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteItem = async (item: ItemWithStatus) => {
-    if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
-      return;
-    }
+  const handleDeleteItem = (item: ItemWithStatus) => {
+    setItemToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteItem = async () => {
+    if (!itemToDelete) return;
 
     try {
-      const response = await fetch(`/api/items/${item.id}`, {
+      const response = await fetch(`/api/items/${itemToDelete.id}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
         await fetchInventoryData(selectedLocation?.id); // Refresh the data
+        toast.success(`"${itemToDelete.name}" has been deleted successfully.`);
       } else {
-        alert("Failed to delete item");
+        toast.error("Failed to delete the item. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting item:", error);
-      alert("Error deleting item");
+      toast.error("An error occurred while deleting the item.");
+    } finally {
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -276,12 +295,13 @@ export default function InventoryPage() {
             i.id === item.id ? { ...i, quantity: newQuantity } : i
           )
         );
+        toast.success(`"${item.name}" quantity updated to ${newQuantity}.`);
       } else {
-        alert("Failed to update quantity");
+        toast.error("Failed to update the quantity. Please try again.");
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      alert("Error updating quantity");
+      toast.error("An error occurred while updating the quantity.");
     }
   };
 
@@ -306,23 +326,17 @@ export default function InventoryPage() {
   };
 
   // Bulk operations
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.size === 0 || bulkLoading) return;
+    setBulkDeleteDialogOpen(true);
+  };
 
-    const selectedItems = filteredItems.filter((item) =>
-      selectedIds.has(item.id)
-    );
-    const itemNames = selectedItems.map((item) => item.name).join(", ");
-
-    if (
-      !confirm(
-        `Are you sure you want to delete ${selectedIds.size} item(s)? (${itemNames})`
-      )
-    ) {
-      return;
-    }
+  const confirmBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
 
     setBulkLoading(true);
+    setBulkDeleteDialogOpen(false);
+
     try {
       const deletePromises = Array.from(selectedIds).map((id) =>
         fetch(`/api/items/${id}`, { method: "DELETE" })
@@ -334,12 +348,13 @@ export default function InventoryPage() {
       if (allSuccessful) {
         setSelectedIds(new Set());
         await fetchInventoryData(selectedLocation?.id); // Refresh the data
+        toast.success(`${selectedIds.size} item${selectedIds.size > 1 ? 's' : ''} deleted successfully.`);
       } else {
-        alert("Some items could not be deleted");
+        toast.error("Some items could not be deleted. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting items:", error);
-      alert("Error deleting items");
+      toast.error("An error occurred while deleting the items.");
     } finally {
       setBulkLoading(false);
     }
@@ -364,14 +379,28 @@ export default function InventoryPage() {
       if (allSuccessful) {
         setSelectedIds(new Set());
         await fetchInventoryData(selectedLocation?.id); // Refresh the data
+        toast.success(`${selectedIds.size} item${selectedIds.size > 1 ? 's' : ''} updated to quantity ${newQuantity}.`);
       } else {
-        alert("Some items could not be updated");
+        toast.error("Some items could not be updated. Please try again.");
       }
     } catch (error) {
       console.error("Error updating quantities:", error);
-      alert("Error updating quantities");
+      toast.error("An error occurred while updating the quantities.");
     } finally {
       setBulkLoading(false);
+    }
+  };
+
+  const handleQuantityModalConfirm = async (newQuantity: number) => {
+    setQuantityModalLoading(true);
+    await handleBulkQuantityUpdate(newQuantity);
+    setQuantityModalLoading(false);
+    setIsQuantityModalOpen(false);
+  };
+
+  const handleQuantityModalClose = () => {
+    if (!quantityModalLoading) {
+      setIsQuantityModalOpen(false);
     }
   };
 
@@ -864,14 +893,7 @@ export default function InventoryPage() {
                 variant="outline"
                 size="sm"
                 disabled={bulkLoading}
-                onClick={() => {
-                  const newQuantity = prompt(
-                    "Enter new quantity for selected items:"
-                  );
-                  if (newQuantity && !isNaN(parseInt(newQuantity))) {
-                    handleBulkQuantityUpdate(parseInt(newQuantity));
-                  }
-                }}
+                onClick={() => setIsQuantityModalOpen(true)}
                 className="border-gray-300 hover:bg-gray-50"
               >
                 {bulkLoading ? (
@@ -927,6 +949,57 @@ export default function InventoryPage() {
         onNewItemRequested={handleNewItemFromBarcode}
         mode={scannerMode}
       />
+
+      {/* Quantity Update Modal */}
+      <QuantityUpdateModal
+        isOpen={isQuantityModalOpen}
+        onClose={handleQuantityModalClose}
+        onConfirm={handleQuantityModalConfirm}
+        selectedCount={selectedIds.size}
+        isLoading={quantityModalLoading}
+      />
+
+      {/* Single Item Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{itemToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteItem}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Multiple Items</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedIds.size} selected item{selectedIds.size > 1 ? 's' : ''}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

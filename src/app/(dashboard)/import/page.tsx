@@ -16,6 +16,7 @@ import {
   Info,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface ImportResult {
   success: boolean;
@@ -40,7 +41,7 @@ export default function ImportPage() {
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
     if (!validTypes.includes(fileExtension)) {
-      alert("Please upload a CSV or Excel file (.csv, .xlsx, .xls)");
+      toast.error("Please upload a CSV or Excel file (.csv, .xlsx, .xls)");
       return false;
     }
     return true;
@@ -83,11 +84,11 @@ export default function ImportPage() {
       if (response.ok) {
         setImportResult(result);
       } else {
-        alert(`Import failed: ${result.message || "Please try again."}`);
+        toast.error(`Import failed: ${result.message || "Please try again."}`);
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Upload failed. Please try again.");
+      toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
     }
