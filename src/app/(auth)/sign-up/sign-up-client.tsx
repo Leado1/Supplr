@@ -123,34 +123,61 @@ export default function SignUpClient() {
                     </Clerk.Field>
                   </div>
 
-                  <Clerk.Field name="username">
+                  <Clerk.Field name="username" alwaysShow>
                     <Clerk.Label asChild>
                       <Label>Username</Label>
                     </Clerk.Label>
-                    <Clerk.Input asChild type="text" autoComplete="username">
+                    <Clerk.Input
+                      asChild
+                      type="text"
+                      autoComplete="username"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                    >
                       <Input placeholder="Choose a username" />
                     </Clerk.Input>
                     <Clerk.FieldError className="text-xs text-destructive" />
+                    <p className="text-xs text-muted-foreground">
+                      Letters, numbers, "-" or "_" only.
+                    </p>
                   </Clerk.Field>
 
                   <Clerk.Field name="emailAddress">
                     <Clerk.Label asChild>
                       <Label>Email</Label>
                     </Clerk.Label>
-                    <Clerk.Input asChild type="email" autoComplete="email">
+                    <Clerk.Input
+                      asChild
+                      type="email"
+                      autoComplete="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                    >
                       <Input placeholder="you@clinic.com" />
                     </Clerk.Input>
                     <Clerk.FieldError className="text-xs text-destructive" />
                   </Clerk.Field>
 
-                  <Clerk.Field name="phoneNumber">
+                  <Clerk.Field name="phoneNumber" alwaysShow>
                     <Clerk.Label asChild>
                       <Label>Phone number</Label>
                     </Clerk.Label>
-                    <Clerk.Input asChild type="tel" autoComplete="tel">
-                      <Input placeholder="(555) 555-5555" />
+                    <Clerk.Input
+                      asChild
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      autoCorrect="off"
+                      spellCheck={false}
+                    >
+                      <Input placeholder="+1 555 555 5555" />
                     </Clerk.Input>
                     <Clerk.FieldError className="text-xs text-destructive" />
+                    <p className="text-xs text-muted-foreground">
+                      Use international format (E.164), e.g. +1 555 555 5555.
+                    </p>
                   </Clerk.Field>
 
                   <Clerk.Field name="password">
