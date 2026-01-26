@@ -111,8 +111,10 @@ export function DeleteLocationModal({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="confirmation">
-              Type <strong>{location.name}</strong> to confirm deletion:
+            <Label htmlFor="confirmation" className="select-text cursor-text">
+              Type{" "}
+              <strong className="select-text">{location.name}</strong> to
+              confirm deletion:
             </Label>
             <Input
               id="confirmation"

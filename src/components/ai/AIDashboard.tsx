@@ -1,19 +1,32 @@
 /**
- * AI Dashboard - Main dashboard showing AI insights and predictions
+ * AI Dashboard - Calm, action-first AI Insights experience
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, TrendingUp, DollarSign, Package, Brain, Loader2, RefreshCw } from "lucide-react";
-import { AIInsightCard, type AIInsight } from "./AIInsightCard";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocationContext } from "@/contexts/location-context";
+import { InsightDetailsDrawer } from "./insights/InsightDetailsDrawer";
+import { InsightsActionQueue } from "./insights/InsightsActionQueue";
+import { InsightsHeader } from "./insights/InsightsHeader";
+import { InsightsSummaryCards } from "./insights/InsightsSummaryCards";
+import type {
+  DateRangeOption,
+  InsightAutomationSettings,
+  InsightFilters,
+  InsightDraftSummary,
+  InsightItem,
+} from "./insights/types";
+import {
+  applyInsightFilters,
+  buildInsightsFromApi,
+  getInsightSummaryMetrics,
+} from "./insights/utils";
 
 interface AIDashboardProps {
   organizationId: string;
@@ -21,136 +34,424 @@ interface AIDashboardProps {
   className?: string;
 }
 
-interface AISummary {
-  totalPredictions: number;
-  highPriorityItems: number;
-  potentialSavings: number;
-  accuracyRate: number;
-  lastUpdated: string;
-}
+const defaultFilters: InsightFilters = {
+  type: "all",
+  priority: "all",
+  status: "open",
+  search: "",
+  sort: "priority",
+};
 
-export function AIDashboard({ organizationId, locationId, className }: AIDashboardProps) {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [selectedLocation, setSelectedLocation] = useState(locationId || "all");
-  const [insights, setInsights] = useState<AIInsight[]>([]);
-  const [summary, setSummary] = useState<AISummary | null>(null);
+export function AIDashboard({
+  organizationId,
+  locationId,
+  className,
+}: AIDashboardProps) {
+  const router = useRouter();
+  const { selectedLocation } = useLocationContext();
+  const [dateRange, setDateRange] = useState<DateRangeOption>("30");
+  const [automationSettings, setAutomationSettings] =
+    useState<InsightAutomationSettings>({
+      autoCreateDrafts: false,
+      requireApproval: false,
+    });
+  const [filters, setFilters] = useState<InsightFilters>(defaultFilters);
+  const [insights, setInsights] = useState<InsightItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdatedLabel, setLastUpdatedLabel] = useState<
+    string | undefined
+  >();
+  const [selectedInsightId, setSelectedInsightId] = useState<string | null>(
+    null
+  );
+  const autoDraftedItems = useRef<Set<string>>(new Set());
+  const trendDays = useMemo(() => {
+    if (dateRange === "custom") return 30;
+    return Number(dateRange);
+  }, [dateRange]);
 
-  const loadAIData = async (refresh = false) => {
+  const activeLocationId = selectedLocation?.id || locationId;
+
+  const loadAIData = useCallback(
+    async (refresh = false) => {
+      try {
+        if (refresh) {
+          setIsRefreshing(true);
+        } else {
+          setIsLoading(true);
+        }
+        setError(null);
+
+        const locationQuery = activeLocationId
+          ? `?locationId=${activeLocationId}`
+          : "";
+
+        const [reorderResponse, wasteResponse] = await Promise.all([
+          fetch(`/api/ai/reorder-predictions${locationQuery}`),
+          fetch(`/api/ai/waste-prevention${locationQuery}`),
+        ]);
+
+        const reorderData = reorderResponse.ok
+          ? await reorderResponse.json()
+          : { predictions: [] };
+        const wasteData = wasteResponse.ok
+          ? await wasteResponse.json()
+          : { predictions: [] };
+
+        const reorderPredictions = reorderData.predictions ?? [];
+        const wastePredictions = wasteData.predictions ?? [];
+
+        let draftsByItemId: Record<string, InsightDraftSummary> = {};
+
+        if (reorderPredictions.length > 0) {
+          const itemIds = reorderPredictions
+            .map((prediction: { item?: { id?: string } }) => prediction.item?.id)
+            .filter(Boolean)
+            .join(",");
+          if (itemIds) {
+            const draftsResponse = await fetch(
+              `/api/purchase-orders/drafts?itemIds=${itemIds}`
+            );
+            if (draftsResponse.ok) {
+              const draftData = await draftsResponse.json();
+              draftsByItemId = (draftData.drafts || []).reduce(
+                (
+                  acc: Record<string, InsightDraftSummary>,
+                  draft: {
+                    itemId: string;
+                    purchaseOrderId: string;
+                    status: InsightDraftSummary["status"];
+                    totalEstimatedCost: number | null;
+                    createdAt?: string;
+                  }
+                ) => {
+                  acc[draft.itemId] = {
+                    id: draft.purchaseOrderId,
+                    status: draft.status,
+                    totalEstimatedCost: draft.totalEstimatedCost,
+                    createdAt: draft.createdAt,
+                  };
+                  return acc;
+                },
+                {}
+              );
+            }
+          }
+        }
+
+        const nextInsights = buildInsightsFromApi(
+          reorderPredictions,
+          wastePredictions,
+          draftsByItemId
+        );
+
+        setInsights(nextInsights);
+        setLastUpdatedLabel(
+          new Date().toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          })
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load AI data");
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [activeLocationId]
+  );
+
+  const loadAutomationSettings = useCallback(async () => {
     try {
-      if (refresh) setIsRefreshing(true);
-      else setIsLoading(true);
-      setError(null);
-
-      // Load AI predictions and recommendations
-      const [reorderResponse, wasteResponse] = await Promise.all([
-        fetch(`/api/ai/reorder-predictions${selectedLocation !== 'all' ? `?locationId=${selectedLocation}` : ''}`),
-        fetch(`/api/ai/waste-prevention${selectedLocation !== 'all' ? `?locationId=${selectedLocation}` : ''}`)
-      ]);
-
-      const reorderData = reorderResponse.ok ? await reorderResponse.json() : { predictions: [], summary: {} };
-      const wasteData = wasteResponse.ok ? await wasteResponse.json() : { predictions: [], summary: {} };
-
-      // Transform API data to AIInsight format
-      const reorderInsights: AIInsight[] = reorderData.predictions?.map((pred: any) => ({
-        id: `reorder-${pred.item.id}`,
-        type: "reorder" as const,
-        priority: pred.reorderPrediction.priority,
-        title: `Restock ${pred.item.name}`,
-        description: `You may run low in ${pred.reorderPrediction.daysUntilReorder} days`,
-        confidence: pred.confidence,
-        potentialSavings: pred.reorderPrediction.priority === 'high' ?
-          pred.reorderPrediction.recommendedQuantity * parseFloat(pred.item.unitCost) * 0.15 : 0,
-        daysUntilAction: pred.reorderPrediction.daysUntilReorder,
-        reasoning: "Based on recent usage and current stock.",
-        actionable: true,
-        supplier: pred.orderingOptions?.[0] ? {
-          name: pred.orderingOptions[0].supplier.name,
-          url: pred.orderingOptions[0].orderingUrl,
-          estimatedCost: pred.orderingOptions[0].estimatedCost,
-          deliveryDays: pred.orderingOptions[0].supplier.deliveryTime
-        } : undefined
-      })) || [];
-
-      const wasteInsights: AIInsight[] = wasteData.predictions?.map((pred: any) => {
-        const riskLabel = pred.wasteRisk.riskLevel === "high"
-          ? "High"
-          : pred.wasteRisk.riskLevel === "medium"
-            ? "Medium"
-            : "Low";
-
-        return {
-          id: `waste-${pred.item.id}`,
-          type: "waste_risk" as const,
-          priority: pred.wasteRisk.riskLevel === 'high' ? 'high' : 'medium',
-          title: `${riskLabel} chance of waste: ${pred.item.name}`,
-          description: `About ${pred.wasteRisk.estimatedWasteQuantity} could expire in ${pred.wasteRisk.daysUntilExpiration} days`,
-          confidence: pred.confidence,
-          potentialSavings: pred.wasteRisk.estimatedWasteValue,
-          daysUntilAction: pred.wasteRisk.daysUntilExpiration,
-          reasoning: "Based on expiration dates and current stock.",
-          actionable: true
-        };
-      }) || [];
-
-      const allInsights = [...reorderInsights, ...wasteInsights];
-      setInsights(allInsights);
-
-      // Generate summary
-      const totalSavings = allInsights.reduce((sum, insight) => sum + (insight.potentialSavings || 0), 0);
-      const highPriorityCount = allInsights.filter(insight =>
-        insight.priority === 'high' || insight.priority === 'critical'
-      ).length;
-
-      setSummary({
-        totalPredictions: allInsights.length,
-        highPriorityItems: highPriorityCount,
-        potentialSavings: totalSavings,
-        accuracyRate: 87, // This would come from historical feedback
-        lastUpdated: new Date().toLocaleTimeString()
+      const response = await fetch("/api/ai/automation-settings");
+      if (!response.ok) return;
+      const data = await response.json();
+      setAutomationSettings({
+        autoCreateDrafts: Boolean(data.settings?.aiAutoDraftEnabled),
+        requireApproval: Boolean(data.settings?.aiRequireApproval),
       });
-
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load AI data');
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      console.error("Failed to load automation settings:", err);
     }
-  };
+  }, []);
+
+  const updateAutomationSettings = useCallback(
+    async (updates: Partial<InsightAutomationSettings>) => {
+      setAutomationSettings((previous) => ({ ...previous, ...updates }));
+      try {
+        const response = await fetch("/api/ai/automation-settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            aiAutoDraftEnabled:
+              updates.autoCreateDrafts ?? automationSettings.autoCreateDrafts,
+            aiRequireApproval:
+              updates.requireApproval ?? automationSettings.requireApproval,
+          }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to update automation settings");
+        }
+        const data = await response.json();
+        setAutomationSettings({
+          autoCreateDrafts: Boolean(data.settings?.aiAutoDraftEnabled),
+          requireApproval: Boolean(data.settings?.aiRequireApproval),
+        });
+      } catch (err) {
+        console.error("Failed to update automation settings:", err);
+        await loadAutomationSettings();
+      }
+    },
+    [automationSettings.autoCreateDrafts, automationSettings.requireApproval, loadAutomationSettings]
+  );
 
   useEffect(() => {
-    loadAIData();
-  }, [selectedLocation]);
+    void loadAIData();
+  }, [loadAIData, organizationId, dateRange]);
 
-  const handleInsightAction = async (insightId: string, action: string) => {
-    try {
-      // Extract type and item ID from insight ID
-      const [type, itemId] = insightId.split('-');
+  useEffect(() => {
+    void loadAutomationSettings();
+  }, [loadAutomationSettings]);
 
-      const endpoint = type === 'reorder' ? '/api/ai/reorder-predictions' : '/api/ai/waste-prevention';
-
-      await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          itemId,
-          action,
-          feedback: 'helpful'
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const now = Date.now();
+      setInsights((previous) =>
+        previous.map((insight) => {
+          if (insight.status !== "snoozed" || !insight.snoozedUntil) {
+            return insight;
+          }
+          const snoozedUntilTime = new Date(insight.snoozedUntil).getTime();
+          if (snoozedUntilTime > now) {
+            return insight;
+          }
+          return { ...insight, status: "open", snoozedUntil: undefined };
         })
-      });
+      );
+    }, 60_000);
 
-      // Remove the insight from the list or reload data
-      setInsights(prev => prev.filter(insight => insight.id !== insightId));
+    return () => window.clearInterval(interval);
+  }, []);
 
-    } catch (err) {
-      console.error('Failed to handle insight action:', err);
+  const summaryMetrics = useMemo(
+    () => getInsightSummaryMetrics(insights),
+    [insights]
+  );
+  const filteredInsights = useMemo(
+    () => applyInsightFilters(insights, filters),
+    [insights, filters]
+  );
+  const selectedInsight = useMemo(
+    () => insights.find((insight) => insight.id === selectedInsightId) ?? null,
+    [insights, selectedInsightId]
+  );
+  const drawerOpen = Boolean(selectedInsight);
+
+  useEffect(() => {
+    if (selectedInsightId && !selectedInsight) {
+      setSelectedInsightId(null);
+    }
+  }, [selectedInsight, selectedInsightId]);
+
+  const recordInsightAction = useCallback(
+    async (insight: InsightItem, action: string) => {
+      try {
+        const endpoint =
+          insight.sourceType === "reorder"
+            ? "/api/ai/reorder-predictions"
+            : "/api/ai/waste-prevention";
+        const method = insight.sourceType === "reorder" ? "PATCH" : "POST";
+
+        await fetch(endpoint, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            itemId: insight.itemId,
+            action,
+            feedback: "helpful",
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to record AI insight action:", err);
+      }
+    },
+    []
+  );
+
+  const updateInsight = useCallback(
+    (insightId: string, updater: (insight: InsightItem) => InsightItem) => {
+      setInsights((previous) =>
+        previous.map((insight) =>
+          insight.id === insightId ? updater(insight) : insight
+        )
+      );
+    },
+    []
+  );
+
+  const createDraftPo = useCallback(
+    async (insight: InsightItem, options?: { automated?: boolean }) => {
+      if (insight.sourceType !== "reorder") return;
+      if (insight.draftPoId) return;
+
+      try {
+        const response = await fetch("/api/purchase-orders/drafts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            itemId: insight.itemId,
+            quantity: insight.recommendedQuantity,
+            source: "ai_insights",
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create draft PO");
+        }
+
+        const data = await response.json();
+        const draft = data.draft;
+
+        updateInsight(insight.id, (current) => ({
+          ...current,
+          draftPoId: draft.id,
+          draftPoStatus: draft.status,
+          draftPoTotal: draft.totalEstimatedCost ?? null,
+          draftPoCreatedAt: draft.createdAt,
+        }));
+
+        if (options?.automated) {
+          autoDraftedItems.current.add(insight.itemId);
+        }
+
+        if (!options?.automated) {
+          void recordInsightAction(insight, "marked_for_ordering");
+        }
+      } catch (err) {
+        console.error("Failed to create draft PO:", err);
+      }
+    },
+    [recordInsightAction, updateInsight]
+  );
+
+  const approveDraftPo = useCallback(
+    async (insight: InsightItem) => {
+      if (!insight.draftPoId) return;
+      try {
+        const response = await fetch(
+          `/api/purchase-orders/drafts/${insight.draftPoId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "APPROVED" }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to approve draft PO");
+        }
+
+        const data = await response.json();
+        updateInsight(insight.id, (current) => ({
+          ...current,
+          draftPoStatus: data.draft?.status ?? current.draftPoStatus,
+        }));
+      } catch (err) {
+        console.error("Failed to approve draft PO:", err);
+      }
+    },
+    [updateInsight]
+  );
+
+  useEffect(() => {
+    if (isLoading || !automationSettings.autoCreateDrafts) {
+      return;
+    }
+
+    const pendingDrafts = insights.filter(
+      (insight) =>
+        insight.sourceType === "reorder" &&
+        insight.status === "open" &&
+        !insight.draftPoId
+    );
+
+    if (pendingDrafts.length === 0) {
+      return;
+    }
+
+    const createDrafts = async () => {
+      for (const insight of pendingDrafts) {
+        if (autoDraftedItems.current.has(insight.itemId)) {
+          continue;
+        }
+        await createDraftPo(insight, { automated: true });
+      }
+    };
+
+    void createDrafts();
+  }, [
+    automationSettings.autoCreateDrafts,
+    createDraftPo,
+    insights,
+    isLoading,
+  ]);
+
+  const handlePrimaryAction = (insight: InsightItem) => {
+    if (insight.sourceType === "reorder") {
+      if (insight.draftPoId) {
+        setSelectedInsightId(insight.id);
+        return;
+      }
+      void createDraftPo(insight);
+      return;
+    }
+
+    void recordInsightAction(insight, "marked_priority");
+    updateInsight(insight.id, (current) => ({ ...current, status: "done" }));
+    setSelectedInsightId(null);
+  };
+
+  const handleMarkDone = (insight: InsightItem) => {
+    void recordInsightAction(insight, "marked_done");
+    updateInsight(insight.id, (current) => ({ ...current, status: "done" }));
+    setSelectedInsightId(null);
+  };
+
+  const handleSnooze = (insight: InsightItem, days: number) => {
+    const snoozedUntil = new Date(
+      Date.now() + days * 24 * 60 * 60 * 1000
+    ).toISOString();
+    updateInsight(insight.id, (current) => ({
+      ...current,
+      status: "snoozed",
+      snoozedUntil,
+    }));
+    setSelectedInsightId(null);
+  };
+
+  const handleDismiss = (insight: InsightItem) => {
+    setInsights((previous) =>
+      previous.filter((item) => item.id !== insight.id)
+    );
+    setSelectedInsightId(null);
+  };
+
+  const handleViewItem = (_insight: InsightItem) => {
+    router.push("/inventory");
+    setSelectedInsightId(null);
+  };
+
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedInsightId(null);
     }
   };
 
-  const handleInsightDismiss = (insightId: string) => {
-    setInsights(prev => prev.filter(insight => insight.id !== insightId));
+  const handleResetFilters = () => {
+    setFilters(defaultFilters);
   };
 
   if (error) {
@@ -158,7 +459,7 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
       <Card className={cn("border-destructive", className)}>
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 text-destructive">
-            <AlertCircle className="w-4 h-4" />
+            <AlertCircle className="h-4 w-4" />
             <p>Failed to load AI insights: {error}</p>
           </div>
           <Button
@@ -167,7 +468,7 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
             className="mt-2"
             onClick={() => loadAIData()}
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
         </CardContent>
@@ -177,183 +478,44 @@ export function AIDashboard({ organizationId, locationId, className }: AIDashboa
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Controls */}
-      <div className="flex items-center justify-end gap-2">
-        <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="All locations" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Locations</SelectItem>
-            {/* Would be populated with actual locations */}
-          </SelectContent>
-        </Select>
+      <InsightsHeader
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        onRefresh={() => loadAIData(true)}
+        isRefreshing={isRefreshing}
+        lastUpdatedLabel={lastUpdatedLabel}
+      />
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => loadAIData(true)}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4 mr-2" />
-          )}
-          Refresh
-        </Button>
-      </div>
+      <InsightsSummaryCards metrics={summaryMetrics} isLoading={isLoading} />
 
-      {/* Summary Cards */}
-      {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recommendations</CardTitle>
-              <Brain className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.totalPredictions}</div>
-              <p className="text-xs text-muted-foreground">
-                Updated {summary.lastUpdated}
-              </p>
-            </CardContent>
-          </Card>
+      <InsightsActionQueue
+        insights={insights}
+        filteredInsights={filteredInsights}
+        filters={filters}
+        isLoading={isLoading}
+        automationSettings={automationSettings}
+        onAutomationChange={updateAutomationSettings}
+        onFiltersChange={setFilters}
+        onResetFilters={handleResetFilters}
+        selectedInsightId={selectedInsightId}
+        onSelect={(insight) => setSelectedInsightId(insight.id)}
+        onPrimaryAction={handlePrimaryAction}
+        onSnooze={handleSnooze}
+        onDismiss={handleDismiss}
+        onMarkDone={handleMarkDone}
+        onViewItem={handleViewItem}
+      />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Needs attention</CardTitle>
-              <AlertCircle className="w-4 h-4 text-orange-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">
-                {summary.highPriorityItems}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Take action soon
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Estimated savings</CardTitle>
-              <DollarSign className="w-4 h-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                ${summary.potentialSavings.toFixed(2)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Estimated monthly savings
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Accuracy</CardTitle>
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {summary.accuracyRate}%
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Based on past results
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="reorder">Restock Suggestions</TabsTrigger>
-          <TabsTrigger value="waste">Prevent Waste</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4 mt-6">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-48 w-full" />
-              ))}
-            </div>
-          ) : insights.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-12">
-                  <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No recommendations yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Add items and usage so we can give suggestions.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {insights.slice(0, 6).map((insight) => (
-                <AIInsightCard
-                  key={insight.id}
-                  insight={insight}
-                  onAction={(action) => handleInsightAction(insight.id, action)}
-                  onDismiss={() => handleInsightDismiss(insight.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="reorder" className="space-y-4 mt-6">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(2)].map((_, i) => (
-                <Skeleton key={i} className="h-48 w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {insights
-                .filter(insight => insight.type === 'reorder')
-                .map((insight) => (
-                  <AIInsightCard
-                    key={insight.id}
-                    insight={insight}
-                    onAction={(action) => handleInsightAction(insight.id, action)}
-                    onDismiss={() => handleInsightDismiss(insight.id)}
-                  />
-                ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="waste" className="space-y-4 mt-6">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(2)].map((_, i) => (
-                <Skeleton key={i} className="h-48 w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {insights
-                .filter(insight => insight.type === 'waste_risk')
-                .map((insight) => (
-                  <AIInsightCard
-                    key={insight.id}
-                    insight={insight}
-                    onAction={(action) => handleInsightAction(insight.id, action)}
-                    onDismiss={() => handleInsightDismiss(insight.id)}
-                  />
-                ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      <InsightDetailsDrawer
+        insight={selectedInsight}
+        open={drawerOpen}
+        onOpenChange={handleDrawerOpenChange}
+        onPrimaryAction={handlePrimaryAction}
+        onMarkDone={handleMarkDone}
+        onApproveDraft={approveDraftPo}
+        locationId={activeLocationId}
+        trendDays={trendDays}
+      />
     </div>
   );
 }

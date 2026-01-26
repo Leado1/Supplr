@@ -56,12 +56,43 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const usageWindowDays = 30;
+    const usageWindowStart = new Date();
+    usageWindowStart.setDate(usageWindowStart.getDate() - usageWindowDays);
+
+    const itemIds = items.map((item) => item.id);
+    const usageTotalsByItem = new Map<string, number>();
+
+    if (itemIds.length > 0) {
+      const usageChanges = await prisma.inventoryChange.findMany({
+        where: {
+          organizationId: organization.id,
+          itemId: { in: itemIds },
+          changeType: "usage",
+          createdAt: {
+            gte: usageWindowStart,
+          },
+        },
+      });
+
+      usageChanges.forEach((change) => {
+        const usage = Math.max(0, change.quantityBefore - change.quantityAfter);
+        usageTotalsByItem.set(
+          change.itemId,
+          (usageTotalsByItem.get(change.itemId) || 0) + usage
+        );
+      });
+    }
+
     // Generate waste risk predictions for each item
     const predictions = await Promise.all(
       items.map(async (item) => {
         try {
           const prediction =
             await PredictionEngine.generateWasteRiskPrediction(item);
+          const totalUsage = usageTotalsByItem.get(item.id) || 0;
+          const averageDailyUsage =
+            Math.round((totalUsage / usageWindowDays) * 100) / 100;
 
           // Cache the prediction
           const existingPrediction = await prisma.aIPrediction.findFirst({
@@ -110,6 +141,10 @@ export async function GET(request: NextRequest) {
             wasteRisk: prediction.value,
             confidence: Math.round(prediction.confidenceScore * 100),
             reasoning: prediction.reasoning,
+            usage: {
+              averageDailyUsage,
+              totalUsage30Days: totalUsage,
+            },
           };
         } catch (error) {
           console.error(
