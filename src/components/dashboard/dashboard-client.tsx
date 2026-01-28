@@ -200,6 +200,8 @@ export function DashboardClient() {
   });
   const trendMax = Math.max(...trendSeries, 1);
   const trendMin = Math.min(...trendSeries);
+  const trendMid = Math.round((trendMax + trendMin) / 2);
+  const weekLabels = ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6"];
   const trendPoints = trendSeries.map((value, index) => {
     const x = (index / (trendSeries.length - 1)) * 240;
     const y =
@@ -448,23 +450,30 @@ export function DashboardClient() {
               <span className="text-muted-foreground">Current units</span>
               <span className="font-semibold">{totalQuantity}</span>
             </div>
-            <div className="mt-4 h-28">
-              <svg viewBox="0 0 240 80" className="h-full w-full">
-                <path
-                  d={trendAreaPath}
-                  fill="rgba(129,140,248,0.25)"
-                />
-                <path
-                  d={trendPath}
-                  fill="none"
-                  stroke="#6366F1"
-                  strokeWidth="3"
-                />
-              </svg>
+            <div className="mt-4 grid grid-cols-[auto_1fr] items-end gap-3">
+              <div className="flex h-28 flex-col justify-between text-[10px] text-muted-foreground">
+                <span>{trendMax}</span>
+                <span>{trendMid}</span>
+                <span>{trendMin}</span>
+              </div>
+              <div className="h-28">
+                <svg viewBox="0 0 240 80" className="h-full w-full">
+                  <path
+                    d={trendAreaPath}
+                    fill="rgba(129,140,248,0.25)"
+                  />
+                  <path
+                    d={trendPath}
+                    fill="none"
+                    stroke="#6366F1"
+                    strokeWidth="3"
+                  />
+                </svg>
+              </div>
             </div>
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              {trendSeries.map((value, index) => (
-                <span key={`trend-${index}`}>{value}</span>
+            <div className="mt-2 flex justify-between pl-8 text-[10px] text-muted-foreground">
+              {weekLabels.map((label) => (
+                <span key={label}>{label}</span>
               ))}
             </div>
           </CardContent>
