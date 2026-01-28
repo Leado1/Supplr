@@ -57,7 +57,7 @@ function RouteLoadingInner() {
 
       {/* Loading indicator in top-right */}
       {isLoading && (
-        <div className="fixed top-4 right-4 z-50 animate-in fade-in duration-200">
+        <div className="fixed top-[4.5rem] right-4 z-50 animate-in fade-in duration-200">
           <div className="bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border">
             <div className="flex items-center space-x-2">
               <LoadingSpinner size="sm" />
