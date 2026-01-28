@@ -41,6 +41,7 @@ model User {
   // Purchasing
   createdPurchaseOrders  PurchaseOrder[] @relation("PurchaseOrderCreatedBy")
   approvedPurchaseOrders PurchaseOrder[] @relation("PurchaseOrderApprovedBy")
+  assistantToolAudits    AssistantToolAudit[]
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -64,6 +65,8 @@ model Organization {
   aiPredictions     AIPrediction[]    // AI predictions for this organization
   inventoryChanges  InventoryChange[] // Historical changes for AI learning
   aiFeatureUsage    AIFeatureUsage[]  // AI feature usage tracking
+  assistantConversations AssistantConversation[]
+  assistantToolAudits    AssistantToolAudit[]
 
   // Supplier Relations
   supplierPreferences SupplierPreference[] // Preferred suppliers and contract terms
@@ -440,4 +443,34 @@ model PurchaseOrderItem {
   @@index([itemId])
   @@index([purchaseOrderId])
   @@map("purchase_order_items")
+}
+
+model AssistantConversation {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       Json
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId, createdAt])
+  @@map("assistant_conversations")
+}
+
+model AssistantToolAudit {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tool           String
+  args           Json
+  status         String
+  error          String?
+  conversationId String?
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([tool])
+  @@map("assistant_tool_audit")
 }

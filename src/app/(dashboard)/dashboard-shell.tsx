@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Search, PanelLeftClose, PanelLeft } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Sidebar, SidebarProvider, useSidebar } from "@/components/dashboard";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Notifications } from "@/components/ui/notifications";
@@ -17,6 +18,7 @@ interface DashboardShellProps {
   children: React.ReactNode;
   canManageTeam: boolean;
   hasMultiLocationAccess: boolean;
+  hasAssistantAccess?: boolean;
   organizationId?: string;
 }
 
@@ -25,6 +27,7 @@ const routeLabels: Record<string, string> = {
   inventory: "Inventory",
   reports: "Reports",
   ai: "AI Insights",
+  assistant: "AI Assistant",
   team: "Team",
   locations: "Locations",
   settings: "Settings",
@@ -48,10 +51,10 @@ const getBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   const segments = pathname.split("/").filter(Boolean);
   const crumbs: BreadcrumbItem[] = [{ label: "Dashboard", href: "/dashboard" }];
 
-  const filteredSegments =
-    segments[0] === "dashboard" ? segments.slice(1) : segments;
+  const isDashboardPath = segments[0] === "dashboard";
+  const filteredSegments = isDashboardPath ? segments.slice(1) : segments;
 
-  let currentPath = "";
+  let currentPath = isDashboardPath ? "/dashboard" : "";
   filteredSegments.forEach((segment) => {
     currentPath += `/${segment}`;
     crumbs.push({
@@ -63,10 +66,39 @@ const getBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   return crumbs;
 };
 
+const pageEase = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 12,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: pageEase },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    transition: { duration: 0.2, ease: pageEase },
+  },
+};
+
+const withDashboardEntryClass = (node: React.ReactNode) => {
+  if (React.isValidElement(node) && typeof node.type === "string") {
+    const element = node as React.ReactElement<{ className?: string }>;
+    const className = cn(element.props.className, "dashboard-page-enter");
+    return React.cloneElement(element, { className });
+  }
+  return <div className="dashboard-page-enter">{node}</div>;
+};
+
 function DashboardContent({
   children,
   canManageTeam,
   hasMultiLocationAccess,
+  hasAssistantAccess,
   organizationId,
 }: DashboardShellProps) {
   const { collapsed, toggle } = useSidebar();
@@ -82,6 +114,7 @@ function DashboardContent({
       <Sidebar
         canManageTeam={canManageTeam}
         hasMultiLocationAccess={hasMultiLocationAccess}
+        hasAssistantAccess={hasAssistantAccess}
       />
 
       {/* Main Content */}
@@ -178,7 +211,17 @@ function DashboardContent({
             </nav>
 
             {/* Page Content */}
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                {withDashboardEntryClass(children)}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 

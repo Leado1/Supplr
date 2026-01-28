@@ -58,7 +58,7 @@ export function AnimatedHero({
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="max-w-4xl mx-auto text-center"
+        className="max-w-3xl mx-auto text-center"
         >
           {/* Animated Badge */}
           {subtitle && (
@@ -75,7 +75,7 @@ export function AnimatedHero({
           {/* Animated Headline */}
           <motion.h1
             variants={staggerItem}
-            className="mb-6 md:mb-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
+            className="mb-5 md:mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight"
           >
             <AnimatedWords text={title} />
             <br />
@@ -87,7 +87,7 @@ export function AnimatedHero({
           {/* Animated Description */}
           <motion.p
             variants={staggerItem}
-            className="mb-8 md:mb-12 text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed mx-auto max-w-3xl px-2 sm:px-0"
+            className="mb-6 md:mb-8 text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mx-auto max-w-2xl px-2 sm:px-0"
           >
             {description}
           </motion.p>
@@ -95,7 +95,7 @@ export function AnimatedHero({
           {/* Animated CTA Buttons */}
           <motion.div
             variants={staggerItem}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-12 md:mb-16 px-2 sm:px-0 justify-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 md:mb-10 px-2 sm:px-0 justify-center"
           >
             <Link href={primaryCta.href}>
               <Button
@@ -132,9 +132,6 @@ export function AnimatedHero({
             {/* Dashboard Component */}
             <div className="relative">
               <LayeredDashboard className="w-full h-auto" />
-
-              {/* Subtle glow effect around dashboard */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 blur-xl opacity-50 rounded-[48px]" />
             </div>
           </motion.div>
         )}

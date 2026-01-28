@@ -9,6 +9,7 @@ import {
   Package,
   BarChart3,
   Sparkles,
+  Bot,
   Users,
   MapPin,
   Settings,
@@ -32,6 +33,7 @@ export interface NavItem {
   href: string;
   icon: React.ElementType;
   badge?: string | number;
+  iconColor?: string;
 }
 
 export interface NavSection {
@@ -44,6 +46,8 @@ export interface SidebarProps {
   canManageTeam?: boolean;
   /** Whether the user has multi-location access */
   hasMultiLocationAccess?: boolean;
+  /** Whether the user can access the AI Assistant */
+  hasAssistantAccess?: boolean;
   /** Custom className */
   className?: string;
 }
@@ -108,7 +112,12 @@ function SidebarNavItem({ item, collapsed, isActive }: NavItemProps) {
         collapsed && "h-9 w-9 justify-center px-0 mx-auto"
       )}
     >
-      <Icon className={cn("h-4 w-4 shrink-0", isActive && "text-foreground")} />
+      <Icon
+        className={cn(
+          "h-4 w-4 shrink-0",
+          item.iconColor ?? "text-sidebar-foreground/70"
+        )}
+      />
       <AnimatePresence mode="wait">
         {!collapsed && (
           <motion.span
@@ -156,6 +165,7 @@ function SidebarNavItem({ item, collapsed, isActive }: NavItemProps) {
 export function Sidebar({
   canManageTeam = false,
   hasMultiLocationAccess = false,
+  hasAssistantAccess = true,
   className,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -163,24 +173,37 @@ export function Sidebar({
 
   // Build navigation sections
   const mainNav: NavItem[] = [
-    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { title: "Inventory", href: "/inventory", icon: Package },
-    { title: "Reports", href: "/reports", icon: BarChart3 },
-    { title: "AI Insights", href: "/ai", icon: Sparkles },
+    { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, iconColor: "text-sky-500" },
+    { title: "Inventory", href: "/inventory", icon: Package, iconColor: "text-emerald-500" },
+    { title: "Reports", href: "/reports", icon: BarChart3, iconColor: "text-violet-500" },
+    { title: "AI Insights", href: "/ai", icon: Sparkles, iconColor: "text-amber-500" },
   ];
+  if (hasAssistantAccess) {
+    mainNav.push({
+      title: "AI Assistant",
+      href: "/dashboard/assistant",
+      icon: Bot,
+      iconColor: "text-indigo-500",
+    });
+  }
 
   const teamNav: NavItem[] = [];
   if (canManageTeam) {
-    teamNav.push({ title: "Team", href: "/team", icon: Users });
+    teamNav.push({ title: "Team", href: "/team", icon: Users, iconColor: "text-rose-500" });
   }
   if (hasMultiLocationAccess) {
-    teamNav.push({ title: "Locations", href: "/locations", icon: MapPin });
+    teamNav.push({
+      title: "Locations",
+      href: "/locations",
+      icon: MapPin,
+      iconColor: "text-cyan-500",
+    });
   }
 
   const settingsNav: NavItem[] = [
-    { title: "Settings", href: "/settings", icon: Settings },
-    { title: "Billing", href: "/billing", icon: CreditCard },
-    { title: "Support", href: "/support", icon: HelpCircle },
+    { title: "Settings", href: "/settings", icon: Settings, iconColor: "text-slate-500" },
+    { title: "Billing", href: "/billing", icon: CreditCard, iconColor: "text-orange-500" },
+    { title: "Support", href: "/support", icon: HelpCircle, iconColor: "text-lime-500" },
   ];
 
   const isActive = (href: string) => {
@@ -203,15 +226,21 @@ export function Sidebar({
       >
         {/* Logo */}
         <div className={cn(
-          "flex h-14 items-center border-b border-sidebar-border px-4",
-          collapsed && "justify-center px-2"
+          "flex h-14 items-center border-b border-sidebar-border px-4"
         )}>
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <img
-              src="/images/logo.png"
-              alt="Supplr"
-              className={cn("h-7 w-auto", collapsed && "h-6")}
-            />
+          <Link href="/dashboard" className="flex items-center">
+            <div
+              className={cn(
+                "overflow-hidden transition-[width] duration-300",
+                collapsed ? "w-8" : "w-[120px]"
+              )}
+            >
+              <img
+                src="/images/logo.png"
+                alt="Supplr"
+                className="h-7 w-auto"
+              />
+            </div>
           </Link>
         </div>
 

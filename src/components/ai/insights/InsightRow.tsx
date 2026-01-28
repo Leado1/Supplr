@@ -104,10 +104,17 @@ export function InsightRow({
         isSelected && "ring-2 ring-primary/20"
       )}
     >
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect(insight)}
-        className="flex w-full flex-col gap-3 p-4 text-left hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onSelect(insight);
+          }
+        }}
+        className="flex w-full cursor-pointer flex-col gap-3 p-4 text-left hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
@@ -224,7 +231,7 @@ export function InsightRow({
             </div>
           </div>
         </div>
-      </button>
+      </div>
     </div>
   );
 }

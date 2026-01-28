@@ -445,6 +445,46 @@
     }
   }
 
+  /* Dashboard page transition - blocks fall into place */
+  .dashboard-page-enter > *,
+  .dashboard-page-enter > * > * {
+    animation: dashboard-fall 0.5s var(--ease-spring) both;
+    animation-delay: calc(var(--dash-index, 0) * 70ms);
+    will-change: transform, opacity;
+  }
+
+  .dashboard-page-enter > *:nth-child(1),
+  .dashboard-page-enter > * > *:nth-child(1) { --dash-index: 0; }
+  .dashboard-page-enter > *:nth-child(2),
+  .dashboard-page-enter > * > *:nth-child(2) { --dash-index: 1; }
+  .dashboard-page-enter > *:nth-child(3),
+  .dashboard-page-enter > * > *:nth-child(3) { --dash-index: 2; }
+  .dashboard-page-enter > *:nth-child(4),
+  .dashboard-page-enter > * > *:nth-child(4) { --dash-index: 3; }
+  .dashboard-page-enter > *:nth-child(5),
+  .dashboard-page-enter > * > *:nth-child(5) { --dash-index: 4; }
+  .dashboard-page-enter > *:nth-child(6),
+  .dashboard-page-enter > * > *:nth-child(6) { --dash-index: 5; }
+  .dashboard-page-enter > *:nth-child(7),
+  .dashboard-page-enter > * > *:nth-child(7) { --dash-index: 6; }
+  .dashboard-page-enter > *:nth-child(8),
+  .dashboard-page-enter > * > *:nth-child(8) { --dash-index: 7; }
+  .dashboard-page-enter > *:nth-child(9),
+  .dashboard-page-enter > * > *:nth-child(9) { --dash-index: 8; }
+  .dashboard-page-enter > *:nth-child(10),
+  .dashboard-page-enter > * > *:nth-child(10) { --dash-index: 9; }
+
+  @keyframes dashboard-fall {
+    from {
+      opacity: 0;
+      transform: translateY(-24px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
   /* Chaotic Orbit Loading Spinner */
   .chaotic-orbit {
     --uib-size: 25px;
