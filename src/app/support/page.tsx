@@ -137,7 +137,7 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                   href="/resources"
                   className="font-medium text-slate-700 underline-offset-4 hover:underline"
                 >
-                  help center
+                  resources
                 </Link>
                 {" "}or email{" "}
                 <Link

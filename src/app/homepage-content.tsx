@@ -79,7 +79,7 @@ export function HomepageContent() {
                 <Card variant="interactive" animate className="h-full">
                   <div className="p-6 text-center">
                     <div className="text-3xl font-semibold">
-                      <AnimatedCounter value={2} suffix="x" />
+                      <AnimatedCounter value={2} suffix="x" duration={0.5} />
                     </div>
                     <p className="mt-2 text-sm font-medium">
                       Faster audits

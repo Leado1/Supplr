@@ -150,10 +150,10 @@ export default function ResourcesPage() {
       link: "/community",
     },
     {
-      title: "Help Center",
-      description: "FAQs and troubleshooting guides",
+      title: "Contact Support",
+      description: "Get help from our team",
       icon: HelpCircle,
-      link: "/help",
+      link: "/support",
     },
   ];
 
