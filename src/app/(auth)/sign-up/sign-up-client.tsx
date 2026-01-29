@@ -160,25 +160,6 @@ export default function SignUpClient() {
                     <Clerk.FieldError className="text-xs text-destructive" />
                   </Clerk.Field>
 
-                  <Clerk.Field name="phoneNumber" alwaysShow>
-                    <Clerk.Label asChild>
-                      <Label>Phone number</Label>
-                    </Clerk.Label>
-                    <Clerk.Input
-                      asChild
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      autoCorrect="off"
-                      spellCheck={false}
-                    >
-                      <Input placeholder="+1 555 555 5555" />
-                    </Clerk.Input>
-                    <Clerk.FieldError className="text-xs text-destructive" />
-                    <p className="text-xs text-muted-foreground">
-                      Use international format (E.164), e.g. +1 555 555 5555.
-                    </p>
-                  </Clerk.Field>
 
                   <Clerk.Field name="password">
                     <Clerk.Label asChild>
