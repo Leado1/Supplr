@@ -131,23 +131,6 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                 </div>
               </div>
 
-              <p className="text-sm text-slate-500">
-                Already a customer? Visit our{" "}
-                <Link
-                  href="/resources"
-                  className="font-medium text-slate-700 underline-offset-4 hover:underline"
-                >
-                  resources
-                </Link>
-                {" "}or email{" "}
-                <Link
-                  href="mailto:support@supplr.net"
-                  className="font-medium text-slate-700 underline-offset-4 hover:underline"
-                >
-                  support@supplr.net
-                </Link>
-                .
-              </p>
             </div>
 
             {/* Right form */}
