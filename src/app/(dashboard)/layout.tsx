@@ -10,6 +10,9 @@ import { LocationProvider } from "@/contexts/location-context";
 import { PaymentRequired } from "@/components/subscription/subscription-guard";
 import { DashboardShell } from "./dashboard-shell";
 
+// Force dynamic rendering for all dashboard routes
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({
   children,
 }: {

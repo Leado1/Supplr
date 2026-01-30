@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { RefreshButton } from "./refresh-button";
 import {
   Wrench,
   Clock,
@@ -112,10 +113,7 @@ export default function MaintenancePage() {
           {/* Actions */}
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => window.location.reload()} variant="default">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Check Again
-              </Button>
+              <RefreshButton />
               <Link href="/support">
                 <Button variant="outline">
                   <Mail className="w-4 h-4 mr-2" />
