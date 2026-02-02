@@ -68,7 +68,7 @@ export default async function DashboardLayout({
       )
     : null;
   const hasMultiLocationAccess = features?.multiLocation && canManageTeam;
-  const allowedAssistantPlans = new Set(["starter", "professional", "enterprise", "pro"]);
+  const allowedAssistantPlans = new Set(["professional", "enterprise", "pro"]);
   const hasAssistantAccess =
     !!organization?.subscription &&
     subscriptionActive &&

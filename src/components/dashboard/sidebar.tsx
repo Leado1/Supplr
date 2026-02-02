@@ -23,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UpgradePopup } from "@/components/ui/upgrade-popup";
 
 // ============================================================================
 // TYPES
@@ -30,10 +31,12 @@ import {
 
 export interface NavItem {
   title: string;
-  href: string;
+  href?: string;
   icon: React.ElementType;
   badge?: string | number;
   iconColor?: string;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
 export interface NavSection {
@@ -101,23 +104,23 @@ interface NavItemProps {
 function SidebarNavItem({ item, collapsed, isActive }: NavItemProps) {
   const Icon = item.icon;
 
-  const content = (
-    <Link
-      href={item.href}
-      className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-        isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-semibold",
-        !isActive && "text-sidebar-foreground",
-        collapsed && "h-9 w-9 justify-center px-0 mx-auto"
-      )}
-    >
-      <Icon
-        className={cn(
-          "h-4 w-4 shrink-0",
-          item.iconColor ?? "text-sidebar-foreground/70"
-        )}
-      />
+  const baseClasses = cn(
+    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-semibold",
+    !isActive && "text-sidebar-foreground",
+    item.disabled && "opacity-60 cursor-pointer",
+    collapsed && "h-9 w-9 justify-center px-0 mx-auto"
+  );
+
+  const iconClasses = cn(
+    "h-4 w-4 shrink-0",
+    item.disabled ? "text-sidebar-foreground/40" : (item.iconColor ?? "text-sidebar-foreground/70")
+  );
+
+  const contentElement = (
+    <>
+      <Icon className={iconClasses} />
       <AnimatePresence mode="wait">
         {!collapsed && (
           <motion.span
@@ -136,6 +139,22 @@ function SidebarNavItem({ item, collapsed, isActive }: NavItemProps) {
           {item.badge}
         </span>
       )}
+    </>
+  );
+
+  const content = item.onClick ? (
+    <button
+      onClick={item.onClick}
+      className={baseClasses}
+    >
+      {contentElement}
+    </button>
+  ) : (
+    <Link
+      href={item.href || "#"}
+      className={baseClasses}
+    >
+      {contentElement}
     </Link>
   );
 
@@ -170,6 +189,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { collapsed } = useSidebar();
+  const [showUpgradePopup, setShowUpgradePopup] = React.useState(false);
 
   // Build navigation sections
   const mainNav: NavItem[] = [
@@ -178,12 +198,22 @@ export function Sidebar({
     { title: "Reports", href: "/reports", icon: BarChart3, iconColor: "text-violet-500" },
     { title: "AI Insights", href: "/ai", icon: Sparkles, iconColor: "text-amber-500" },
   ];
+
+  // Always show Supplr Assistant, but handle access differently
   if (hasAssistantAccess) {
     mainNav.push({
-      title: "AI Assistant",
+      title: "Supplr Assistant",
       href: "/dashboard/assistant",
       icon: Bot,
       iconColor: "text-indigo-500",
+    });
+  } else {
+    mainNav.push({
+      title: "Supplr Assistant",
+      icon: Bot,
+      iconColor: "text-indigo-500",
+      onClick: () => setShowUpgradePopup(true),
+      disabled: true,
     });
   }
 
@@ -250,10 +280,10 @@ export function Sidebar({
           <div className="space-y-1">
             {mainNav.map((item) => (
               <SidebarNavItem
-                key={item.href}
+                key={item.href || item.title}
                 item={item}
                 collapsed={collapsed}
-                isActive={isActive(item.href)}
+                isActive={item.href ? isActive(item.href) : false}
               />
             ))}
           </div>
@@ -274,10 +304,10 @@ export function Sidebar({
                 )}
                 {teamNav.map((item) => (
                   <SidebarNavItem
-                    key={item.href}
+                    key={item.href || item.title}
                     item={item}
                     collapsed={collapsed}
-                    isActive={isActive(item.href)}
+                    isActive={item.href ? isActive(item.href) : false}
                   />
                 ))}
               </div>
@@ -298,16 +328,24 @@ export function Sidebar({
             )}
             {settingsNav.map((item) => (
               <SidebarNavItem
-                key={item.href}
+                key={item.href || item.title}
                 item={item}
                 collapsed={collapsed}
-                isActive={isActive(item.href)}
+                isActive={item.href ? isActive(item.href) : false}
               />
             ))}
           </div>
         </nav>
 
       </motion.aside>
+
+      {/* Upgrade Popup */}
+      <UpgradePopup
+        isOpen={showUpgradePopup}
+        onClose={() => setShowUpgradePopup(false)}
+        feature="Supplr Assistant"
+        description="Upgrade to Professional or Enterprise to access our intelligent inventory assistant with automated insights and recommendations."
+      />
     </TooltipProvider>
   );
 }

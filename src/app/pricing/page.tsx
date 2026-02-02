@@ -101,6 +101,7 @@ export default function PricingPage() {
         "Up to 200 items",
         "Advanced analytics",
         "Custom categories",
+        "Supplr Assistant",
         "Priority support",
         "Team collaboration",
         "Custom reports",
@@ -115,6 +116,7 @@ export default function PricingPage() {
       description: "For large practices & chains",
       features: [
         "Unlimited items",
+        "Supplr Assistant",
         "Multi-location support",
         "API integrations",
         "Custom reports",

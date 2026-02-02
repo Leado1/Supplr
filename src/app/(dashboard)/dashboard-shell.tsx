@@ -27,7 +27,7 @@ const routeLabels: Record<string, string> = {
   inventory: "Inventory",
   reports: "Reports",
   ai: "AI Insights",
-  assistant: "AI Assistant",
+  assistant: "Supplr Assistant",
   team: "Team",
   locations: "Locations",
   settings: "Settings",

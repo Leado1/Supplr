@@ -199,6 +199,7 @@ export default function BillingPage() {
       popular: true,
       features: [
         "Up to 500 items",
+        "Supplr Assistant",
         "Advanced analytics",
         "Custom categories",
         "Priority support",
@@ -519,6 +520,10 @@ export default function BillingPage() {
                 <li className="flex items-center">
                   <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
                   Unlimited items
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                  Supplr Assistant
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />

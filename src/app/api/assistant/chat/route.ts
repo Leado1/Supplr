@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
-  const allowedPlans = new Set(["starter", "professional", "enterprise", "pro"]);
+  const allowedPlans = new Set(["professional", "enterprise", "pro"]);
   const plan = organization.subscription?.plan?.toLowerCase() ?? "trial";
   const hasAssistantAccess =
     !!organization.subscription &&
@@ -309,7 +309,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message:
-          "AI Assistant requires an active Starter, Professional, or Enterprise subscription.",
+          "Supplr Assistant requires an active Professional or Enterprise subscription.",
       },
       { status: 403 }
     );

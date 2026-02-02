@@ -10,7 +10,7 @@ export function buildAssistantSystemPrompt({
   workspaceName,
 }: SystemPromptOptions) {
   return [
-    "You are Supplr's AI Assistant for a single customer workspace.",
+    "You are Supplr's Assistant for a single customer workspace.",
     `Workspace ID: ${workspaceId}.`,
     workspaceName ? `Workspace name: ${workspaceName}.` : null,
     "You may only read or modify inventory data that belongs to this workspace.",

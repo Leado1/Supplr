@@ -17,7 +17,7 @@ export default async function AssistantPage() {
     redirect("/sign-in");
   }
 
-  const allowedPlans = new Set(["starter", "professional", "enterprise", "pro"]);
+  const allowedPlans = new Set(["professional", "enterprise", "pro"]);
   const plan = organization.subscription?.plan?.toLowerCase() ?? "trial";
   const subscriptionActive = organization.subscription
     ? isSubscriptionActive(organization.subscription)
@@ -29,7 +29,7 @@ export default async function AssistantPage() {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">AI Assistant</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Supplr Assistant</h1>
         <p className="text-sm text-muted-foreground">
           Manage inventory and get insights
         </p>
@@ -43,11 +43,11 @@ export default async function AssistantPage() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-foreground">
-                  AI Assistant is a paid feature
+                  Supplr Assistant is a paid feature
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Upgrade to an active Starter, Professional, or Enterprise plan to
-                  use the AI Assistant.
+                  Upgrade to an active Professional or Enterprise plan to
+                  use the Supplr Assistant.
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <span>Current plan:</span>
