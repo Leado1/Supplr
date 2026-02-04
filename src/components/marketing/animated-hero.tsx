@@ -79,7 +79,7 @@ export function AnimatedHero({
           >
             <AnimatedWords text={title} />
             <br />
-            <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="text-primary sm:bg-gradient-to-r sm:from-primary sm:via-primary sm:to-primary/70 sm:bg-clip-text sm:text-transparent sm:[-webkit-text-fill-color:transparent]">
               <AnimatedWords text={highlightedTitle} delay={0.3} />
             </span>
           </motion.h1>
