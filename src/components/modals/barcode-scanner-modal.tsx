@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,7 +24,10 @@ import {
   Zap,
   Minus,
   ShoppingCart,
+  Camera,
+  Keyboard,
 } from "lucide-react";
+import { CameraScanner } from "@/components/scanner/camera-scanner";
 
 interface BarcodeScannerModalProps {
   isOpen: boolean;
@@ -50,6 +54,7 @@ export function BarcodeScannerModal({
   onNewItemRequested,
   mode = "add",
 }: BarcodeScannerModalProps) {
+  const [scannerType, setScannerType] = useState<"hardware" | "camera">("hardware");
   const [isScanning, setIsScanning] = useState(false);
   const [scannedCode, setScannedCode] = useState("");
   const [isLookingUp, setIsLookingUp] = useState(false);
@@ -71,16 +76,18 @@ export function BarcodeScannerModal({
       setSuccessMessage(null);
       setScanBuffer("");
 
-      // Focus the hidden input to capture scanner data
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+      // Focus the hidden input to capture scanner data (for hardware scanner)
+      if (scannerType === "hardware") {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, scannerType]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen || !isScanning) return;
+      if (!isOpen || !isScanning || scannerType !== "hardware") return;
 
       const currentTime = Date.now();
 
@@ -133,7 +140,7 @@ export function BarcodeScannerModal({
         }
       };
     }
-  }, [isOpen, isScanning, scanBuffer, lastScanTime]);
+  }, [isOpen, isScanning, scanBuffer, lastScanTime, scannerType]);
 
   const handleBarcodeScanned = async (barcode: string) => {
     if (!barcode || barcode.length < 4) return; // Ignore short inputs
@@ -179,6 +186,15 @@ export function BarcodeScannerModal({
     }
   };
 
+  const handleCameraScan = (barcode: string) => {
+    // Use the existing barcode handling logic
+    handleBarcodeScanned(barcode);
+  };
+
+  const handleCameraError = (errorMessage: string) => {
+    setError(`Camera Error: ${errorMessage}`);
+  };
+
   const handleManualEntry = () => {
     const barcode = scannedCode.trim();
     if (barcode) {
@@ -208,7 +224,7 @@ export function BarcodeScannerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             {mode === "add" ? (
@@ -217,141 +233,203 @@ export function BarcodeScannerModal({
               <Minus className="h-5 w-5 text-red-600" />
             )}
             <span>
-              {mode === "add" ? "Add Inventory" : "Remove Inventory"} - Barcode
-              Scanner
+              {mode === "add" ? "Add Inventory" : "Remove Inventory"} - Scanner
             </span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Scanner Status */}
-          <div className="text-center space-y-4">
-            {isScanning && !isLookingUp && !foundItem && !error && (
-              <div className="space-y-3">
-                <div className="relative">
-                  <div className="mx-auto w-16 h-16 border-4 border-primary border-dashed rounded-lg flex items-center justify-center animate-pulse">
-                    <Scan className="h-8 w-8 text-primary" />
-                  </div>
-                  <div className="absolute -top-1 -right-1">
-                    <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <p className="font-medium text-green-600">Scanner Ready</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mode === "add"
-                      ? "Scan a barcode to add inventory"
-                      : "Scan a barcode to remove inventory"}
-                  </p>
-                </div>
-              </div>
-            )}
+        <Tabs
+          value={scannerType}
+          onValueChange={(value) => setScannerType(value as "hardware" | "camera")}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="hardware" className="flex items-center space-x-2">
+              <Keyboard className="h-4 w-4" />
+              <span>Hardware</span>
+            </TabsTrigger>
+            <TabsTrigger value="camera" className="flex items-center space-x-2">
+              <Camera className="h-4 w-4" />
+              <span>Camera</span>
+            </TabsTrigger>
+          </TabsList>
 
-            {isLookingUp && (
-              <div className="space-y-3">
-                <Loader2 className="h-12 w-12 mx-auto text-primary animate-spin" />
-                <div>
-                  <p className="font-medium">Looking up barcode...</p>
-                  <p className="text-sm text-muted-foreground">{scannedCode}</p>
+          {/* Shared Status Display */}
+          {(isLookingUp || foundItem || error || successMessage) && (
+            <div className="text-center space-y-4 mt-4">
+              {isLookingUp && (
+                <div className="space-y-3">
+                  <Loader2 className="h-12 w-12 mx-auto text-primary animate-spin" />
+                  <div>
+                    <p className="font-medium">Looking up barcode...</p>
+                    <p className="text-sm text-muted-foreground">{scannedCode}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {foundItem && (
-              <div className="space-y-3">
-                {mode === "add" ? (
-                  <Plus className="h-12 w-12 mx-auto text-green-600" />
-                ) : (
-                  <Minus className="h-12 w-12 mx-auto text-red-600" />
-                )}
-                <div className="space-y-2">
-                  <p
-                    className={`font-medium ${mode === "add" ? "text-green-600" : "text-red-600"}`}
-                  >
-                    {mode === "add"
-                      ? "Item Found - Ready to Add!"
-                      : "Item Found - Ready to Remove!"}
-                  </p>
-                  <div
-                    className={`${mode === "add" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"} border rounded-lg p-3 space-y-2`}
-                  >
-                    <h3 className="font-semibold">{foundItem.name}</h3>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>SKU: {foundItem.sku}</span>
-                      <Badge variant="secondary">
-                        {foundItem.category.name}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Current quantity: {foundItem.quantity}
-                    </div>
-                    {mode === "remove" && foundItem.quantity === 0 && (
-                      <div className="text-sm text-red-600 font-medium">
-                        ⚠️ Warning: Item is already at 0 quantity
+              {foundItem && (
+                <div className="space-y-3">
+                  {mode === "add" ? (
+                    <Plus className="h-12 w-12 mx-auto text-green-600" />
+                  ) : (
+                    <Minus className="h-12 w-12 mx-auto text-red-600" />
+                  )}
+                  <div className="space-y-2">
+                    <p
+                      className={`font-medium ${mode === "add" ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {mode === "add"
+                        ? "Item Found - Ready to Add!"
+                        : "Item Found - Ready to Remove!"}
+                    </p>
+                    <div
+                      className={`${mode === "add" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"} border rounded-lg p-3 space-y-2`}
+                    >
+                      <h3 className="font-semibold">{foundItem.name}</h3>
+                      <div className="flex items-center justify-between text-sm">
+                        <span>SKU: {foundItem.sku}</span>
+                        <Badge variant="secondary">
+                          {foundItem.category.name}
+                        </Badge>
                       </div>
-                    )}
+                      <div className="text-sm text-muted-foreground">
+                        Current quantity: {foundItem.quantity}
+                      </div>
+                      {mode === "remove" && foundItem.quantity === 0 && (
+                        <div className="text-sm text-red-600 font-medium">
+                          ⚠️ Warning: Item is already at 0 quantity
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="space-y-3">
+                  <XCircle className="h-12 w-12 mx-auto text-red-600" />
+                  <div className="space-y-2">
+                    <p className="font-medium text-red-600">Error</p>
+                    <Alert className="border-red-200 bg-red-50">
+                      <AlertTriangle className="h-4 w-4 text-red-600" />
+                      <AlertDescription className="text-red-700">
+                        {error}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                </div>
+              )}
+
+              {successMessage && (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-700">
+                    {successMessage}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+
+          <TabsContent value="hardware" className="space-y-6 mt-4">
+            {/* Hardware Scanner Status */}
+            {isScanning && !isLookingUp && !foundItem && !error && scannerType === "hardware" && (
+              <div className="text-center space-y-4">
+                <div className="space-y-3">
+                  <div className="relative">
+                    <div className="mx-auto w-16 h-16 border-4 border-primary border-dashed rounded-lg flex items-center justify-center animate-pulse">
+                      <Scan className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="absolute -top-1 -right-1">
+                      <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="font-medium text-green-600">Hardware Scanner Ready</p>
+                    <p className="text-sm text-muted-foreground">
+                      {mode === "add"
+                        ? "Scan a barcode to add inventory"
+                        : "Scan a barcode to remove inventory"}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {error && (
-              <div className="space-y-3">
-                <XCircle className="h-12 w-12 mx-auto text-red-600" />
-                <div className="space-y-2">
-                  <p className="font-medium text-red-600">Not Found</p>
-                  <Alert className="border-red-200 bg-red-50">
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <AlertDescription className="text-red-700">
-                      {error}
-                    </AlertDescription>
-                  </Alert>
-                </div>
+            {/* Manual Entry */}
+            <div className="space-y-3">
+              <Label htmlFor="barcode-input">Manual Barcode Entry</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="barcode-input"
+                  ref={inputRef}
+                  value={scannedCode}
+                  onChange={(e) => setScannedCode(e.target.value)}
+                  placeholder="Enter or scan barcode..."
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleManualEntry();
+                    }
+                  }}
+                />
+                <Button
+                  onClick={handleManualEntry}
+                  disabled={!scannedCode.trim() || isLookingUp}
+                  size="sm"
+                >
+                  <Zap className="h-4 w-4" />
+                </Button>
               </div>
-            )}
-
-            {successMessage && (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-700">
-                  {successMessage}
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-
-          {/* Manual Entry */}
-          <div className="space-y-3">
-            <Label htmlFor="barcode-input">Manual Barcode Entry</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="barcode-input"
-                ref={inputRef}
-                value={scannedCode}
-                onChange={(e) => setScannedCode(e.target.value)}
-                placeholder="Enter or scan barcode..."
-                className="flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleManualEntry();
-                  }
-                }}
-              />
-              <Button
-                onClick={handleManualEntry}
-                disabled={!scannedCode.trim() || isLookingUp}
-                size="sm"
-              >
-                <Zap className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-3">
+            {/* Hardware Scanner Tips */}
+            <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-lg">
+              <p className="font-medium flex items-center">
+                <Package className="h-3 w-3 mr-1" />
+                Hardware Scanner Tips:
+              </p>
+              <ul className="space-y-1 ml-4">
+                <li>• Connect any USB barcode scanner</li>
+                <li>• Point scanner at barcode and trigger scan</li>
+                <li>• Most scanners work automatically without setup</li>
+                <li>• Manual entry also works for troubleshooting</li>
+              </ul>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="camera" className="space-y-6 mt-4">
+            {/* Camera Scanner */}
+            <div className="space-y-4">
+              <CameraScanner
+                onScan={handleCameraScan}
+                onError={handleCameraError}
+                isActive={isOpen && scannerType === "camera"}
+                className="w-full"
+              />
+            </div>
+
+            {/* Camera Scanner Tips */}
+            <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-lg">
+              <p className="font-medium flex items-center">
+                <Camera className="h-3 w-3 mr-1" />
+                Camera Scanner Tips:
+              </p>
+              <ul className="space-y-1 ml-4">
+                <li>• Allow camera access when prompted</li>
+                <li>• Hold device steady and point at barcode</li>
+                <li>• Ensure good lighting for best results</li>
+                <li>• Use flash button if barcode is hard to read</li>
+                <li>• Works with most standard barcode formats</li>
+              </ul>
+            </div>
+          </TabsContent>
+
+          {/* Shared Action Buttons */}
+          <div className="flex space-x-3 mt-6">
             {error && scannedCode && mode === "add" && (
               <Button
                 onClick={handleAddNewProduct}
@@ -370,21 +448,7 @@ export function BarcodeScannerModal({
               {foundItem ? "Done" : "Cancel"}
             </Button>
           </div>
-
-          {/* Scanner Tips */}
-          <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-lg">
-            <p className="font-medium flex items-center">
-              <Package className="h-3 w-3 mr-1" />
-              Scanner Tips:
-            </p>
-            <ul className="space-y-1 ml-4">
-              <li>• Connect any USB barcode scanner</li>
-              <li>• Point scanner at barcode and trigger scan</li>
-              <li>• Most scanners work automatically without setup</li>
-              <li>• Manual entry also works for troubleshooting</li>
-            </ul>
-          </div>
-        </div>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
