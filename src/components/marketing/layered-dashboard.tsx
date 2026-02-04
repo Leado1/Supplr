@@ -10,22 +10,21 @@ interface LayeredDashboardProps {
 
 export function LayeredDashboard({ className }: LayeredDashboardProps) {
   return (
-    <div
-      className={cn(
-        "relative mx-auto w-full aspect-[1803/894]",
-        className,
-      )}
-    >
+    <div className={cn("relative mx-auto w-full aspect-[1803/894]", className)}>
       <div className="relative h-full w-full">
-        <Image
-          src="/images/dashboard.png?v=5"
-          alt="Supplr dashboard preview"
-          width={1803}
-          height={894}
-          className="h-full w-full object-contain rounded-[40px] shadow-[0_50px_120px_-80px_rgba(15,23,42,0.55)]"
-          priority
-          unoptimized
-        />
+        <div className="rounded-[42px] bg-gradient-to-br from-[#F3D6C6] via-[#D7C6F6] to-[#4B3CF7] p-[2px] shadow-[0_35px_90px_-60px_rgba(76,58,120,0.55)]">
+          <div className="overflow-hidden rounded-[40px] bg-white">
+            <Image
+              src="/images/dashboard.png?v=5"
+              alt="Supplr dashboard preview"
+              width={1803}
+              height={894}
+              className="h-full w-full object-contain rounded-[40px]"
+              priority
+              unoptimized
+            />
+          </div>
+        </div>
 
         <Image
           src="/images/sidebar.png"
