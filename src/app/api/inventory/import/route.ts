@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getUserOrganization } from "@/lib/auth-helpers";
 import { parse } from "csv-parse/sync";
 import * as XLSX from "xlsx";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 interface ImportRow {
   name?: string;
@@ -32,8 +33,15 @@ interface ImportResult {
 export async function POST(request: NextRequest) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to import inventory" },
+        { status: 403 }
+      );
+    }
 
     // Parse form data
     const formData = await request.formData();

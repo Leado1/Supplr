@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { updateOrganizationSettingsSchema } from "@/lib/validations";
 import { getUserOrganization } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 // GET /api/settings - Get organization and settings
 export async function GET() {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_SETTINGS)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to view settings" },
+        { status: 403 }
+      );
+    }
 
     if (!organization!.settings) {
       return NextResponse.json(
@@ -34,8 +42,15 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_SETTINGS)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to update settings" },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
 

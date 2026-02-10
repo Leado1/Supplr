@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function GET() {
   try {
+    const debugEnabled =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_DEBUG_SUBSCRIPTION === "true";
+
+    if (!debugEnabled) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const { userId } = await auth();
 
     if (!userId) {
@@ -37,6 +46,13 @@ export async function GET() {
           issue: "User not found in database with this Clerk ID"
         }
       });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to view billing debug data" },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json({

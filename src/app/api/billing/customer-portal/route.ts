@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSubscriptionProvider } from "@/lib/subscription-helpers";
 import { createCustomerPortalSession, getPolarCustomer } from "@/lib/polar-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -22,6 +23,17 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to manage billing" },
+        { status: 403 }
+      );
+    }
 
     if (!user?.organization?.subscription) {
       return NextResponse.json(

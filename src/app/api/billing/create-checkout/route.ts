@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getUserWithRole } from "@/lib/auth-helpers";
 import { createPolarCheckout, getProductIdForPlan } from "@/lib/polar-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +21,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Organization not found" },
         { status: 404 }
+      );
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to manage billing" },
+        { status: 403 }
       );
     }
 

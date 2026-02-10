@@ -4,6 +4,14 @@ import { prisma } from "@/lib/db";
 
 export async function POST() {
   try {
+    const demoSyncEnabled =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_DEMO_SYNC === "true";
+
+    if (!demoSyncEnabled) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     // Get current Clerk user ID
     const { userId } = await auth();
 

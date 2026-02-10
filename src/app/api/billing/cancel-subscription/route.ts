@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSubscriptionProvider } from "@/lib/subscription-helpers";
 import { cancelPolarSubscription } from "@/lib/polar-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +24,17 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to manage billing" },
+        { status: 403 }
+      );
+    }
 
     const subscription = user?.organization?.subscription;
     if (!subscription) {

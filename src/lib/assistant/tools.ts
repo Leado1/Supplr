@@ -263,7 +263,9 @@ interface ToolExecutionResult {
 }
 
 const ensurePermission = (user: User | null, permission: Permission) => {
-  if (!user) return;
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
   if (!hasPermission(user.role as OrganizationRole, permission)) {
     throw new Error("Insufficient permissions for this action.");
   }

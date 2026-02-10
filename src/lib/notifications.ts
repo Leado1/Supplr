@@ -8,6 +8,7 @@ import { getSubscriptionFeatures } from "@/lib/subscription-helpers";
 
 // Email transporter using existing configuration
 const createTransporter = () => {
+  const allowSelfSigned = process.env.SMTP_ALLOW_SELF_SIGNED === "true";
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || "127.0.0.1",
     port: parseInt(process.env.SMTP_PORT || "1025"),
@@ -16,10 +17,14 @@ const createTransporter = () => {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    tls: {
-      rejectUnauthorized: false,
-      servername: process.env.SMTP_HOST || "smtp.gmail.com",
-    },
+    ...(allowSelfSigned
+      ? {
+          tls: {
+            rejectUnauthorized: false,
+            servername: process.env.SMTP_HOST || "smtp.gmail.com",
+          },
+        }
+      : {}),
   });
 };
 

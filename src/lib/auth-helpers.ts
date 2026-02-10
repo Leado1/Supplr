@@ -10,6 +10,10 @@ import {
   type OrganizationRole,
 } from "@/lib/permissions";
 
+const demoFallbackEnabled = () =>
+  process.env.NODE_ENV !== "production" ||
+  process.env.ALLOW_DEMO_FALLBACK === "true";
+
 /**
  * Get the authenticated user's organization with proper security checks and role information
  * Returns the organization, user, and role information or an error response if unauthorized/not found
@@ -45,9 +49,16 @@ export async function getUserOrganization() {
     },
   });
 
-  // TEMPORARY: If user doesn't exist, try finding demo user directly
-  // This handles cases where Clerk authentication isn't working properly
+  // TEMPORARY: If user doesn't exist, try finding demo user directly (dev only)
   if (!user) {
+    if (!demoFallbackEnabled()) {
+      return {
+        error: NextResponse.json({ message: "User not found" }, { status: 404 }),
+        organization: null,
+        user: null,
+      };
+    }
+
     console.log(
       "No user found with Clerk authentication, trying demo fallback..."
     );
@@ -80,29 +91,8 @@ export async function getUserOrganization() {
       };
     }
 
-    // Fallback to any sample organization if demo user not found
-    const sampleOrg = await prisma.organization.findFirst({
-      include: {
-        users: true,
-        settings: true,
-        subscription: true,
-      },
-    });
-
-    if (sampleOrg) {
-      console.log("Using sample organization fallback");
-      return {
-        error: null,
-        organization: sampleOrg,
-        user: null, // No specific user for demo
-      };
-    }
-
     return {
-      error: NextResponse.json(
-        { message: "No organization found. Please run database seed." },
-        { status: 404 }
-      ),
+      error: NextResponse.json({ message: "User not found" }, { status: 404 }),
       organization: null,
       user: null,
     };
@@ -217,24 +207,26 @@ export async function getUserWithRole() {
 
   if (!userId) {
     // Try demo fallback for development
-    const demoUser = await prisma.user.findFirst({
-      where: {
-        email: "demo@supplr.net",
-        status: "ACTIVE",
-      },
-      include: {
-        organization: {
-          include: { settings: true, subscription: true },
+    if (demoFallbackEnabled()) {
+      const demoUser = await prisma.user.findFirst({
+        where: {
+          email: "demo@supplr.net",
+          status: "ACTIVE",
         },
-      },
-    });
+        include: {
+          organization: {
+            include: { settings: true, subscription: true },
+          },
+        },
+      });
 
-    if (demoUser && demoUser.organization) {
-      return {
-        error: null,
-        user: demoUser,
-        organization: demoUser.organization,
-      };
+      if (demoUser && demoUser.organization) {
+        return {
+          error: null,
+          user: demoUser,
+          organization: demoUser.organization,
+        };
+      }
     }
 
     return { error: 401, user: null, organization: null };
@@ -250,26 +242,28 @@ export async function getUserWithRole() {
   });
 
   if (!user) {
-    // Try demo fallback if Clerk user doesn't match database
-    const demoUser = await prisma.user.findFirst({
-      where: {
-        email: "demo@supplr.net",
-        status: "ACTIVE",
-      },
-      include: {
-        organization: {
-          include: { settings: true, subscription: true },
+    // Try demo fallback if Clerk user doesn't match database (dev only)
+    if (demoFallbackEnabled()) {
+      const demoUser = await prisma.user.findFirst({
+        where: {
+          email: "demo@supplr.net",
+          status: "ACTIVE",
         },
-      },
-    });
+        include: {
+          organization: {
+            include: { settings: true, subscription: true },
+          },
+        },
+      });
 
-    if (demoUser && demoUser.organization) {
-      console.log("Using demo user fallback for Clerk ID:", userId);
-      return {
-        error: null,
-        user: demoUser,
-        organization: demoUser.organization,
-      };
+      if (demoUser && demoUser.organization) {
+        console.log("Using demo user fallback for Clerk ID:", userId);
+        return {
+          error: null,
+          user: demoUser,
+          organization: demoUser.organization,
+        };
+      }
     }
 
     return { error: 404, user: null, organization: null };

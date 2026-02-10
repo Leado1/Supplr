@@ -11,16 +11,24 @@ import {
   calculateInventorySummary,
 } from "@/lib/inventory-status";
 import { DemoSeeder } from "@/lib/demo-seeder";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function GET(request: NextRequest) {
   try {
     // Get user's organization with subscription
-    const { error, organization } = await getUserOrganization();
+    const { error, organization, user } = await getUserOrganization();
 
     if (error || !organization) {
       return NextResponse.json(
         { error: "Organization not found" },
         { status: 404 }
+      );
+    }
+
+    if (!user || !hasPermission(user.role, Permission.VIEW_INVENTORY)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to view inventory" },
+        { status: 403 }
       );
     }
 

@@ -4,6 +4,7 @@ import {
   getUserOrganization,
   verifyCategoryOwnership,
 } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 // DELETE /api/categories/[id] - Delete a category
 export async function DELETE(
@@ -12,8 +13,15 @@ export async function DELETE(
 ) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to delete categories" },
+        { status: 403 }
+      );
+    }
 
     const { id: categoryId } = await params;
 

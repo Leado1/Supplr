@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { Polar } from "@polar-sh/sdk";
 import { createOrGetPolarCustomer } from "@/lib/polar-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 /**
  * Manual subscription activation for development
@@ -10,6 +11,14 @@ import { createOrGetPolarCustomer } from "@/lib/polar-helpers";
  */
 export async function POST(request: NextRequest) {
   try {
+    const manualActivationEnabled =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_MANUAL_BILLING_ACTIVATION === "true";
+
+    if (!manualActivationEnabled) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const { userId } = await auth();
 
     if (!userId) {
@@ -107,6 +116,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "User not found in database" },
         { status: 404 }
+      );
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to activate billing" },
+        { status: 403 }
       );
     }
 

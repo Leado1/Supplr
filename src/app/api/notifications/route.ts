@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserWithRole } from "@/lib/auth-helpers";
 import { format } from "date-fns";
 import { getInventoryAlerts } from "@/lib/notifications";
+import { prisma } from "@/lib/db";
 
 type NotificationType = "info" | "success" | "warning" | "error";
 
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { error, user, organization } = await getUserWithRole();
-    if (error || !organization) {
+    if (error || !organization || !user) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
@@ -120,13 +121,40 @@ export async function GET(request: NextRequest) {
     }
 
     const alerts = await getInventoryAlerts(organization.id);
-    const notifications = buildInventoryNotifications(alerts)
+    const notifications = buildInventoryNotifications(alerts);
+    const notificationIds = notifications.map((notification) => notification.id);
+
+    const states = notificationIds.length
+      ? await prisma.notificationState.findMany({
+          where: {
+            userId: user.id,
+            notificationId: { in: notificationIds },
+          },
+        })
+      : [];
+
+    const stateById = new Map(
+      states.map((state) => [state.notificationId, state])
+    );
+
+    const filtered = notifications
+      .filter((notification) => {
+        const state = stateById.get(notification.id);
+        return !state?.deleted;
+      })
+      .map((notification) => {
+        const state = stateById.get(notification.id);
+        return {
+          ...notification,
+          read: state?.read ?? notification.read,
+        };
+      })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, MAX_NOTIFICATIONS);
 
     return NextResponse.json({
       success: true,
-      notifications
+      notifications: filtered
     });
   } catch (error) {
     console.error("Error fetching notifications:", error);

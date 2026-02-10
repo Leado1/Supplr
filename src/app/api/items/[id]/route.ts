@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { updateItemSchema } from "@/lib/validations";
 import { z } from "zod";
 import { getUserOrganization, verifyItemOwnership } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 // Schema for partial updates (like quantity)
 const partialUpdateSchema = z.object({
@@ -16,8 +17,15 @@ export async function PUT(
 ) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to update items" },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
     const { id: itemId } = await params;
@@ -79,8 +87,15 @@ export async function PATCH(
 ) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.UPDATE_STOCK)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to update stock" },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
     const { id: itemId } = await params;
@@ -129,8 +144,15 @@ export async function DELETE(
 ) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to delete items" },
+        { status: 403 }
+      );
+    }
 
     const { id: itemId } = await params;
 

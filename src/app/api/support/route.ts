@@ -20,8 +20,21 @@ const supportFormSchema = z.object({
   urgency: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
 });
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const sanitizeHeader = (value: string) =>
+  value.replace(/[\r\n]+/g, " ").trim();
+
 // Create transporter using SMTP (works with any email provider)
 const createTransporter = () => {
+  const allowSelfSigned = process.env.SMTP_ALLOW_SELF_SIGNED === "true";
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || "smtp.gmail.com", // You can change this to any SMTP server
     port: parseInt(process.env.SMTP_PORT || "587"),
@@ -30,21 +43,25 @@ const createTransporter = () => {
       user: process.env.SMTP_USER, // Your email address
       pass: process.env.SMTP_PASS, // Your email password or app password
     },
-    // Fix for ProtonMail Bridge self-signed certificate
-    tls: {
-      rejectUnauthorized: false, // Accept self-signed certificates (for ProtonMail Bridge)
-      servername: process.env.SMTP_HOST || "smtp.gmail.com", // Specify server name
-    },
+    ...(allowSelfSigned
+      ? {
+          // Allow self-signed certificates only when explicitly enabled
+          tls: {
+            rejectUnauthorized: false,
+            servername: process.env.SMTP_HOST || "smtp.gmail.com",
+          },
+        }
+      : {}),
   });
 };
 
 // Format urgency for display
 const formatUrgency = (urgency: string) => {
   const urgencyMap = {
-    low: "🟢 Low",
-    normal: "🟡 Normal",
-    high: "🟠 High",
-    urgent: "🔴 URGENT",
+    low: "Low",
+    normal: "Normal",
+    high: "High",
+    urgent: "URGENT",
   };
   return urgencyMap[urgency as keyof typeof urgencyMap] || urgency;
 };
@@ -93,6 +110,14 @@ export async function POST(request: NextRequest) {
     const { name, email, organization, category, subject, message, urgency } =
       validationResult.data;
 
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeOrganization = escapeHtml(organization || "");
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+    const safeSubjectHeader = sanitizeHeader(subject);
+    const safeEmailHeader = sanitizeHeader(email);
+
     // Check if SMTP is configured
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
       console.error("SMTP credentials not configured");
@@ -122,7 +147,7 @@ export async function POST(request: NextRequest) {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="color: #333; margin: 0;">🆘 New Support Request</h2>
+          <h2 style="color: #333; margin: 0;">New Support Request</h2>
           <p style="color: #666; margin: 5px 0 0 0;">Received on ${new Date().toLocaleString()}</p>
         </div>
 
@@ -138,39 +163,39 @@ export async function POST(request: NextRequest) {
             </tr>
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Name:</td>
-              <td style="padding: 8px 0; color: #666;">${name}</td>
+              <td style="padding: 8px 0; color: #666;">${safeName}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Email:</td>
-              <td style="padding: 8px 0; color: #666;"><a href="mailto:${email}">${email}</a></td>
+              <td style="padding: 8px 0; color: #666;"><a href="mailto:${safeEmail}">${safeEmail}</a></td>
             </tr>
             ${
               organization
                 ? `
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Organization:</td>
-              <td style="padding: 8px 0; color: #666;">${organization}</td>
+              <td style="padding: 8px 0; color: #666;">${safeOrganization}</td>
             </tr>
             `
                 : ""
             }
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #333;">Subject:</td>
-              <td style="padding: 8px 0; color: #666;">${subject}</td>
+              <td style="padding: 8px 0; color: #666;">${safeSubject}</td>
             </tr>
           </table>
 
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
             <h4 style="color: #333; margin: 0 0 10px 0;">Message:</h4>
             <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; line-height: 1.6; color: #333;">
-              ${message.replace(/\n/g, "<br>")}
+              ${safeMessage}
             </div>
           </div>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
           <p style="margin: 0; color: #1976d2; font-size: 14px;">
-            💡 <strong>Quick Response Tip:</strong> Reply directly to this email to respond to ${name}
+            <strong>Quick Response Tip:</strong> Reply directly to this email to respond to ${safeName}
           </p>
         </div>
       </div>
@@ -186,9 +211,9 @@ export async function POST(request: NextRequest) {
       await transporter.sendMail({
         from: `"Supplr Support System" <${process.env.SMTP_USER}>`,
         to: "support@supplr.net",
-        subject: `[${formatUrgency(urgency)}] [${formatCategory(category)}] ${subject}`,
+        subject: `[${formatUrgency(urgency)}] [${formatCategory(category)}] ${safeSubjectHeader}`,
         html: emailHtml,
-        replyTo: email,
+        replyTo: safeEmailHeader,
       });
       console.log("✅ Support email sent successfully");
 
@@ -203,24 +228,24 @@ export async function POST(request: NextRequest) {
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #4f46e5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-          <h2 style="margin: 0;">✅ Support Request Received</h2>
+          <h2 style="margin: 0;">Support Request Received</h2>
         </div>
 
         <div style="background: white; padding: 30px; border: 1px solid #e9ecef; border-top: none; border-radius: 0 0 8px 8px;">
-          <p>Hi ${name},</p>
+          <p>Hi ${safeName},</p>
 
           <p>Thank you for contacting Supplr support. We've received your message and will get back to you soon.</p>
 
           <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h4 style="color: #333; margin: 0 0 10px 0;">Your Request Summary:</h4>
-            <p style="margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
+            <p style="margin: 5px 0;"><strong>Subject:</strong> ${safeSubject}</p>
             <p style="margin: 5px 0;"><strong>Category:</strong> ${formatCategory(category)}</p>
             <p style="margin: 5px 0;"><strong>Priority:</strong> ${formatUrgency(urgency)}</p>
           </div>
 
           <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #1976d2;">
-              <strong>📧 Response Time:</strong> We typically respond within 24 hours for normal priority requests.
+              <strong>Response Time:</strong> We typically respond within 24 hours for normal priority requests.
               ${urgency === "urgent" ? " Since this is marked as urgent, we'll prioritize your request." : ""}
             </p>
           </div>
@@ -240,8 +265,8 @@ export async function POST(request: NextRequest) {
     try {
       await transporter.sendMail({
         from: `"Supplr Support" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: "✅ Your Supplr support request has been received",
+        to: safeEmailHeader,
+        subject: "Your Supplr support request has been received",
         html: confirmationHtml,
       });
       console.log("✅ Confirmation email sent successfully");

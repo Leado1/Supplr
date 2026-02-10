@@ -5,9 +5,17 @@ import { sendInventoryNotifications } from "@/lib/notifications";
 // This endpoint can be called by cron services like Render Cron Jobs or external services
 export async function POST(request: NextRequest) {
   try {
-    // Optional: Add a secret key for security
+    // Require a secret key for security
     const authHeader = request.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET_KEY || "supplr-cron-2026";
+    const cronSecret = process.env.CRON_SECRET_KEY;
+
+    if (!cronSecret) {
+      console.error("CRON_SECRET_KEY is not configured");
+      return NextResponse.json(
+        { error: "Cron secret not configured" },
+        { status: 500 }
+      );
+    }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
       console.log("Unauthorized cron request");

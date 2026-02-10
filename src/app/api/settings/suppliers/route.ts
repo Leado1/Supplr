@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getUserWithRole } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function GET() {
   try {
@@ -10,9 +11,16 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { error, organization } = await getUserWithRole();
-    if (error || !organization) {
+    const { error, organization, user } = await getUserWithRole();
+    if (error || !organization || !user) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_SETTINGS)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to view supplier preferences" },
+        { status: 403 }
+      );
     }
 
     // Get supplier preferences for this organization
@@ -50,9 +58,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { error, organization } = await getUserWithRole();
-    if (error || !organization) {
+    const { error, organization, user } = await getUserWithRole();
+    if (error || !organization || !user) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_SETTINGS)) {
+      return NextResponse.json(
+        { error: "Insufficient permissions to update supplier preferences" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

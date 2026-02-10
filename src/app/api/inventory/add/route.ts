@@ -68,7 +68,15 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!name || !quantity || !unitCost || !expirationDate || !categoryId) {
+    if (
+      !name ||
+      quantity === undefined ||
+      quantity === null ||
+      unitCost === undefined ||
+      unitCost === null ||
+      !expirationDate ||
+      !categoryId
+    ) {
       return NextResponse.json(
         {
           error:

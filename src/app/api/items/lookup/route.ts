@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getUserOrganization } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 export async function GET(request: NextRequest) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.VIEW_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to view inventory" },
+        { status: 403 }
+      );
+    }
 
     // Get barcode from query parameters
     const { searchParams } = new URL(request.url);
@@ -121,8 +129,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.UPDATE_STOCK)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to update stock" },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
     const { barcode, operation = "increment", quantity = 1 } = body;

@@ -3,10 +3,12 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/db";
 import { getUserOrganization } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeSecretKey
+  ? new Stripe(stripeSecretKey, { apiVersion: "2025-02-24.acacia" })
+  : null;
 
 export async function DELETE() {
   try {
@@ -14,16 +16,27 @@ export async function DELETE() {
     const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
 
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(user.role, Permission.MANAGE_BILLING)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to delete account" },
+        { status: 403 }
+      );
+    }
+
     const subscription = organization!.subscription;
 
     try {
       // Cancel Stripe subscription if exists
-      if (subscription?.stripeSubscriptionId) {
+      if (stripe && subscription?.stripeSubscriptionId) {
         await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
       }
 
       // Delete Stripe customer if exists
-      if (subscription?.stripeCustomerId) {
+      if (stripe && subscription?.stripeCustomerId) {
         await stripe.customers.del(subscription.stripeCustomerId);
       }
     } catch (stripeError) {

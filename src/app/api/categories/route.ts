@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createCategorySchema } from "@/lib/validations";
 import { getUserOrganization } from "@/lib/auth-helpers";
+import { hasPermission, Permission } from "@/lib/permissions";
 
 // GET /api/categories - Get all categories for the organization
 export async function GET() {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.VIEW_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to view categories" },
+        { status: 403 }
+      );
+    }
 
     // Fetch all categories for the organization
     const categories = await prisma.category.findMany({
@@ -34,8 +42,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     // Get user's organization with security checks
-    const { error: orgError, organization } = await getUserOrganization();
+    const { error: orgError, organization, user } = await getUserOrganization();
     if (orgError) return orgError;
+
+    if (!user || !hasPermission(user.role, Permission.MANAGE_INVENTORY)) {
+      return NextResponse.json(
+        { message: "Insufficient permissions to create categories" },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
 
