@@ -5,10 +5,12 @@ const maintenanceModeValue = (process.env.MAINTENANCE_MODE ?? "").toLowerCase();
 const isMaintenanceModeEnabled =
   maintenanceModeValue === "true" || maintenanceModeValue === "1";
 
-const maintenanceBypassUserIds = new Set(
+const normalizeIdentifier = (value: string) => value.trim().toLowerCase();
+
+const maintenanceBypassIdentifiers = new Set(
   (process.env.MAINTENANCE_BYPASS_USER_IDS ?? "")
     .split(",")
-    .map((userId) => userId.trim())
+    .map(normalizeIdentifier)
     .filter(Boolean)
 );
 
@@ -38,11 +40,43 @@ const isMaintenanceAccessRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
 
   if (isMaintenanceModeEnabled) {
-    const hasMaintenanceBypass =
-      !!userId && maintenanceBypassUserIds.has(userId);
+    const claims = (sessionClaims ?? {}) as Record<string, unknown>;
+    const claimIdentifiers: string[] = [];
+
+    if (userId) {
+      claimIdentifiers.push(userId);
+    }
+
+    const username = claims.username;
+    if (typeof username === "string") {
+      claimIdentifiers.push(username);
+    }
+
+    const email = claims.email;
+    if (typeof email === "string") {
+      claimIdentifiers.push(email);
+    }
+
+    const emailAddress = claims.email_address;
+    if (typeof emailAddress === "string") {
+      claimIdentifiers.push(emailAddress);
+    }
+
+    const emailAddresses = claims.email_addresses;
+    if (Array.isArray(emailAddresses)) {
+      for (const entry of emailAddresses) {
+        if (typeof entry === "string") {
+          claimIdentifiers.push(entry);
+        }
+      }
+    }
+
+    const hasMaintenanceBypass = claimIdentifiers
+      .map(normalizeIdentifier)
+      .some((identifier) => maintenanceBypassIdentifiers.has(identifier));
 
     if (!hasMaintenanceBypass && !isMaintenanceAccessRoute(request)) {
       return NextResponse.redirect(new URL("/maintenance", request.url));

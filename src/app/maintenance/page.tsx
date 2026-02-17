@@ -14,8 +14,52 @@ export const metadata: Metadata = {
 };
 
 export default async function MaintenancePage() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   const isSignedIn = Boolean(userId);
+
+  const normalizeIdentifier = (value: string) => value.trim().toLowerCase();
+
+  const maintenanceBypassIdentifiers = new Set(
+    (process.env.MAINTENANCE_BYPASS_USER_IDS ?? "")
+      .split(",")
+      .map(normalizeIdentifier)
+      .filter(Boolean)
+  );
+
+  const claims = (sessionClaims ?? {}) as Record<string, unknown>;
+  const claimIdentifiers: string[] = [];
+
+  if (userId) {
+    claimIdentifiers.push(userId);
+  }
+
+  const username = claims.username;
+  if (typeof username === "string") {
+    claimIdentifiers.push(username);
+  }
+
+  const email = claims.email;
+  if (typeof email === "string") {
+    claimIdentifiers.push(email);
+  }
+
+  const emailAddress = claims.email_address;
+  if (typeof emailAddress === "string") {
+    claimIdentifiers.push(emailAddress);
+  }
+
+  const emailAddresses = claims.email_addresses;
+  if (Array.isArray(emailAddresses)) {
+    for (const entry of emailAddresses) {
+      if (typeof entry === "string") {
+        claimIdentifiers.push(entry);
+      }
+    }
+  }
+
+  const hasMaintenanceBypass = claimIdentifiers
+    .map(normalizeIdentifier)
+    .some((identifier) => maintenanceBypassIdentifiers.has(identifier));
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -69,7 +113,7 @@ export default async function MaintenancePage() {
                   <Clock className="h-5 w-5 text-primary" />
                   <div className="text-left">
                     <p className="font-semibold">Estimated Duration</p>
-                    <p className="text-sm text-muted-foreground">2-4 hours</p>
+                    <p className="text-sm text-muted-foreground">TBA</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -107,14 +151,16 @@ export default async function MaintenancePage() {
 
           <div className="space-y-6">
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              {isSignedIn ? (
+              {isSignedIn && hasMaintenanceBypass ? (
                 <Link href="/dashboard">
                   <Button>Open Supplr</Button>
                 </Link>
-              ) : (
+              ) : !isSignedIn ? (
                 <Link href="/sign-in">
                   <Button>Owner Login</Button>
                 </Link>
+              ) : (
+                <Button disabled>Access Restricted</Button>
               )}
               <RefreshButton />
               <a href="mailto:support@supplr.net">
@@ -126,9 +172,11 @@ export default async function MaintenancePage() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              {isSignedIn
+              {isSignedIn && hasMaintenanceBypass
                 ? "You are signed in. Use Open Supplr to access the app during maintenance."
-                : "Sign in from this page to access Supplr while maintenance mode is enabled."}
+                : isSignedIn
+                  ? "You are signed in, but this account is not listed in MAINTENANCE_BYPASS_USER_IDS."
+                  : "Sign in from this page to access Supplr while maintenance mode is enabled."}
             </p>
           </div>
 
