@@ -124,12 +124,12 @@ export default async function MaintenancePage() {
                 <Button disabled>Access Restricted</Button>
               )}
               <RefreshButton />
-              <a href="mailto:support@supplr.net">
+              <Link href="/support">
                 <Button variant="outline">
                   <Mail className="mr-2 h-4 w-4" />
                   Contact Support
                 </Button>
-              </a>
+              </Link>
             </div>
 
             <p className="text-xs text-muted-foreground">

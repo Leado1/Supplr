@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { hasMaintenanceBypassAccess } from "@/lib/maintenance-access";
-
-const maintenanceModeValue = (process.env.MAINTENANCE_MODE ?? "").toLowerCase();
-const isMaintenanceModeEnabled =
-  maintenanceModeValue === "true" || maintenanceModeValue === "1";
+import {
+  hasMaintenanceBypassAccess,
+  isMaintenanceModeEnabled,
+} from "@/lib/maintenance-access";
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
@@ -28,13 +27,15 @@ const isMaintenanceAccessRoute = createRouteMatcher([
   "/maintenance",
   "/sign-in(.*)",
   "/_clerk(.*)",
+  "/support(.*)",
+  "/api/support",
   "/api/webhooks(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId, sessionClaims } = await auth();
 
-  if (isMaintenanceModeEnabled) {
+  if (isMaintenanceModeEnabled()) {
     const hasMaintenanceBypass = hasMaintenanceBypassAccess({
       userId,
       sessionClaims,

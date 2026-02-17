@@ -1,5 +1,12 @@
 type SessionClaims = Record<string, unknown>;
 
+export function isMaintenanceModeEnabled(): boolean {
+  const maintenanceModeValue = (
+    process.env.MAINTENANCE_MODE ?? ""
+  ).toLowerCase();
+  return maintenanceModeValue === "true" || maintenanceModeValue === "1";
+}
+
 const EMAIL_KEYS = ["email", "email_address", "preferred_email"] as const;
 const USERNAME_KEYS = ["username", "preferred_username", "user_name"] as const;
 

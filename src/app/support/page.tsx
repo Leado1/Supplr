@@ -6,11 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  CheckCircle2,
-  CheckCircleIcon,
-  AlertCircleIcon,
-} from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { isMaintenanceModeEnabled } from "@/lib/maintenance-access";
+import { CheckCircle2, CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { PublicHeader } from "@/components/navigation/public-nav";
 
 interface SupportPageProps {
@@ -49,9 +47,31 @@ const logoRow = ["Northwind", "Brightline", "Lumen", "Summit"];
 
 export default async function SupportPage({ searchParams }: SupportPageProps) {
   const resolvedParams = await searchParams;
+  const maintenanceModeEnabled = isMaintenanceModeEnabled();
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <PublicHeader showThemeToggle={true} />
+      {maintenanceModeEnabled ? (
+        <header className="border-b border-border/40 bg-background">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4">
+            <Link href="/maintenance" className="flex items-center">
+              <img
+                src="/images/LOGOB.png"
+                alt="Supplr"
+                className="h-8 w-auto sm:h-9 dark:hidden"
+              />
+              <img
+                src="/images/LOGOW.png"
+                alt="Supplr"
+                className="hidden h-8 w-auto sm:h-9 dark:block"
+              />
+            </Link>
+            <ThemeToggle />
+          </div>
+        </header>
+      ) : (
+        <PublicHeader showThemeToggle={true} />
+      )}
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12 lg:py-16">
@@ -60,8 +80,8 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
             <Alert className="mb-8 bg-green-50 border-green-200">
               <CheckCircleIcon className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-700">
-                <strong>Message sent successfully!</strong> We have received your
-                support request and will get back to you within 24 hours.
+                <strong>Message sent successfully!</strong> We have received
+                your support request and will get back to you within 24 hours.
               </AlertDescription>
             </Alert>
           )}
@@ -130,14 +150,17 @@ export default async function SupportPage({ searchParams }: SupportPageProps) {
                   ))}
                 </div>
               </div>
-
             </div>
 
             {/* Right form */}
             <div className="rounded-[32px] bg-gradient-to-br from-[#F3D6C6] via-[#D7C6F6] to-[#4B3CF7] p-[2px] shadow-[0_35px_80px_rgba(76,58,120,0.25)]">
               <Card className="rounded-[30px] border-none">
                 <CardContent className="p-8">
-                  <form className="space-y-6" action="/api/support" method="POST">
+                  <form
+                    className="space-y-6"
+                    action="/api/support"
+                    method="POST"
+                  >
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full name *</Label>
