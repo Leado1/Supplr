@@ -1,29 +1,27 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RefreshButton } from "./refresh-button";
-import {
-  Wrench,
-  Clock,
-  Mail,
-  Twitter,
-  RefreshCw,
-} from "lucide-react";
+import { Clock, Mail, RefreshCw, Twitter, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Maintenance - Supplr",
-  description: "Supplr is currently undergoing scheduled maintenance. We'll be back soon.",
+  description:
+    "Supplr is currently undergoing scheduled maintenance. We'll be back soon.",
 };
 
-export default function MaintenancePage() {
+export default async function MaintenancePage() {
+  const { userId } = await auth();
+  const isSignedIn = Boolean(userId);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Header */}
       <header className="border-b border-border/40">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/maintenance" className="flex items-center">
             <img
               src="/images/LOGOB.png"
               alt="Supplr"
@@ -32,122 +30,129 @@ export default function MaintenancePage() {
             <img
               src="/images/LOGOW.png"
               alt="Supplr"
-              className="h-8 w-auto hidden sm:h-9 dark:block"
+              className="hidden h-8 w-auto sm:h-9 dark:block"
             />
           </Link>
           <ThemeToggle />
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="max-w-2xl mx-auto text-center space-y-8">
-          {/* Icon */}
+      <main className="flex flex-1 items-center justify-center px-4 py-12">
+        <div className="mx-auto max-w-2xl space-y-8 text-center">
           <div className="flex justify-center">
             <div className="relative">
-              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
-                <Wrench className="w-12 h-12 text-primary" />
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+                <Wrench className="h-12 w-12 text-primary" />
               </div>
-              <div className="absolute -top-2 -right-2">
-                <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                  <RefreshCw className="w-4 h-4 text-orange-600 animate-spin" />
+              <div className="absolute -right-2 -top-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+                  <RefreshCw className="h-4 w-4 animate-spin text-orange-600" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Main Message */}
           <div className="space-y-4">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-              Under Maintenance
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              We will be back soon
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto">
-              We're currently performing scheduled maintenance to improve your experience.
-              We'll be back online shortly.
+            <p className="mx-auto max-w-xl text-xl leading-relaxed text-muted-foreground">
+              We are currently performing scheduled maintenance to improve your
+              experience.
             </p>
           </div>
 
-          {/* Status Card */}
-          <Card className="max-w-md mx-auto">
+          <Card className="mx-auto max-w-md">
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-primary" />
+                  <Clock className="h-5 w-5 text-primary" />
                   <div className="text-left">
                     <p className="font-semibold">Estimated Duration</p>
                     <p className="text-sm text-muted-foreground">2-4 hours</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  <div className="flex h-5 w-5 items-center justify-center">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
                   </div>
                   <div className="text-left">
                     <p className="font-semibold">Status</p>
-                    <p className="text-sm text-muted-foreground">System updates in progress</p>
+                    <p className="text-sm text-muted-foreground">
+                      System updates in progress
+                    </p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* What we're improving */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">What we're working on</h2>
-            <div className="grid gap-3 text-left max-w-lg mx-auto">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <h2 className="text-xl font-semibold">What we are working on</h2>
+            <div className="mx-auto grid max-w-lg gap-3 text-left">
+              <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm">Performance improvements</span>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm">Security updates</span>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                <div className="h-2 w-2 rounded-full bg-primary" />
                 <span className="text-sm">New inventory features</span>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
+              {isSignedIn ? (
+                <Link href="/dashboard">
+                  <Button>Open Supplr</Button>
+                </Link>
+              ) : (
+                <Link href="/sign-in">
+                  <Button>Owner Login</Button>
+                </Link>
+              )}
               <RefreshButton />
-              <Link href="/support">
+              <a href="mailto:support@supplr.net">
                 <Button variant="outline">
-                  <Mail className="w-4 h-4 mr-2" />
+                  <Mail className="mr-2 h-4 w-4" />
                   Contact Support
                 </Button>
-              </Link>
+              </a>
             </div>
 
-            {/* Auto-refresh notice */}
             <p className="text-xs text-muted-foreground">
-              This page will automatically refresh every 5 minutes
+              {isSignedIn
+                ? "You are signed in. Use Open Supplr to access the app during maintenance."
+                : "Sign in from this page to access Supplr while maintenance mode is enabled."}
             </p>
           </div>
 
-          {/* Contact Info */}
           <div className="border-t border-border pt-8">
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 Need immediate assistance?
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
+              <div className="flex flex-col items-center justify-center gap-4 text-sm sm:flex-row">
                 <a
                   href="mailto:support@supplr.net"
                   className="flex items-center gap-2 text-primary hover:underline"
                 >
-                  <Mail className="w-4 h-4" />
+                  <Mail className="h-4 w-4" />
                   support@supplr.net
                 </a>
-                <span className="hidden sm:inline text-muted-foreground">•</span>
+                <span className="hidden text-muted-foreground sm:inline">
+                  |
+                </span>
                 <a
                   href="#"
                   className="flex items-center gap-2 text-primary hover:underline"
                 >
-                  <Twitter className="w-4 h-4" />
+                  <Twitter className="h-4 w-4" />
                   @SupplrUpdates
                 </a>
               </div>
@@ -156,13 +161,12 @@ export default function MaintenancePage() {
         </div>
       </main>
 
-      {/* Auto-refresh script */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
             setTimeout(() => {
               window.location.reload();
-            }, 300000); // 5 minutes
+            }, 300000);
           `,
         }}
       />
