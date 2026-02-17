@@ -4,7 +4,10 @@ import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { hasMaintenanceBypassAccess } from "@/lib/maintenance-access";
+import {
+  getAuthIdentifiers,
+  hasMaintenanceBypassAccess,
+} from "@/lib/maintenance-access";
 import { RefreshButton } from "./refresh-button";
 import { Clock, Mail, RefreshCw, Twitter, Wrench } from "lucide-react";
 
@@ -21,6 +24,7 @@ export default async function MaintenancePage() {
     userId,
     sessionClaims,
   });
+  const authIdentifiers = getAuthIdentifiers({ userId, sessionClaims });
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -139,6 +143,13 @@ export default async function MaintenancePage() {
                   ? "You are signed in, but this account is not listed in MAINTENANCE_BYPASS_USER_IDS."
                   : "Sign in from this page to access Supplr while maintenance mode is enabled."}
             </p>
+            {isSignedIn &&
+              !hasMaintenanceBypass &&
+              authIdentifiers.length > 0 && (
+                <p className="break-all text-xs text-muted-foreground">
+                  Current account identifiers: {authIdentifiers.join(", ")}
+                </p>
+              )}
           </div>
 
           <div className="border-t border-border pt-8">

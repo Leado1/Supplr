@@ -11,7 +11,10 @@ const EMAIL_KEYS = ["email", "email_address", "preferred_email"] as const;
 const USERNAME_KEYS = ["username", "preferred_username", "user_name"] as const;
 
 export function normalizeIdentifier(value: string): string {
-  return value.trim().toLowerCase();
+  return value
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "")
+    .toLowerCase();
 }
 
 function toStringValue(value: unknown): string | null {
