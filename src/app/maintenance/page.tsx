@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { hasMaintenanceBypassAccess } from "@/lib/maintenance-access";
 import { RefreshButton } from "./refresh-button";
 import { Clock, Mail, RefreshCw, Twitter, Wrench } from "lucide-react";
 
@@ -16,50 +17,10 @@ export const metadata: Metadata = {
 export default async function MaintenancePage() {
   const { userId, sessionClaims } = await auth();
   const isSignedIn = Boolean(userId);
-
-  const normalizeIdentifier = (value: string) => value.trim().toLowerCase();
-
-  const maintenanceBypassIdentifiers = new Set(
-    (process.env.MAINTENANCE_BYPASS_USER_IDS ?? "")
-      .split(",")
-      .map(normalizeIdentifier)
-      .filter(Boolean)
-  );
-
-  const claims = (sessionClaims ?? {}) as Record<string, unknown>;
-  const claimIdentifiers: string[] = [];
-
-  if (userId) {
-    claimIdentifiers.push(userId);
-  }
-
-  const username = claims.username;
-  if (typeof username === "string") {
-    claimIdentifiers.push(username);
-  }
-
-  const email = claims.email;
-  if (typeof email === "string") {
-    claimIdentifiers.push(email);
-  }
-
-  const emailAddress = claims.email_address;
-  if (typeof emailAddress === "string") {
-    claimIdentifiers.push(emailAddress);
-  }
-
-  const emailAddresses = claims.email_addresses;
-  if (Array.isArray(emailAddresses)) {
-    for (const entry of emailAddresses) {
-      if (typeof entry === "string") {
-        claimIdentifiers.push(entry);
-      }
-    }
-  }
-
-  const hasMaintenanceBypass = claimIdentifiers
-    .map(normalizeIdentifier)
-    .some((identifier) => maintenanceBypassIdentifiers.has(identifier));
+  const hasMaintenanceBypass = hasMaintenanceBypassAccess({
+    userId,
+    sessionClaims,
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
