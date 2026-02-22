@@ -1,7 +1,15 @@
 import { Suspense } from "react";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import SignInClient from "./sign-in-client";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const { userId } = await auth();
+
+  if (userId) {
+    redirect("/dashboard");
+  }
+
   return (
     <Suspense
       fallback={
